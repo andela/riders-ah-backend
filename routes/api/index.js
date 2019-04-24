@@ -1,6 +1,7 @@
 import express from 'express';
 import auth from './auth/auth';
 import user from './auth/users';
+import resetPassword from './resetPassword/resetPassword.js';
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use((err, req, res, next) => {
   return next(err);
 });
 
+router.use('/user', resetPassword);
 
 export default router;

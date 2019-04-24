@@ -11,7 +11,7 @@ const Auth = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.SECRET);
     User.findOne({
-      where: { email: decoded.email }
+      where: { id: decoded.id }
     }).then((user) => {
       if (!user) {
         return res.status(401).send({ status: 401, error: 'The token you provided is invalid' });

@@ -1,8 +1,5 @@
 import swaggerJSDoc from 'swagger-jsdoc';
-import dotenv from 'dotenv';
 import swaggerui from 'swagger-ui-express';
-
-dotenv.config();
 
 const swaggerDefinition = {
   info: {
