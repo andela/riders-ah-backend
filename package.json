@@ -10,7 +10,8 @@
     "start:dev": "nodemon --exec babel-node index.js",
     "start": " npm run migrate && babel-node ./index.js",
     "migrate": "./node_modules/.bin/sequelize db:migrate",
-    "migrate:test": "NODE_ENV=test npm run migrate"
+    "migrate:test": "NODE_ENV=test npm run migrate",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "author": "Andela Simulations Programme",
   "license": "MIT",
@@ -45,6 +46,7 @@
     "babel-eslint": "^10.0.1",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
+    "coveralls": "^3.0.3",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^4.1.0",
@@ -52,6 +54,8 @@
     "eslint-plugin-mocha": "^5.3.0",
     "eslint-plugin-prettier": "^3.0.1",
     "mocha": "^6.1.4",
-    "nyc": "^14.0.0"
+    "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^14.0.0",
+    "prettier": "^1.17.0"
   }
 }

@@ -40,3 +40,7 @@ node_modules
 package-lock.json
 # dot env file
 .env
+
+yarn.lock
+
+package-lock.json
