@@ -4,7 +4,7 @@
   "description": "A Social platform for the creative at heart",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "nyc mocha --require @babel/register \"tests/**/*.js\"",
     "lint": "eslint --ignore-path .gitignore .",
     "lint:fix": "npm run lint --fix"
   },
@@ -32,13 +32,25 @@
     "underscore": "^1.9.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/register": "^7.4.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-mocha": "^5.3.0",
     "eslint-plugin-prettier": "^3.0.1",
+    "mocha": "^6.1.4",
+    "nyc": "^14.0.0",
     "prettier": "^1.17.0"
   }
 }
