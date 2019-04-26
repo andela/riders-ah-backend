@@ -1,87 +1,86 @@
-const mongoose = require("mongoose");
-const router = require("express").Router();
-const passport = require("passport");
-const User = mongoose.model("User");
+import express from 'express';
+import passport from 'passport';
 
-router.get("/user", function(req, res, next) {
-    User.findById(req.payload.id)
-        .then(function(user) {
-            if (!user) {
-                return res.sendStatus(401);
-            }
-            return res.json({ user: user.toAuthJSON() });
-        })
-        .catch(next);
-});
+/**
+ * @swagger
+ * definitions:
+ *   User:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *       username:
+ *         type: string
+ *       email:
+ *         type: string
+ *       bio:
+ *         type: string
+ *       password:
+ *         type: string
+ *         format: password
+ *       required:
+ *         - email
+ *         - username
+ *         - password
+ */
 
-router.put("/user", function(req, res, next) {
-    User.findById(req.payload.id)
-        .then(function(user) {
-            if (!user) {
-                return res.sendStatus(401);
-            }
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     tags:
+ *       - User
+ *     name: Login
+ *     summary: Log a user in a system
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: body
+ *         in: body
+ *         schema:
+ *           $ref: '#/definitions/User'
+ *           type: object
+ *           properties:
+ *             email:
+ *               type: string
+ *             password:
+ *               type: string
+ *               format: password
+ *         required:
+ *           - email
+ *           - password
+ *     responses:
+ *       '200':
+ *         description: User  logged in successfully
+ *       '401':
+ *         description: User not found
+ *       '403':
+ *         description: Unauthorized user
+ *       '404':
+ *        description: Url Not found
+ */
+const router = express.Router();
 
-            // only update fields that were actually passed...
-            if (typeof req.body.user.username !== "undefined") {
-                user.username = req.body.user.username;
-            }
-            if (typeof req.body.user.email !== "undefined") {
-                user.email = req.body.user.email;
-            }
-            if (typeof req.body.user.bio !== "undefined") {
-                user.bio = req.body.user.bio;
-            }
-            if (typeof req.body.user.image !== "undefined") {
-                user.image = req.body.user.image;
-            }
-            if (typeof req.body.user.password !== "undefined") {
-                user.setPassword(req.body.user.password);
-            }
+router.post('/users/login', (req, res, next) => {
+  if (!req.body.user.email) {
+    return res.status(422).json({ errors: { email: "can't be blank" } });
+  }
 
-            return user.save().then(function() {
-                return res.json({ user: user.toAuthJSON() });
-            });
-        })
-        .catch(next);
-});
-
-router.post("/users/login", function(req, res, next) {
-    if (!req.body.user.email) {
-        return res.status(422).json({ errors: { email: "can't be blank" } });
+  if (!req.body.user.password) {
+    return res.status(422).json({ errors: { password: "can't be blank" } });
+  }
+  passport.authenticate('local', { session: false }, (err, user, info) => {
+    if (err) {
+      return next(err);
     }
 
-    if (!req.body.user.password) {
-        return res.status(422).json({ errors: { password: "can't be blank" } });
+    if (user) {
+      return res.json({ user: user.toAuthJSON() });
     }
-    passport.authenticate("local", { session: false }, function(
-        err,
-        user,
-        info
-    ) {
-        if (err) {
-            return next(err);
-        }
-
-        if (user) {
-            return res.json({ user: user.toAuthJSON() });
-        } else {
-            return res.status(422).json(info);
-        }
-    })(req, res, next);
+    return res.status(422).json(info);
+  })(req, res, next);
 });
 
-router.post("/users", function(req, res, next) {
-    const user = new User();
-
-    user.username = req.body.user.username;
-    user.email = req.body.user.email;
-    user.setPassword(req.body.user.password);
-
-    user.save()
-        .then(function() {
-            return res.json({ user: user.toAuthJSON() });
-        })
-        .catch(next);
-});
-
-module.exports = router;
+export default router;
