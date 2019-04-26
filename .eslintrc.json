@@ -1,7 +1,7 @@
 {
     "root": true,
     "parser": "babel-eslint",
-    "extends": ["airbnb-base", "plugin:prettier/recommended"],
+    "extends": ["airbnb-base"],
     "env": {
       "node": true,
       "es6": true,
@@ -18,6 +18,9 @@
       "curly": ["error", "multi-line"],
       "import/no-unresolved": [2, { "commonjs": true }],
       "no-shadow": ["error", { "allow": ["req", "res", "err"] }],
+      "import/extensions": 0,
+      "no-console": 0,
+      "import/prefer-default-export": 0,
       "valid-jsdoc": ["error", {
         "requireReturn": true,
         "requireReturnType": true,
@@ -30,7 +33,6 @@
               "MethodDefinition": true,
               "ClassDeclaration": true
           }
-      }],
-      "prettier/prettier": "error"
+      }]
     }
 }
