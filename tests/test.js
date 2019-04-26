@@ -1,10 +1,8 @@
 import { assert } from 'chai';
 
-const app = () => {
-    return ('Andela');
-}
+const app = () => 'Andela';
 
-describe('app', function () {
+describe('app', () => {
   it('app should return Andela', () => {
     assert.equal(app(), 'Andela');
   });
