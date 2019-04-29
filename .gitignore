@@ -38,7 +38,5 @@ node_modules
 .nyc_output
 
 package-lock.json
-
+# dot env file
 .env
-
-
