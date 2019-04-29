@@ -1,7 +1,9 @@
 import express from 'express';
+import auth from './auth';
 
 const router = express.Router();
 
+router.use('/login', auth);
 router.use((err, req, res, next) => {
   if (err.name === 'ValidationError') {
     return res.status(422).json({

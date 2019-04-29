@@ -3,6 +3,7 @@ const usersMigration = {
     id: {
       allowNull: false,
       autoIncrement: true,
+      primaryKey: true,
       type: Sequelize.INTEGER
     },
     username: {
@@ -12,15 +13,15 @@ const usersMigration = {
     },
     email: {
       type: Sequelize.STRING,
-      primaryKey: true,
       allowNull: false
     },
     bio: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: true
     },
     image: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: true
     },
     password: {
       type: Sequelize.STRING,
