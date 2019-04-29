@@ -34,13 +34,12 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
+# Environnement
+.env
+
 #Report directory
 .nyc_output
 
 package-lock.json
-# dot env file
-.env
 
 yarn.lock
-
-package-lock.json
