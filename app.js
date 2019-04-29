@@ -1,10 +1,11 @@
 import express from 'express';
-import session from 'express-session';
 import bodyParser from 'body-parser';
 import errorhandler from 'errorhandler';
 import cors from 'cors';
+import passport from 'passport';
 import routes from './routes';
 import registerApiDocEndpoint from './config/swagger';
+import pass from './config/passport/localstrategy';
 
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -17,17 +18,9 @@ app.use(cors());
 // Normal express config defaults
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+app.use(passport.initialize());
+pass(passport);
 app.use(express.static(`${__dirname}/public`));
-
-app.use(
-  session({
-    secret: 'authorshaven',
-    cookie: { maxAge: 60000 },
-    resave: false,
-    saveUninitialized: false
-  })
-);
 
 if (!isProduction) {
   app.use(errorhandler());

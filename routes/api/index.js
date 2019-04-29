@@ -1,8 +1,11 @@
 import express from 'express';
-import auth from './auth';
+import auth from './auth/auth';
+import user from './auth/users';
 
 const router = express.Router();
 
+
+router.use('/users', user);
 router.use('/login', auth);
 router.use((err, req, res, next) => {
   if (err.name === 'ValidationError') {
@@ -13,8 +16,8 @@ router.use((err, req, res, next) => {
       }, {})
     });
   }
-
   return next(err);
 });
+
 
 export default router;
