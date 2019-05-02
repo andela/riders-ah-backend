@@ -2,9 +2,7 @@ Authors Haven - A Social platform for the creative at heart.
 =======
 
 ## Badges
-[![Build Status](https://travis-ci.org/andela/riders-ah-backend.svg?branch=develop)](https://travis-ci.org/andela/riders-ah-backend)
-
-[![Reviewed by Hound](https://img.shields.io/badge/Reviewed%20by-Hound-green.svg)](https://houndci.com)
+[![Build Status](https://travis-ci.org/andela/riders-ah-backend.svg?branch=develop)](https://travis-ci.org/andela/riders-ah-backend) [![Reviewed by Hound](https://img.shields.io/badge/Reviewed%20by-Hound-green.svg)](https://houndci.com) [![Coverage Status](https://coveralls.io/repos/github/andela/riders-ah-backend/badge.svg?branch=task%2F165413096-integrate-coveralls)](https://coveralls.io/github/andela/riders-ah-backend?branch=task%2F165413096-integrate-coveralls)
 ## Vision
 Create a community of like minded authors to foster inspiration and innovation
 by leveraging the modern web.
