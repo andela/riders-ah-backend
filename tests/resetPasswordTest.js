@@ -13,7 +13,13 @@ describe('should reset password with email', () => {
   before(async () => {
     const { User } = model;
     await User.create({
-      username: 'Innocent Fiston Kabalisa', email: 'someone@somewhere.com', bio: 'TIA', image: 'dajhgvf', password: 'password', createdAt: new Date(), updatedAt: new Date()
+      username: 'Innocent Fiston Kabalisa',
+      email: 'someone@somewhere.com',
+      bio: 'TIA',
+      image: 'dajhgvf',
+      password: 'password',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
   });
   it('send reset password email', (done) => {
@@ -22,7 +28,7 @@ describe('should reset password with email', () => {
     };
     chai
       .request(app)
-      .post('/api/v1/user/resetPasswordEmail')
+      .post('/api/v1/users/resetPasswordEmail')
       .send(data)
       .end((err, res) => {
         token = res.body.Token;
@@ -36,7 +42,7 @@ describe('should reset password with email', () => {
     const data = { email: 'some@somewhere.com' };
     chai
       .request(app)
-      .post('/api/v1/user/resetPasswordEmail')
+      .post('/api/v1/users/resetPasswordEmail')
       .send(data)
       .end((err, res) => {
         res.should.have.status(400);
@@ -52,13 +58,15 @@ describe('should reset password with email', () => {
     };
     chai
       .request(app)
-      .post('/api/v1/user/resetPassword')
+      .post('/api/v1/users/resetPassword')
       .set('authorization', token)
       .send(data)
       .end((err, res) => {
         res.should.have.status(401);
         res.body.should.be.a('object');
-        res.body.should.have.property('message').eql('new password and confirm new password must be equal');
+        res.body.should.have
+          .property('message')
+          .eql('new password and confirm new password must be equal');
         done();
       });
   });
@@ -69,7 +77,7 @@ describe('should reset password with email', () => {
     };
     chai
       .request(app)
-      .post('/api/v1/user/resetPassword')
+      .post('/api/v1/users/resetPassword')
       .set('authorization', token)
       .send(data)
       .end((err, res) => {
