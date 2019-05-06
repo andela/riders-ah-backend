@@ -11,7 +11,7 @@ const swaggerDefinition = {
     description: 'A Social platform for the creative at heart'
   },
   host: `${process.env.BASE_URL}`,
-  basePath: '/api/v1'
+  basePath: '/api/v1/'
 };
 
 const options = {
