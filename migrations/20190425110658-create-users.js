@@ -13,6 +13,7 @@ const usersMigration = {
     },
     email: {
       type: Sequelize.STRING,
+      unique: true,
       allowNull: false
     },
     bio: {

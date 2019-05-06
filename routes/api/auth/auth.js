@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
-import Strategy from '../../config/passport';
-import userController from '../../controllers/user.controller';
+import Strategy from '../../../config/passport';
+import userController from '../../../controllers/user.controller';
 
 
 const router = express.Router();
