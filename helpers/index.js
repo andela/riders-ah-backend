@@ -97,6 +97,64 @@ class Helper {
     const transport = process.env.NODE_ENV === 'test' ? stubTransport() : sgTransport(options);
     return nodemailer.createTransport(transport);
   }
+
+  /**
+     * Check the environment
+     * @function emailValidator
+     * @param  {string} email - Check the email
+     * @return {string} Validate the email and username
+     */
+  static emailValidator(email) {
+    if (!/\S+@\S+\.\S+/i.test(email)) {
+      return 'E-mail is invalid';
+    }
+    return true;
+  }
+
+  /**
+     * Check the environment
+     * @function passwordValidator
+     * @param  {string} password - Check the password
+     * @return {string} Validate the password criteria
+     */
+  static passwordValidator(password) {
+    const specialcharacter = /[ !@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+    const regexdigits = /(.*\d.*)/;
+    const regexlowercase = /(.*[a-z].*)/;
+    const regexuppercase = /(.*[A-Z].*)/;
+    if (!regexdigits.test(password)) {
+      return 'The password Must contain at least one number';
+    }
+    if (!regexlowercase.test(password)) {
+      return 'The password must contain a lower case character';
+    }
+    if (!regexuppercase.test(password)) {
+      return 'the password should contain an uppercase character';
+    }
+    if (!specialcharacter.test(password)) {
+      return 'the password should contain a special character';
+    }
+    if (password.length < 8) {
+      return 'password must not be less than 8 characters';
+    }
+    return true;
+  }
+
+  /**
+  * Check the environment
+  * @function emailUsernamevalidator
+  * @param  {string} email - Check the email
+  * @param  {string} username - Check the username
+  * @return {string} Validate the email and username
+  */
+  static emailUsernamevalidator(email, username) {
+    if (email) {
+      return 'email is already in use';
+    } if (username) {
+      return 'Username is already in use';
+    }
+    return true;
+  }
 }
 
 export default Helper;

@@ -7,12 +7,12 @@ chai.use(chaiHttp);
 const user = {
   username: 'test',
   email: 'andela@gmail.com',
-  password: '12345678'
+  password: '123Qa@5678'
 };
 
 const incorrectnuser = {
   email: 'eric@gmail.com',
-  password: '12345678'
+  password: '123Qa@5678'
 };
 
 const incorrectpassword = {
@@ -36,12 +36,154 @@ describe('Users Authentication', () => {
         done();
       });
   });
-  it('user already exist', (done) => {
+  it('Email is required', (done) => {
     chai.request(server)
       .post('/api/v1/users/signup')
-      .send(user)
+      .send({
+        username: 'testtotest',
+        password: '123Qa@5678'
+      })
       .end((err, res) => {
-        expect(res.body).to.have.status(409);
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('Email is required');
+        done();
+      });
+  });
+  it('Username is required', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        email: 'testtotest@gmail.com',
+        password: '123Qa@5678'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('Username is required');
+        done();
+      });
+  });
+  it('Password is required', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'testtotest',
+        email: 'testtotest@gmail.com',
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('Password is required');
+        done();
+      });
+  });
+  it('Invalid E-mail', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        email: 'testtotestgmail.com',
+        username: 'testtotest',
+        password: '123Qa@5678'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('E-mail is invalid');
+        done();
+      });
+  });
+  it('Email already in use', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'testtest',
+        email: 'andela@gmail.com',
+        password: '123Qa@5678'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('email is already in use');
+        done();
+      });
+  });
+  it('Username already in use', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'test',
+        email: 'test@gmail.com',
+        password: '123Qa@5678'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('Username is already in use');
+        done();
+      });
+  });
+  it('Check if the password contains digit', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'testtoftest',
+        email: 'test@gmail.com',
+        password: 'aaa'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('The password Must contain at least one number');
+        done();
+      });
+  });
+  it('Check if the password contains lowercase character', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'testtoftest',
+        email: 'test@gmail.com',
+        password: '123'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('The password must contain a lower case character');
+        done();
+      });
+  });
+  it('Check if the password contains uppercase character', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'testtoftest',
+        email: 'test@gmail.com',
+        password: 'a123'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('the password should contain an uppercase character');
+        done();
+      });
+  });
+  it('Check if the password contains special character', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'testtoftest',
+        email: 'test@gmail.com',
+        password: 'a123U'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('the password should contain a special character');
+        done();
+      });
+  });
+  it('Check if the password does not contains less than 8 characters', (done) => {
+    chai.request(server)
+      .post('/api/v1/users/signup')
+      .send({
+        username: 'testtoftest',
+        email: 'test@gmail.com',
+        password: 'a123U@'
+      })
+      .end((err, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body.errors.body[0]).to.be.equal('password must not be less than 8 characters');
         done();
       });
   });

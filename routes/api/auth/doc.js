@@ -47,11 +47,13 @@
  *           - password
  *     responses:
  *       '200':
- *         description: User  logged in successfully
- *       '409':
- *         description: User already exist
+ *        description: User  logged in successfully
  *       '404':
  *        description: Url Not found
+ *       '400':
+ *        description: Bad request
+ *       '500':
+ *        description: Internal Server Error
  */
 
 /**
