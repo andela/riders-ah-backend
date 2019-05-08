@@ -5,6 +5,7 @@ import roles from './roles/roles';
 import resetPassword from './resetPassword/resetPassword.js';
 import users from './profile/profile';
 import article from './article/articles';
+import comment from './comment/comment';
 
 const router = express.Router();
 
@@ -12,6 +13,8 @@ router.use('/users', user);
 router.use('/users/roles', roles);
 router.use('/login', auth);
 router.use('/articles', article);
+router.use('/article', comment);
+router.use('/comment', comment);
 router.use((err, req, res, next) => {
   if (err.name === 'ValidationError') {
     return res.status(422).json({
