@@ -25,6 +25,10 @@ const articles = (sequelize, DataTypes) => {
       foreignKey: 'titleSlug',
       sourceKey: 'slug'
     });
+    Article.hasMany(models.Tag, {
+      foreignKey: 'articleId',
+      as: 'tagList'
+    });
   };
   return Article;
 };

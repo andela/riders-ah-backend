@@ -1,4 +1,5 @@
 import ArticleHelper from '../helpers/article';
+import tagHelper from '../helpers/tag.helper';
 
 /**
  * @author Samuel Niyitanga
@@ -30,17 +31,11 @@ class ArticleController {
  *  @static
  */
   static async updateArticle(req, res) {
-    let response;
-    try {
-      await ArticleHelper.updateArticle(req);
-      response = {
-        status: res.statusCode,
-        Message: 'Article updated successfully.'
-      };
-    } catch (error) {
-      return res.send(error);
-    }
-
+    await ArticleHelper.updateArticle(req);
+    const response = {
+      status: res.statusCode,
+      Message: 'Article updated successfully.'
+    };
 
     return res.status(200).send(response);
   }
@@ -59,6 +54,8 @@ class ArticleController {
         error: 'Article Not found'
       });
     }
+    const tags = await tagHelper.getTagsByArticle(article.dataValues.id);
+    article.dataValues.tagList = tags;
     return res.status(200).send({ article });
   }
 
@@ -86,19 +83,40 @@ class ArticleController {
  *  @static
  */
   static async deleteArticle(req, res) {
-    let response;
-    try {
-      await ArticleHelper.deleteArticle(req);
-      response = {
-        status: res.statusCode,
-        message: 'Article deleted'
-      };
-    } catch (error) {
-      return res.send(error);
-    }
-
-
+    await ArticleHelper.deleteArticle(req);
+    const response = {
+      status: res.statusCode,
+      message: 'Article deleted'
+    };
     return res.status(200).send(response);
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async tagArticle(req, res) {
+    const newCreatedTag = await ArticleHelper.createArticleTag(req);
+    return res.status(201).json({
+      status: 201,
+      tag: newCreatedTag
+    });
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async getAllTags(req, res) {
+    const tagList = await ArticleHelper.listTags();
+    return res.status(200).json({
+      status: 200,
+      tags: tagList
+    });
   }
 
   /**
