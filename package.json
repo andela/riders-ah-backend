@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npm run lint:fix && npm run undo:migrate && npm run migrate:test",
-    "test": "NODE_ENV=test nyc mocha --require @babel/register --require dotenv/config \"tests/**/*.js\"",
+    "test": "NODE_ENV=test nyc mocha --require @babel/register --require dotenv/config \"tests/**/*.js\" --exit",
     "lint": "eslint --ignore-path .gitignore .",
     "lint:fix": "npm run lint -- --fix",
     "start:dev": "nodemon --exec  node --require @babel/register --require dotenv/config index.js",
@@ -22,9 +22,9 @@
     "@babel/core": "^7.4.3",
     "@babel/node": "^7.2.2",
     "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
-    "@babel/polyfill": "^7.4.3",
+    "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.3",
-    "@babel/register": "^7.4.4",
+    "@babel/register": "^7.4.0",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
@@ -78,7 +78,8 @@
     ],
     "reporter": [
       "lcov",
-      "text"
+      "text",
+      "html"
     ]
   }
 }
