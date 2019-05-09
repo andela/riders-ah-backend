@@ -13,6 +13,7 @@ const articles = (sequelize, DataTypes) => {
   }, {});
   Article.associate = (models) => {
     Article.belongsTo(models.User, { as: 'author' });
+    Article.hasMany(models.Rating, { foreignKey: 'articleId', allowNull: false });
   };
   return Article;
 };

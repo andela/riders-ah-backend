@@ -1,4 +1,3 @@
-
 const articleMigrations = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('Articles', {
     id: {
