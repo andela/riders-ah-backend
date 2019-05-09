@@ -2,9 +2,9 @@ import express from 'express';
 import auth from './auth/auth';
 import user from './auth/users';
 import resetPassword from './resetPassword/resetPassword.js';
+import users from './profile/profile';
 
 const router = express.Router();
-
 
 router.use('/users', user);
 router.use('/login', auth);
@@ -19,7 +19,7 @@ router.use((err, req, res, next) => {
   }
   return next(err);
 });
-
-router.use('/user', resetPassword);
+router.use('/users', users);
+router.use('/users', resetPassword);
 
 export default router;
