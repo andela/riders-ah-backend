@@ -1,6 +1,7 @@
 import express from 'express';
 import auth from './auth/auth';
 import user from './auth/users';
+import roles from './roles/roles';
 import resetPassword from './resetPassword/resetPassword.js';
 import users from './profile/profile';
 import article from './article/articles';
@@ -8,6 +9,7 @@ import article from './article/articles';
 const router = express.Router();
 
 router.use('/users', user);
+router.use('/users/roles', roles);
 router.use('/login', auth);
 router.use('/articles', article);
 router.use((err, req, res, next) => {
