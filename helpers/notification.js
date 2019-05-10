@@ -1,9 +1,8 @@
 import db from '../models';
-import passportHelper from './passport';
 import mailSender from './utils/mail-sender';
 
 const {
-  User, Follows, Notification
+  User, Notification
 } = db;
 
 /**
@@ -94,40 +93,6 @@ class NotificationHelper {
       return res.status(422).send({ status: 422, Error: 'Only option must be email,in-app,follower or articleFavorite' });
     }
     next();
-  }
-
-  /**
-   * @param {integer} authorId
-   * @returns {object} return list of followers
-   */
-  static async getFollowersList(authorId) {
-    const lists = await Follows.findAll({
-      where: { follower: authorId },
-      attributes: ['following']
-    });
-    return lists;
-  }
-
-  /**
-   * @param {object} userIds
-   * @param {string} userType
-   * @returns {Array} return array of object
-   */
-  static async serializeUsers(userIds, userType) {
-    const type = userType === 'follower' ? 'follower' : 'following';
-    const userList = [];
-    await Promise.all(userIds.map(async (currentId) => {
-      const userInfo = await passportHelper.findRecord(User, currentId[type]);
-      userList.push({
-        id: currentId[type],
-        username: userInfo.dataValues.username,
-        bio: userInfo.dataValues.bio,
-        image: userInfo.dataValues.image,
-        email: userInfo.dataValues.email,
-        notification: userInfo.dataValues.notification
-      });
-    }));
-    return userList;
   }
 
   /**

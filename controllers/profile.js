@@ -1,6 +1,8 @@
 import models from '../models';
+import Helper from '../helpers/user.helper';
+import recordHelper from '../helpers/passport';
 
-const { User } = models;
+const { User, Follows } = models;
 /**
  *
  */
@@ -70,6 +72,70 @@ class Users {
         error: error.message
       });
     }
+  }
+
+  /**
+   * @param {object} req
+   * @param {object} res
+   * @returns {object} return object containg status code and user
+   */
+  static async followUser(req, res) {
+    const { ...userInfo } = req.body;
+    userInfo.userId = req.user.id;
+    const newSavedFollow = await Helper.saveFollower(userInfo);
+
+    return res.status(201).json({
+      status: 201,
+      user: newSavedFollow
+    });
+  }
+
+  /**
+   * @param {object} req
+   * @param {object} res
+   * @returns {object} return object containg status code and user
+   */
+  static async unfollowUser(req, res) {
+    const { followId } = req.body;
+    const conditions = {
+      following: req.user.id, follower: followId
+    };
+    const follow = await recordHelper.findRecord(Follows, conditions);
+    await follow.destroy({ force: true });
+    return res.status(200).json({
+      status: 200,
+      message: 'User removed in your following'
+    });
+  }
+
+  /**
+   * @param {object} req
+   * @param {object} res
+   * @returns {object} return list of followings
+   */
+  static async getUserFollowingsList(req, res) {
+    const lists = await Helper.userFollowings(req.user.id);
+
+    const userFollowings = await Helper.serializeUsers(lists, 'follower');
+    return res.status(200).json({
+      status: 200,
+      followings: userFollowings
+    });
+  }
+
+  /**
+   * @param {object} req
+   * @param {object} res
+   * @returns {object} return list of followings
+   */
+  static async getUserFollowersList(req, res) {
+    const lists = await Helper.userFollowers(req.user.id);
+
+    const userFollowers = await Helper.serializeUsers(lists, 'following');
+    return res.status(200).json({
+      status: 200,
+      followers: userFollowers
+    });
   }
 }
 export default Users;

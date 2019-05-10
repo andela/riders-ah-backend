@@ -42,6 +42,8 @@ const users = (sequelize, DataTypes) => {
   );
   User.associate = (models) => {
     // associations can be defined here
+    User.hasMany(models.Follows, { foreignKey: 'following' });
+    User.hasMany(models.Follows, { foreignKey: 'follower' });
     User.hasMany(models.Rating, { foreignKey: 'reviewerId', allowNull: false });
     User.hasMany(models.Article, { as: 'author', foreignKey: 'authorId' });
     User.hasMany(models.Comment, { foreignKey: 'userId' });
