@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
 const users = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'User',
@@ -35,8 +32,8 @@ const users = (sequelize, DataTypes) => {
     },
     {}
   );
-  User.associate = () => {
-    // associations can be defined here
+  User.associate = (models) => {
+    User.hasMany(models.Article, { as: 'author', foreignKey: 'authorId' });
   };
   return User;
 };

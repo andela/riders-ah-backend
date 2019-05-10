@@ -3,11 +3,13 @@ import auth from './auth/auth';
 import user from './auth/users';
 import resetPassword from './resetPassword/resetPassword.js';
 import users from './profile/profile';
+import article from './article/articles';
 
 const router = express.Router();
 
 router.use('/users', user);
 router.use('/login', auth);
+router.use('/articles', article);
 router.use((err, req, res, next) => {
   if (err.name === 'ValidationError') {
     return res.status(422).json({

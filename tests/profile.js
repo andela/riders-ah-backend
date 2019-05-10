@@ -7,12 +7,13 @@ import helper from '../helpers';
 const { expect } = chai;
 
 chai.use(chaiHttp);
+let userId;
 describe('GET /api/v1/users/:id', () => {
   let Token;
   before(async () => {
     const { User } = model;
 
-    await User.create(
+    const user = await User.create(
       {
         username: 'maningiri',
         email: 'something@gmail.com',
@@ -24,6 +25,7 @@ describe('GET /api/v1/users/:id', () => {
       },
       { logging: false }
     );
+    userId = user.dataValues.id;
   });
 
   it('the user should be logged in', (done) => {
@@ -43,7 +45,7 @@ describe('GET /api/v1/users/:id', () => {
   it('should get a specific profile', (done) => {
     chai
       .request(app)
-      .get('/api/v1/users/1')
+      .get(`/api/v1/users/${userId}`)
       .end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body.data)
@@ -62,7 +64,7 @@ describe('GET /api/v1/users/:id', () => {
   it('should get an error message', (done) => {
     chai
       .request(app)
-      .get('/api/v1/users/2')
+      .get('/api/v1/users/1000000')
       .end((err, res) => {
         expect(res.status).to.equal(404);
         expect(res.body)
@@ -75,7 +77,7 @@ describe('GET /api/v1/users/:id', () => {
   it('should update bio of the profile', (done) => {
     chai
       .request(app)
-      .put('/api/v1/users/1')
+      .put(`/api/v1/users/${userId}`)
       .set('Authorization', Token)
       .send({ bio: 'alhamdulillah' })
       .end((err, res) => {
@@ -93,7 +95,7 @@ describe('GET /api/v1/users/:id', () => {
   it('should update image url ', (done) => {
     chai
       .request(app)
-      .put('/api/v1/users/1')
+      .put(`/api/v1/users/${userId}`)
       .set('Authorization', Token)
       .send({ image: 'www.jgdh.com' })
       .end((err, res) => {
