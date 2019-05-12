@@ -218,3 +218,97 @@
  *       '200':
  *         description: An existing User authenticated successfully.
  */
+/**
+ * @swagger
+ * definitions:
+ *   Notification:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *       userId:
+ *         type: text
+ *       notificationMessage:
+ *         type: string
+ */
+/**
+ * @swagger
+ * /users/notification/set/:option:
+ *   put:
+ *     tags:
+ *       - Notification
+ *     name: Notification
+ *     summary: set notification option
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - option: param
+ *         in: param
+ *         schema:
+ *           $ref: '#/definitions/Notification'
+ *           type: object
+ *           properties:
+ *             userId:
+ *               type: integer
+ *             notificationMessage:
+ *               type: text
+ *         responses:
+ *           '200':
+ *             description: notification option setted
+ */
+/**
+ * @swagger
+ * /users/notification/unSet/:option:
+ *   put:
+ *     tags:
+ *       - Notification
+ *     name: Notification
+ *     summary: unset notification option
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - option: param
+ *         in: param
+ *         schema:
+ *           $ref: '#/definitions/Notification'
+ *           type: object
+ *           properties:
+ *             userId:
+ *               type: integer
+ *             notificationMessage:
+ *               type: text
+ *         responses:
+ *           '200':
+ *             description: notification option unsetted
+ */
+/**
+ * @swagger
+ * /users/notification/:
+ *   get:
+ *     tags:
+ *       - Notification
+ *     name: Notification
+ *     summary: get a user Notifications
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: body
+ *         in: body
+ *         schema:
+ *           $ref: '#/definitions/Notification'
+ *           type: object
+ *           properties:
+ *             userId:
+ *               type: integer
+ *             notificationMessage:
+ *               type: text
+ *         responses:
+ *           '200':
+ *             description:  Notification received
+ */

@@ -32,6 +32,10 @@ const users = (sequelize, DataTypes) => {
       roles: {
         type: DataTypes.JSON('user', 'admin', 'super_user'),
         defaultValue: 'user'
+      },
+      notification: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: ['email', 'in-app', 'follower', 'articleFavorite']
       }
     },
     {}
@@ -42,6 +46,9 @@ const users = (sequelize, DataTypes) => {
     User.hasMany(models.Article, { as: 'author', foreignKey: 'authorId' });
     User.hasMany(models.Comment, { foreignKey: 'userId' });
     User.hasMany(models.Like, { foreignKey: 'userId' });
+    User.hasMany(models.Follows, { foreignKey: 'following' });
+    User.hasMany(models.Follows, { foreignKey: 'follower' });
+    User.hasMany(models.Notification, { as: 'user', foreignKey: 'userId' });
   };
   return User;
 };
