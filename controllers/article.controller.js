@@ -99,6 +99,42 @@ class ArticleController {
 
     return res.status(200).send(response);
   }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async reactOnArticle(req, res) {
+    const result = await ArticleHelper.createReaction(req);
+    const reactionCreated = result.toJSON();
+    return res.status(201).send({ reaction: reactionCreated });
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async getLikes(req, res) {
+    const { numberOfLikes } = req.body;
+    const result = await ArticleHelper.getLikes(req);
+    return res.status(200).send({ likes: result, count: numberOfLikes });
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async getDislikes(req, res) {
+    const { numberOfDislikes } = req.body;
+    const result = await ArticleHelper.getDislikes(req);
+    return res.status(200).send({ dislikes: result, count: numberOfDislikes });
+  }
 }
 
 export default ArticleController;

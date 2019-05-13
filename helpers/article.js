@@ -4,7 +4,7 @@ import Joi from 'joi';
 import PassportHelper from './passport';
 import db from '../models';
 
-const { Article, User } = db;
+const { Article, User, Like } = db;
 
 /**
  * @exports ArticleHelper
@@ -208,6 +208,137 @@ class ArticleHelper {
       attributes: ['slug', 'title', 'description', 'body', 'createdAt', 'updatedAt']
     });
     return article;
+  }
+
+  /**
+     * Check article owner
+     * @param {object} req - an object
+     * @param {object} res - an object
+     * @param {object} next - an object
+     * @return {object} Returns response
+     * @static
+     */
+  static async isExisting(req, res, next) {
+    const { slug } = req.params;
+    const { id } = req.user;
+    const { option } = req.params;
+    const result = await Article.findOne({ where: { slug } });
+    if (!result) {
+      return res.status(404).send({ message: `article with slug ${slug} do not exist` });
+    }
+    const Result = await Like.findOne({ where: { titleSlug: slug, userId: id } });
+    if (!Result) {
+      next();
+      return true;
+    }
+    if (option === 'dislike' && Result.status === 'like') {
+      await Like.update({ status: 'dislike' }, { where: { titleSlug: slug, userId: id } });
+      return res.status(200).send({ message: 'like is replaced by dislike' });
+    }
+    if (option === 'like' && Result.status === 'dislike') {
+      await Like.update({ status: 'like' }, { where: { titleSlug: slug, userId: id } });
+      return res.status(200).send({ message: 'dislike is replaced by like' });
+    }
+    if (Result.status === 'neutral') {
+      await Like.update({ status: option }, { where: { titleSlug: slug, userId: id } });
+      return res.status(200).send({ message: 'reaction updated' });
+    }
+    await Like.update({ status: 'neutral' }, { where: { titleSlug: slug, userId: id } });
+    return res.status(200).send({ message: 'your reaction is now neutral' });
+  }
+
+  /**
+ * function for number of likes on an article
+ * @function likesNumber
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { number } number of comments
+ */
+  static async likesNumber(req, res, next) {
+    let number = 0;
+    const { slug } = req.params;
+    const result = await Like.findAll({
+      where: { titleSlug: slug, status: 'like' },
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      attributes: ['id', 'titleSlug', 'status']
+    });
+    result.forEach(() => { number += 1; });
+    req.body.numberOfLikes = number;
+    next();
+    return true;
+  }
+
+  /**
+ * function for number of likes on an article
+ * @function dislikesNumber
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { number } number of comments
+ */
+  static async dislikesNumber(req, res, next) {
+    let number = 0;
+    const { slug } = req.params;
+    const result = await Like.findAll({
+      where: { titleSlug: slug, status: 'dislike' },
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      attributes: ['id', 'titleSlug', 'status']
+    });
+    result.forEach(() => { number += 1; });
+    req.body.numberOfDislikes = number;
+    next();
+    return true;
+  }
+
+  /**
+     * Create a new article
+     * @param {object} req - an object
+     * @return {Object} Returns if true if it is valid else return false
+     * @static
+     */
+  static async createReaction(req) {
+    const { id } = req.user;
+    const { slug } = req.params;
+    const { option } = req.params;
+    const reactionCreated = await Like.create({
+      userId: id,
+      titleSlug: slug,
+      status: option
+    });
+    return reactionCreated;
+  }
+
+  /**
+     * Create a new article
+     * @param {object} req - an object
+     * @return {Object} Returns an object
+     * @static
+     */
+  static async getLikes(req) {
+    const { slug } = req.params;
+    const likesFetched = await Like.findAll({
+      where: { titleSlug: slug, status: 'like' },
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      attributes: ['id', 'titleSlug', 'status']
+    });
+    return likesFetched;
+  }
+
+  /**
+     * Create a new article
+     * @param {object} req - an object
+     * @return {Object} Returns if true if it is valid else return false
+     * @static
+     */
+  static async getDislikes(req) {
+    const { slug } = req.params;
+    const likesFetched = await Like.findAll({
+      where: { titleSlug: slug, status: 'dislike' },
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      attributes: ['id', 'titleSlug', 'status']
+    });
+    return likesFetched;
   }
 }
 export default ArticleHelper;

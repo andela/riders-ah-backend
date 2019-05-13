@@ -13,5 +13,8 @@ router.delete('/:slug', Auth, ArticleHelper.isOwner, articleController.deleteArt
 router.get('/:slug', articleController.getArticle);
 router.get('/', articleController.getAllArticles);
 router.post('/rate/:id', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
+router.post('/:slug/reaction/:option', Auth, ArticleHelper.isExisting, articleController.reactOnArticle);
+router.get('/:slug/likes', Auth, ArticleHelper.likesNumber, articleController.getLikes);
+router.get('/:slug/dislikes', Auth, ArticleHelper.dislikesNumber, articleController.getDislikes);
 
 export default router;
