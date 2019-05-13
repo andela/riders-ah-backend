@@ -33,7 +33,7 @@ class RatingController {
         { rate },
         { where: { id: ratings.id }, returning: true }
       );
-      return res.status(201).send({
+      return res.status(200).send({
         status: res.statusCode,
         data: { rating: updatedRating, Author: userData }
       });

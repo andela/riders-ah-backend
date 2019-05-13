@@ -124,7 +124,7 @@ describe('Rate user posted article', () => {
         rate: 5,
       })
       .end((error, res) => {
-        expect(res.body).to.have.status(201);
+        expect(res.body).to.have.status(200);
         expect(res.body.data.rating[0]).to.have.property('rate').to.be.equal(5);
         expect(res.body.data.rating[0]).to.have.property('articleId').to.be.equal(articleId);
         done();
