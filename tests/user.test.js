@@ -27,12 +27,8 @@ describe('Users Authentication', () => {
       .send(user)
       .end((err, res) => {
         expect(res.body).to.have.status(201);
-        expect(res.body.user).to.have.property('username').to.be.equal(user.username);
-        expect(res.body.user).to.have.property('email').to.be.equal(user.email);
-        expect(res.body.user.password).to.be.equal(undefined);
-        expect(res.body.user.email).to.not.be.equal('');
-        expect(res.body.user.password).to.not.be.equal('');
         expect(res.body).to.have.property('token').to.be.a('string');
+        expect(res.body.token).to.not.be.equal('');
         done();
       });
   });

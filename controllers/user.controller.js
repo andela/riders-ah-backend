@@ -70,14 +70,9 @@ class UserController {
   static async addUser(req, res) {
     passport.authenticate('local_signup', (err, user) => {
       if (user) {
-        const userData = {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-        };
         const issueToken = helper.generateToken(user.dataValues);
         return res.status(201).send({
-          status: 201, message: 'User added successfully', token: issueToken, user: userData
+          status: 201, message: 'User added successfully', token: issueToken
         });
       }
       return res.status(500).send({ status: 500, message: 'Internal Server Error' });
