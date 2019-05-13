@@ -11,9 +11,9 @@ class Users {
    * @returns {object} return object containg user info
    */
   static async user(req, res) {
-    const { id } = req.params;
+    const { username } = req.params;
     try {
-      const foundUser = await User.findOne({ where: { id } });
+      const foundUser = await User.findOne({ where: { username } });
       if (!foundUser) {
         return res.status(404).json({
           status: 404,
