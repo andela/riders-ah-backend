@@ -7,14 +7,14 @@ chai.use(chaiHttp);
 const { expect } = chai;
 
 const user = {
-  username: 'Test User',
+  username: 'TestUser',
   email: 'kigali@andela.com',
-  password: 'password'
+  password: 'password@123K'
 };
 const otherUser = {
-  username: 'New User',
+  username: 'NewUser',
   email: 'kgl@andela.com',
-  password: 'password'
+  password: 'password@123K'
 };
 
 const article = {

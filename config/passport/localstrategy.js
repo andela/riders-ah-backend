@@ -15,7 +15,7 @@ const pass = (passport) => {
       password = Helper.hashPassword(req.body.password);
       User.create({
         email,
-        username: req.body.username,
+        username: req.body.username.replace(/\s+/g, '').trim(),
         password
       }).then(user => done(null, user)).catch(error => done(error));
     }
