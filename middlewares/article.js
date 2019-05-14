@@ -14,12 +14,12 @@ class ArticleMiddleware {
      * @return {string} Returns error or proceed the execution
      * @static
      */
-  static async checkRatedarticle(req, res, next) {
+  static async checkRatedArticle(req, res, next) {
     const errorMessage = [];
     if (req.body.rate === undefined) {
       errorMessage.push('Oops! Rate is required');
     }
-    const validateArticle = await Articlehepler.validatearticleRated(req.params.id, req.user.id);
+    const validateArticle = await Articlehepler.validateArticleRated(req.params.id, req.user.id);
     if (validateArticle !== true) {
       errorMessage.push(validateArticle);
     }

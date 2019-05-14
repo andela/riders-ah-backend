@@ -10,12 +10,12 @@ const { Article } = db;
 class ArticRatelehelper {
   /**
        * Check the environment
-       * @function validatearticleRated
+       * @function validateArticleRated
        * @param  {string} article - Check the rate
        * @param  {integer} user - Check the user
        * @return {string} Validate the rate
        */
-  static async validatearticleRated(article, user) {
+  static async validateArticleRated(article, user) {
     const findarticle = await Article.findOne({ where: { id: article } });
     if (findarticle) {
       const articleOwner = await Article.findAll({

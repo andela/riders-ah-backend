@@ -12,6 +12,6 @@ router.put('/:slug', Auth, ArticleHelper.isOwner, ArticleHelper.isValidUpdatedAr
 router.delete('/:slug', Auth, ArticleHelper.isOwner, articleController.deleteArticle);
 router.get('/:slug', articleController.getArticle);
 router.get('/', articleController.getAllArticles);
-router.post('/rate/:id', Auth, ArticleMiddleware.checkRatedarticle, Ratingcontroller.rateArticle);
+router.post('/rate/:id', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
 
 export default router;
