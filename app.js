@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import errorhandler from 'errorhandler';
 import cors from 'cors';
 import passport from 'passport';
+import session from 'express-session';
 import routes from './routes';
 import registerApiDocEndpoint from './config/swagger';
 import pass from './config/passport/localstrategy';
@@ -14,6 +15,16 @@ const isProduction = process.env.NODE_ENV === 'production';
 const app = express();
 
 app.use(cors());
+
+app.use(
+  session({
+    secret: process.env.SECRET,
+    cookie: { maxAge: 60000 },
+    resave: true,
+    saveUninitialized: true
+  })
+);
+
 
 // Normal express config defaults
 app.use(bodyParser.urlencoded({ extended: false }));
