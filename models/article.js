@@ -9,11 +9,18 @@ const articles = (sequelize, DataTypes) => {
     body: DataTypes.TEXT,
     description: DataTypes.STRING,
     image: DataTypes.STRING,
-    slug: DataTypes.STRING
+    slug: {
+      type: DataTypes.STRING,
+      unique: true
+    }
   }, {});
   Article.associate = (models) => {
     Article.belongsTo(models.User, { as: 'author' });
     Article.hasMany(models.Rating, { foreignKey: 'articleId', allowNull: false });
+    Article.hasMany(models.Comment, {
+      foreignKey: 'titleSlug',
+      sourceKey: 'slug'
+    });
   };
   return Article;
 };

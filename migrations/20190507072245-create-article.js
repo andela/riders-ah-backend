@@ -19,7 +19,8 @@ const articleMigrations = {
       type: Sequelize.STRING
     },
     slug: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      unique: true
     },
     createdAt: {
       allowNull: false,
