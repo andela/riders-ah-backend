@@ -28,6 +28,10 @@ const users = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      roles: {
+        type: DataTypes.JSON('user', 'admin', 'super_user'),
+        defaultValue: 'user'
       }
     },
     {}

@@ -28,6 +28,10 @@ const usersMigration = {
       type: Sequelize.STRING,
       allowNull: false
     },
+    roles: {
+      type: Sequelize.JSON('user', 'admin', 'super_admin'),
+      defaultValue: 'user'
+    },
     createdAt: {
       type: Sequelize.DATE
     },

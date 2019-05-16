@@ -8,7 +8,6 @@ import routes from './routes';
 import registerApiDocEndpoint from './config/swagger';
 import pass from './config/passport/localstrategy';
 
-
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Create global app object
