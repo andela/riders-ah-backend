@@ -21,9 +21,13 @@ class Password {
     if (newPassword.trim() !== confirmNewPassword.trim()) {
       return res.status(401).send({ message: 'new password and confirm new password must be equal' });
     }
+    const validatedPassword = Helper.passwordValidator(newPassword);
+    if (validatedPassword !== true) {
+      return res.status(400).send({ message: validatedPassword });
+    }
     const hash = Helper.hashPassword(newPassword);
     User.update({ password: hash }, { where: { id: req.user.id } })
-      .then(result => res.status(201).send({ RESULT: result }))
+      .then(() => res.status(201).send({ message: 'Your password has been updated successfuly' }))
       .catch(error => res.status(400).send({ ERROR: error }));
   }
 

@@ -70,10 +70,27 @@ describe('should reset password with email', () => {
         done();
       });
   });
+  it('should reset the password to newPassword only if it is valid', (done) => {
+    const data = {
+      newPassword: 'password!',
+      confirmNewPassword: 'password!'
+    };
+    chai
+      .request(app)
+      .post('/api/v1/users/resetPassword')
+      .set('authorization', token)
+      .send(data)
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.be.a('object');
+        res.body.should.have.property('message');
+        done();
+      });
+  });
   it('should reset the password to newPassword', (done) => {
     const data = {
-      newPassword: 'password',
-      confirmNewPassword: 'password'
+      newPassword: 'Password@123!',
+      confirmNewPassword: 'Password@123!'
     };
     chai
       .request(app)
@@ -83,8 +100,7 @@ describe('should reset password with email', () => {
       .end((err, res) => {
         res.should.have.status(201);
         res.body.should.be.a('object');
-        res.body.should.have.property('RESULT');
-        res.body.RESULT[0].should.be.eql(1);
+        res.body.should.have.property('message').eql('Your password has been updated successfuly');
         done();
       });
   });
