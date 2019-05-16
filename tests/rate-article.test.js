@@ -36,11 +36,6 @@ describe('Rate user posted article', () => {
       .end((err, res) => {
         toKen = res.body.token;
         expect(res.body).to.have.status(201);
-        expect(res.body.user).to.have.property('username').to.be.equal(userTest.username);
-        expect(res.body.user).to.have.property('email').to.be.equal(userTest.email);
-        expect(res.body.user.password).to.be.equal(undefined);
-        expect(res.body.user.email).to.not.be.equal('');
-        expect(res.body.user.password).to.not.be.equal('');
         expect(res.body).to.have.property('token').to.be.a('string');
         done();
       });
@@ -82,11 +77,6 @@ describe('Rate user posted article', () => {
       .end((err, res) => {
         toKen = res.body.token;
         expect(res.body).to.have.status(201);
-        expect(res.body.user).to.have.property('username').to.be.equal(anotherUsertest.username);
-        expect(res.body.user).to.have.property('email').to.be.equal(anotherUsertest.email);
-        expect(res.body.user.password).to.be.equal(undefined);
-        expect(res.body.user.email).to.not.be.equal('');
-        expect(res.body.user.password).to.not.be.equal('');
         expect(res.body).to.have.property('token').to.be.a('string');
         done();
       });
