@@ -40,12 +40,12 @@
  *     consumes:
  *       - application/json
  *     parameters:
- *       - name: auth-access
+ *       - name: authorization
  *         in: header
  *         schema:
  *           type: string
  *         required:
- *           - auth-access
+ *           - authorization
  *       - name: body
  *         in: body
  *         schema:
