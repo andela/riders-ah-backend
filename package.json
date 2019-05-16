@@ -50,6 +50,7 @@
     "request": "^2.87.0",
     "sequelize": "^5.7.5",
     "sequelize-cli": "^5.4.0",
+    "sinon": "^7.3.2",
     "slug": "^1.1.0",
     "swagger-jsdoc": "^3.2.9",
     "swagger-ui-express": "^4.0.2",

@@ -3,10 +3,12 @@ import uniqid from 'uniqid';
 import Joi from 'joi';
 import PassportHelper from './passport';
 import db from '../models';
+import emitter from './eventEmitters';
 
 const { Article, User, Like } = db;
 
 /**
+ * @author Samuel Niyitanga
  * @exports ArticleHelper
  * @class ArticleHelper
  * @description Article Helper
@@ -48,6 +50,11 @@ class ArticleHelper {
       image,
       slug,
       authorId: articleAuthor.id
+    });
+    emitter.emit('onFollowPublish', {
+      title,
+      authorId: articleAuthor.id,
+      slug
     });
     const values = {
       userData,
@@ -145,7 +152,7 @@ class ArticleHelper {
   }
 
   /**
-     * Check article owner
+     * Update article
      * @param {object} req - an object
      * @return {object} Returns response
      * @static
@@ -164,10 +171,10 @@ class ArticleHelper {
   }
 
   /**
-     * Return if the user is owner
+     * Delete article
      * @param {object} req - an object
      * @param {object} res - an object
-     *@return {boolean} Return true if user matche
+     *@return {boolean} Return true if deleted
      */
   static async deleteArticle(req) {
     const currentSlug = req.params.slug;
@@ -177,7 +184,7 @@ class ArticleHelper {
   }
 
   /**
-     * Return if the user is owner
+     * Return all article
      *@return {object} Return all articles
      */
   static async getAllArticles() {
@@ -195,7 +202,7 @@ class ArticleHelper {
   /**
      * Return one article
      * @param {object} req - an object
-     *@return {object} Return all articles
+     *@return {object} Return  article
      */
   static async getOneArticle(req) {
     const article = await Article.findOne({

@@ -4,11 +4,13 @@ import user from './auth/users';
 import roles from './roles/roles';
 import resetPassword from './resetPassword/resetPassword.js';
 import users from './profile/profile';
+import notifications from './auth/notification';
 import article from './article/articles';
 import comment from './comment/comment';
 
 const router = express.Router();
 
+router.use('/', notifications);
 router.use('/users', user);
 router.use('/users/roles', roles);
 router.use('/login', auth);

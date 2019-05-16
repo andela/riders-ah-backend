@@ -1,6 +1,7 @@
 import ArticleHelper from '../helpers/article';
 
 /**
+ * @author Samuel Niyitanga
  * @exports ArticleController
  * @class ArticleController
  * @description Handles all related articles functioanlities

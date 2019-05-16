@@ -32,6 +32,10 @@ const usersMigration = {
       type: Sequelize.JSON('user', 'admin', 'super_admin'),
       defaultValue: 'user'
     },
+    notification: {
+      type: Sequelize.ARRAY(Sequelize.STRING),
+      defaultValue: ['email', 'in-app', 'follower', 'articleFavorite']
+    },
     createdAt: {
       type: Sequelize.DATE
     },
