@@ -16,7 +16,7 @@ const articles = (sequelize, DataTypes) => {
   }, {});
   Article.associate = (models) => {
     Article.belongsTo(models.User, { as: 'author' });
-    Article.hasMany(models.Rating, { foreignKey: 'articleId', allowNull: false });
+    Article.hasMany(models.Rating, { foreignKey: 'articleSlug', allowNull: false });
     Article.hasMany(models.Like, {
       foreignKey: 'titleSlug',
       sourceKey: 'slug'
@@ -28,6 +28,10 @@ const articles = (sequelize, DataTypes) => {
     Article.hasMany(models.Tag, {
       foreignKey: 'articleId',
       as: 'tagList'
+    });
+    Article.hasMany(models.Rating, {
+      foreignKey: 'articleSlug',
+      sourceKey: 'slug'
     });
   };
   return Article;

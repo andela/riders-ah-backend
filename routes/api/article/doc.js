@@ -12,7 +12,7 @@
 
 /**
  * @swagger
- * /articles/rate/{id}:
+ * /articles/{slug}/rate:
  *   post:
  *     tags:
  *       - Article
@@ -23,12 +23,12 @@
  *     consumes:
  *       - application/json
  *     parameters:
- *       - name: id
+ *       - name: slug
  *         in: path
  *         schema:
  *           type: integer
  *         required:
- *           - id
+ *           - slug
  *       - name: authorization
  *         in: header
  *         schema:

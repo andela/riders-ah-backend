@@ -7,10 +7,22 @@ const ratingsMigration = {
       type: Sequelize.INTEGER
     },
     reviewerId: {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
     },
-    articleId: {
-      type: Sequelize.INTEGER
+    articleSlug: {
+      type: Sequelize.STRING,
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+      references: {
+        model: 'Articles',
+        key: 'slug'
+      }
     },
     rate: {
       type: Sequelize.INTEGER
