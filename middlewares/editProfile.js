@@ -1,7 +1,11 @@
-const canEditProfile = (req, res, next) => {
-  const { id } = req.params;
+import model from '../models';
 
-  return req.user.id !== Number(id)
+const { User } = model;
+
+const canEditProfile = async (req, res, next) => {
+  const { username } = req.params;
+  const userModel = await User.findOne({ where: { id: req.user.id } });
+  return userModel.username !== username
     ? res.status(401).send({
       status: 401,
       message: 'You are not allowed to edit this profile'

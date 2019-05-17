@@ -28,7 +28,7 @@ router.use((err, req, res, next) => {
   }
   return next(err);
 });
-router.use('/users', users);
+router.use('/profiles', users);
 router.use('/users', resetPassword);
 
 export default router;

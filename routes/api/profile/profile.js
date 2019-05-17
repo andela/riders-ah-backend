@@ -5,8 +5,8 @@ import canEditProfile from '../../../middlewares/editProfile';
 
 const router = express.Router();
 
-router.get('/:id', users.user);
+router.get('/:username', users.user);
 
-router.put('/:id', auth, canEditProfile, users.editProfile);
+router.put('/:username', auth, canEditProfile, users.editProfile);
 
 export default router;

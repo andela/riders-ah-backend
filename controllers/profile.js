@@ -11,9 +11,9 @@ class Users {
    * @returns {object} return object containg user info
    */
   static async user(req, res) {
-    const { id } = req.params;
+    const { username } = req.params;
     try {
-      const foundUser = await User.findOne({ where: { id } });
+      const foundUser = await User.findOne({ where: { username } });
       if (!foundUser) {
         return res.status(404).json({
           status: 404,
@@ -44,17 +44,15 @@ class Users {
    */
   static async editProfile(req, res) {
     try {
-      const { id } = req.params;
-
+      const { username } = req.params;
       const updateProfile = await User.update(
         {
           username: req.body.username,
           bio: req.body.bio,
           image: req.body.image
         },
-        { where: { id }, returning: true, plain: true }
+        { where: { username }, returning: true, plain: true }
       );
-
       const newProfile = {
         username: updateProfile[1].username,
         email: updateProfile[1].email,
