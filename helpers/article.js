@@ -4,8 +4,11 @@ import Joi from 'joi';
 import PassportHelper from './passport';
 import db from '../models';
 import emitter from './eventEmitters';
+import tagHelper from './tag.helper';
 
-const { Article, User, Like } = db;
+const {
+  Article, User, Tag, Like
+} = db;
 
 /**
  * @author Samuel Niyitanga
@@ -148,6 +151,7 @@ class ArticleHelper {
         error: 'You don\'t have access'
       });
     }
+    req.user.articleId = isExist.dataValues.id;
     next();
   }
 
@@ -193,10 +197,16 @@ class ArticleHelper {
         model: User,
         as: 'author',
         attributes: ['username', 'bio', 'image']
+      }, {
+        model: Tag,
+        as: 'tagList',
+        attributes: ['name'],
+        raw: true
       }],
       attributes: ['slug', 'title', 'description', 'body', 'createdAt', 'updatedAt']
     });
-    return articles;
+    const articlesWithTags = await tagHelper.addTagsToArticles(articles);
+    return articlesWithTags;
   }
 
   /**
@@ -212,7 +222,7 @@ class ArticleHelper {
         as: 'author',
         attributes: ['username', 'bio', 'image']
       }],
-      attributes: ['slug', 'title', 'description', 'body', 'createdAt', 'updatedAt']
+      attributes: ['id', 'slug', 'title', 'description', 'body', 'createdAt', 'updatedAt']
     });
     return article;
   }
@@ -346,6 +356,40 @@ class ArticleHelper {
       attributes: ['id', 'titleSlug', 'status']
     });
     return likesFetched;
+  }
+
+  /**
+   * Get article by its ID
+   * @function findArticleBySlug
+   * @param {number} slug - Response object
+   * @return {object} Returns json object of an article
+   * @static
+   */
+  static async findArticleBySlug(slug) {
+    const article = await Article.findOne({ where: { slug }, logging: false });
+    return article;
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async createArticleTag(req) {
+    const createdTag = await Tag.create({
+      name: req.body.name,
+      articleId: req.user.articleId
+    });
+    return createdTag.dataValues;
+  }
+
+  /**
+   * @returns {object} response
+   *  @static
+  */
+  static async listTags() {
+    const tagList = await Tag.aggregate('name', 'DISTINCT', { plain: false }).map(row => row.DISTINCT);
+    return tagList || [];
   }
 }
 export default ArticleHelper;

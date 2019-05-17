@@ -50,6 +50,64 @@
  *         description: Created
  *       '400':
  *         description: Bad Request
+ *   Tag:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *       articleId:
+ *         type: integer
+ *       required:
+ *         - name
+ *         - articleId
+
+ * @swagger
+ * /articles/{slug}/tag:
+ *   post:
+ *     tags:
+ *       - Tag
+ *     name: Tag user article
+ *     summary: Create a tag for article which user has created
+ *     parameters:
+ *       - name: body
+ *         in: body
+ *         schema:
+ *           $ref: '#/definitions/Tag'
+ *           type: object
+ *           properties:
+ *             articleId:
+ *               type: integer
+ *             name:
+ *               type: string
+ *         required:
+ *           - articleId
+ *           - name
+ *     responses:
+ *       '201':
+ *         description: Tag has successfully created
+ *       '400':
+ *         description: Provided information are invalid
+ *       '401':
+ *         description: Has not permission to create tag
+ *       '404':
+ *         description: Article not found
+  * @swagger
+ * /articles/tag/list:
+ *   get:
+ *     tags:
+ *       - Tag
+ *     name: List of tags
+ *     summary: Get list of all created
+ *     parameters:
+ *       - name: body
+ *         schema:
+ *           $ref: '#/definitions/Tag'
+ *           type: array
+ *           properties:
+ *         required:
+ *     responses:
+ *       '200':
+ *         description: Ok, Successfully got list of tag
  */
 
 /**
