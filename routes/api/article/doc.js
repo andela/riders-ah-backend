@@ -249,3 +249,75 @@
  *       '400':
  *         dislikes have been failed to be fetched
  */
+
+/**
+ * @swagger
+ * /articles/{slug}/share/{option}:
+ *   post:
+ *     tags:
+ *       - share
+ *     name: share article
+ *     summary: share an article on a platform specified in url
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: slug
+ *         in: path
+ *         schema:
+ *           type: string
+ *         required:
+ *           - slug
+ *       - name: option
+ *         in: path
+ *         schema:
+ *           type: string
+ *         required:
+ *           - option
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '201':
+ *         description: share is made succesfully
+ *       '400':
+ *         share has failed
+ *       '404':
+ *         article not found
+ */
+
+/**
+ * @swagger
+ * /articles/{slug}/shares:
+ *   get:
+ *     tags:
+ *       - share
+ *     name: get shares on an  article
+ *     summary: get shares on an article
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: slug
+ *         in: path
+ *         schema:
+ *           type: string
+ *         required:
+ *           - slug
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '200':
+ *         description: shares are fetched successfully
+ *       '404':
+ *         article or share not found
+ */

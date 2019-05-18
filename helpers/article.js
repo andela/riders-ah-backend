@@ -1,13 +1,14 @@
 import slugify from 'slug';
 import uniqid from 'uniqid';
 import Joi from 'joi';
+import open from 'open';
 import PassportHelper from './passport';
 import db from '../models';
 import emitter from './eventEmitters';
 import tagHelper from './tag.helper';
 
 const {
-  Article, User, Tag, Like
+  Article, User, Tag, Like, Share
 } = db;
 
 /**
@@ -390,6 +391,146 @@ class ArticleHelper {
   static async listTags() {
     const tagList = await Tag.aggregate('name', 'DISTINCT', { plain: false }).map(row => row.DISTINCT);
     return tagList || [];
+  }
+
+  /**
+ * function for checking if a platform  is valid
+ * @function isShared
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { string } appropriate message
+ */
+  static async isPlatformValid(req, res, next) {
+    const { option } = req.params;
+    const platforms = ['facebook', 'twitter', 'gmail', 'linkedin'];
+    if (platforms.includes(option)) {
+      next();
+      return true;
+    }
+    return res.status(400).send({ errors: { body: ['invalid platform in path'] } });
+  }
+
+  /**
+ * function for checking if article is alreadry shared or not
+ * @function isShared
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { string } appropriate message
+ */
+  static async isShared(req, res, next) {
+    const { option } = req.params;
+    const { id } = req.user;
+    const share = await Share.findOne({ where: { userId: id } });
+    if (!share) { next(); return true; }
+    const { platform } = share;
+    if (platform.includes(option)) {
+      const updatePlatforms = platform.filter(result => result !== option);
+      await Share.update({ platform: updatePlatforms }, { where: { userId: id } });
+      return res.status(200).send({ message: `your ${option} share is removed, you can share again` });
+    }
+    next();
+    return true;
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async shareArticle(req) {
+    const { option } = req.params;
+    const { slug } = req.params;
+    const { SHARE_URL } = process.env;
+    const articleShareUrl = `${SHARE_URL}${slug}`;
+    if (option === 'facebook') {
+      const result = await open(`http://www.facebook.com/sharer/sharer.php?u=${articleShareUrl}`);
+      return result;
+    } if (option === 'twitter') {
+      const result = await open(`https://twitter.com/intent/tweet?text=${articleShareUrl}`);
+      return result;
+    } if (option === 'gmail') {
+      const result = await open(`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su=Authorshaven%20Post&body=copy%20the%20following%20link%20to%20open%20the%20article%20${articleShareUrl}`);
+      return result;
+    } if (option === 'linkedin') {
+      const result = await open(`https://www.linkedin.com/sharing/share-offsite/?url=${articleShareUrl}`);
+      return result;
+    }
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async createShare(req) {
+    const { option } = req.params;
+    const { slug } = req.params;
+    const { id } = req.user;
+    const share = await Share.findOne({ where: { userId: id } });
+    if (!share) {
+      await Share.create({
+        userId: id,
+        titleSlug: slug,
+        platform: [option],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      const firstShare = await Share.findOne({ where: { userId: id } });
+      return firstShare;
+    }
+    const { platform } = share;
+    platform.push(option);
+    const newPlatform = platform;
+    await Share.update({
+      platform: newPlatform,
+      updatedAt: new Date()
+    }, { where: { userId: id } });
+    const createdShare = await Share.findOne({ where: { userId: id } });
+    return createdShare;
+  }
+
+  /**
+     * Return one article
+     * @param {object} slug - an object
+     *@return {object} Return  shares
+     */
+  static async getShares(slug) {
+    const shares = await Share.findAll({
+      where: { titleSlug: slug },
+      attributes: ['userId', 'platform', 'createdAt'],
+      raw: true
+    });
+    return shares;
+  }
+
+  /**
+     * Return one article
+     * @param {object} shares - an object
+     *@return {object} Return  shares
+     */
+  static async numberOfSharesOnPlatform(shares) {
+    let facebook = 0;
+    let twitter = 0;
+    let linkedin = 0;
+    let gmail = 0;
+    shares.forEach((share) => {
+      const Platform = share.platform;
+      if (Platform.includes('facebook')) {
+        facebook += 1;
+      }
+      if (Platform.includes('twitter')) {
+        twitter += 1;
+      }
+      if (Platform.includes('linkedin')) {
+        linkedin += 1;
+      }
+      if (Platform.includes('gmail')) {
+        gmail += 1;
+      }
+    });
+    return [facebook, twitter, linkedin, gmail];
   }
 }
 export default ArticleHelper;

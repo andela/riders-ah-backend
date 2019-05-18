@@ -19,5 +19,7 @@ router.get('/:slug/likes', Auth, ArticleHelper.likesNumber, articleController.ge
 router.get('/:slug/dislikes', Auth, ArticleHelper.dislikesNumber, articleController.getDislikes);
 router.post('/:slug/tag', Auth, ArticleHelper.isOwner, TagMiddleware.isNotTagAdded, articleController.tagArticle);
 router.get('/tag/list', articleController.getAllTags);
+router.post('/:slug/share/:option', Auth, ArticleHelper.isPlatformValid, ArticleHelper.isShared, articleController.shareArticle);
+router.get('/:slug/shares', Auth, articleController.getShares);
 
 export default router;
