@@ -53,6 +53,7 @@ const users = (sequelize, DataTypes) => {
     User.hasMany(models.Notification, { as: 'user', foreignKey: 'userId' });
     User.hasMany(models.Share, { foreignKey: 'userId' });
     User.hasMany(models.Bookmark, { foreignKey: 'userId' });
+    User.hasMany(models.CommentFeedback, { as: 'liked', foreignKey: 'userId' });
   };
   return User;
 };
