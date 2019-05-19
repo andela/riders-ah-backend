@@ -6,6 +6,7 @@ import PassportHelper from './passport';
 import db from '../models';
 import emitter from './eventEmitters';
 import tagHelper from './tag.helper';
+import readTime from './readTime';
 
 const {
   Article, User, Tag, Like, Share, Bookmark
@@ -19,26 +20,27 @@ const {
  * */
 class ArticleHelper {
   /**
-     * Create a slug based on title
-     * @param {string} title - a title
-     * @return {string} Returns a slug created
-     * @static
-     */
+   * Create a slug based on title
+   * @param {string} title - a title
+   * @return {string} Returns a slug created
+   * @static
+   */
   static createSlug(title) {
     const slug = `${slugify(title, { lower: true })}-${uniqid.process()}`;
     return slug;
   }
 
   /**
-     * Create a new article
-     * @param {object} req - an object
-     * @return {boolean} Returns if true if it is valid else return false
-     * @static
-     */
+   * Create a new article
+   * @param {object} req - an object
+   * @return {boolean} Returns if true if it is valid else return false
+   * @static
+   */
   static async createNewArticle(req) {
     const {
       body, title, description, image
     } = req.body;
+    const readingTime = readTime(body, title, description);
     const slug = ArticleHelper.createSlug(title);
     const articleAuthor = await PassportHelper.findRecord(User, req.user.id);
     const userData = {
@@ -52,6 +54,7 @@ class ArticleHelper {
       body,
       description,
       image,
+      readingTime,
       slug,
       authorId: articleAuthor.id
     });
@@ -68,20 +71,19 @@ class ArticleHelper {
   }
 
   /**
-     * Check if it is a Article
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {boolean} Returns if true if it is valid else return false
-     * @static
-     */
+   * Check if it is a Article
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {boolean} Returns if true if it is valid else return false
+   * @static
+   */
   static isValidArticle(req, res, next) {
     const schema = Joi.object().keys({
       body: Joi.string().required(),
       title: Joi.string().required(),
       description: Joi.string().required(),
       image: Joi.string().required()
-
     });
     const result = Joi.validate(req.body, schema);
     if (result.error) {
@@ -91,20 +93,19 @@ class ArticleHelper {
   }
 
   /**
-     * update an article
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {boolean} Returns if true if it is valid else return false
-     * @static
-     */
+   * update an article
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {boolean} Returns if true if it is valid else return false
+   * @static
+   */
   static isValidUpdatedArticle(req, res, next) {
     const schema = Joi.object().keys({
       body: Joi.string().min(3),
       title: Joi.string().min(3),
       description: Joi.string().min(3),
       image: Joi.string().min(3)
-
     });
     const result = Joi.validate(req.body, schema);
     if (result.error) {
@@ -114,12 +115,12 @@ class ArticleHelper {
   }
 
   /**
-     * Return Invalid data message
-     * @param {object} res - an object with response
-     *@param{object} result - an object with all errors
-     *@return {res} Returns a response with error
-     * @static
-     */
+   * Return Invalid data message
+   * @param {object} res - an object with response
+   *@param{object} result - an object with all errors
+   *@return {res} Returns a response with error
+   * @static
+   */
   static invalidDataMessage(res, result) {
     const errors = [];
     for (let index = 0; index < result.error.details.length; index += 1) {
@@ -129,13 +130,13 @@ class ArticleHelper {
   }
 
   /**
-     * Check article owner
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {object} Returns response
-     * @static
-     */
+   * Check article owner
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {object} Returns response
+   * @static
+   */
   static async isOwner(req, res, next) {
     const currentSlug = req.params.slug;
     const isExist = await Article.findOne({ where: { slug: currentSlug } });
@@ -149,7 +150,7 @@ class ArticleHelper {
     if (!isOwner) {
       return res.status(401).send({
         status: res.statusCode,
-        error: 'You don\'t have access'
+        error: "You don't have access"
       });
     }
     req.user.articleId = isExist.dataValues.id;
@@ -157,15 +158,13 @@ class ArticleHelper {
   }
 
   /**
-     * Update article
-     * @param {object} req - an object
-     * @return {object} Returns response
-     * @static
-     */
+   * Update article
+   * @param {object} req - an object
+   * @return {object} Returns response
+   * @static
+   */
   static async updateArticle(req) {
-    const {
-      title, ...update
-    } = req.body;
+    const { title, ...update } = req.body;
     if (title) {
       const newslug = ArticleHelper.createSlug(title);
       update.title = title;
@@ -176,66 +175,79 @@ class ArticleHelper {
   }
 
   /**
-     * Delete article
-     * @param {object} req - an object
-     * @param {object} res - an object
-     *@return {boolean} Return true if deleted
-     */
+   * Delete article
+   * @param {object} req - an object
+   * @param {object} res - an object
+   *@return {boolean} Return true if deleted
+   */
   static async deleteArticle(req) {
     const currentSlug = req.params.slug;
-    const deletedArticle = await
-    Article.destroy({ where: { slug: currentSlug }, returning: true });
+    const deletedArticle = await Article.destroy({ where: { slug: currentSlug }, returning: true });
     return deletedArticle;
   }
 
   /**
-     * Return all article
-     *@return {object} Return all articles
-     */
+   * Return all article
+   *@return {object} Return all articles
+   */
   static async getAllArticles() {
     const articles = await Article.findAll({
-      include: [{
-        model: User,
-        as: 'author',
-        attributes: ['username', 'bio', 'image']
-      }, {
-        model: Tag,
-        as: 'tagList',
-        attributes: ['name'],
-        raw: true
-      }],
-      attributes: ['slug', 'title', 'description', 'body', 'createdAt', 'updatedAt']
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag,
+          as: 'tagList',
+          attributes: ['name'],
+          raw: true
+        }
+      ],
+      attributes: ['slug', 'title', 'description', 'readingTime', 'body', 'createdAt', 'updatedAt']
     });
     const articlesWithTags = await tagHelper.addTagsToArticles(articles);
     return articlesWithTags;
   }
 
   /**
-     * Return one article
-     * @param {object} req - an object
-     *@return {object} Return  article
-     */
+   * Return one article
+   * @param {object} req - an object
+   *@return {object} Return  article
+   */
   static async getOneArticle(req) {
     const article = await Article.findOne({
       where: { slug: req.params.slug },
-      include: [{
-        model: User,
-        as: 'author',
-        attributes: ['username', 'bio', 'image']
-      }],
-      attributes: ['id', 'slug', 'title', 'description', 'body', 'createdAt', 'updatedAt']
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: ['username', 'bio', 'image']
+        }
+      ],
+      attributes: [
+        'id',
+        'slug',
+        'title',
+        'description',
+        'readingTime',
+        'body',
+        'createdAt',
+        'updatedAt'
+      ]
     });
     return article;
   }
 
   /**
-     * Check article owner
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {object} Returns response
-     * @static
-     */
+   * Check article owner
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {object} Returns response
+   * @static
+   */
   static async isExisting(req, res, next) {
     const { slug } = req.params;
     const { id } = req.user;
@@ -266,13 +278,13 @@ class ArticleHelper {
   }
 
   /**
- * function for number of likes on an article
- * @function likesNumber
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { number } number of comments
- */
+   * function for number of likes on an article
+   * @function likesNumber
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { number } number of comments
+   */
   static async likesNumber(req, res, next) {
     let number = 0;
     const { slug } = req.params;
@@ -281,20 +293,22 @@ class ArticleHelper {
       include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
       attributes: ['id', 'titleSlug', 'status']
     });
-    result.forEach(() => { number += 1; });
+    result.forEach(() => {
+      number += 1;
+    });
     req.body.numberOfLikes = number;
     next();
     return true;
   }
 
   /**
- * function for number of likes on an article
- * @function dislikesNumber
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { number } number of comments
- */
+   * function for number of likes on an article
+   * @function dislikesNumber
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { number } number of comments
+   */
   static async dislikesNumber(req, res, next) {
     let number = 0;
     const { slug } = req.params;
@@ -303,18 +317,20 @@ class ArticleHelper {
       include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
       attributes: ['id', 'titleSlug', 'status']
     });
-    result.forEach(() => { number += 1; });
+    result.forEach(() => {
+      number += 1;
+    });
     req.body.numberOfDislikes = number;
     next();
     return true;
   }
 
   /**
-     * Create a new article
-     * @param {object} req - an object
-     * @return {Object} Returns if true if it is valid else return false
-     * @static
-     */
+   * Create a new article
+   * @param {object} req - an object
+   * @return {Object} Returns if true if it is valid else return false
+   * @static
+   */
   static async createReaction(req) {
     const { id } = req.user;
     const { slug } = req.params;
@@ -328,11 +344,11 @@ class ArticleHelper {
   }
 
   /**
-     * Create a new article
-     * @param {object} req - an object
-     * @return {Object} Returns an object
-     * @static
-     */
+   * Create a new article
+   * @param {object} req - an object
+   * @return {Object} Returns an object
+   * @static
+   */
   static async getLikes(req) {
     const { slug } = req.params;
     const likesFetched = await Like.findAll({
@@ -344,11 +360,11 @@ class ArticleHelper {
   }
 
   /**
-     * Create a new article
-     * @param {object} req - an object
-     * @return {Object} Returns if true if it is valid else return false
-     * @static
-     */
+   * Create a new article
+   * @param {object} req - an object
+   * @return {Object} Returns if true if it is valid else return false
+   * @static
+   */
   static async getDislikes(req) {
     const { slug } = req.params;
     const likesFetched = await Like.findAll({
@@ -372,10 +388,10 @@ class ArticleHelper {
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async createArticleTag(req) {
     const createdTag = await Tag.create({
       name: req.body.name,
@@ -387,20 +403,20 @@ class ArticleHelper {
   /**
    * @returns {object} response
    *  @static
-  */
+   */
   static async listTags() {
     const tagList = await Tag.aggregate('name', 'DISTINCT', { plain: false }).map(row => row.DISTINCT);
     return tagList || [];
   }
 
   /**
- * function for checking if a platform  is valid
- * @function isShared
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { string } appropriate message
- */
+   * function for checking if a platform  is valid
+   * @function isShared
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { string } appropriate message
+   */
   static async isPlatformValid(req, res, next) {
     const { option } = req.params;
     const platforms = ['facebook', 'twitter', 'gmail', 'linkedin'];
@@ -412,23 +428,28 @@ class ArticleHelper {
   }
 
   /**
- * function for checking if article is alreadry shared or not
- * @function isShared
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { string } appropriate message
- */
+   * function for checking if article is alreadry shared or not
+   * @function isShared
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { string } appropriate message
+   */
   static async isShared(req, res, next) {
     const { option } = req.params;
     const { id } = req.user;
     const share = await Share.findOne({ where: { userId: id } });
-    if (!share) { next(); return true; }
+    if (!share) {
+      next();
+      return true;
+    }
     const { platform } = share;
     if (platform.includes(option)) {
       const updatePlatforms = platform.filter(result => result !== option);
       await Share.update({ platform: updatePlatforms }, { where: { userId: id } });
-      return res.status(200).send({ message: `your ${option} share is removed, you can share again` });
+      return res
+        .status(200)
+        .send({ message: `your ${option} share is removed, you can share again` });
     }
     next();
     return true;
@@ -491,23 +512,26 @@ class ArticleHelper {
     if (option === 'facebook') {
       const result = await open(`http://www.facebook.com/sharer/sharer.php?u=${articleShareUrl}`);
       return result;
-    } if (option === 'twitter') {
+    }
+    if (option === 'twitter') {
       const result = await open(`https://twitter.com/intent/tweet?text=${articleShareUrl}`);
       return result;
-    } if (option === 'gmail') {
+    }
+    if (option === 'gmail') {
       const result = await open(`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su=Authorshaven%20Post&body=copy%20the%20following%20link%20to%20open%20the%20article%20${articleShareUrl}`);
       return result;
-    } if (option === 'linkedin') {
+    }
+    if (option === 'linkedin') {
       const result = await open(`https://www.linkedin.com/sharing/share-offsite/?url=${articleShareUrl}`);
       return result;
     }
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async createShare(req) {
     const { option } = req.params;
     const { slug } = req.params;
@@ -527,19 +551,22 @@ class ArticleHelper {
     const { platform } = share;
     platform.push(option);
     const newPlatform = platform;
-    await Share.update({
-      platform: newPlatform,
-      updatedAt: new Date()
-    }, { where: { userId: id } });
+    await Share.update(
+      {
+        platform: newPlatform,
+        updatedAt: new Date()
+      },
+      { where: { userId: id } }
+    );
     const createdShare = await Share.findOne({ where: { userId: id } });
     return createdShare;
   }
 
   /**
-     * Return one article
-     * @param {object} slug - an object
-     *@return {object} Return  shares
-     */
+   * Return one article
+   * @param {object} slug - an object
+   *@return {object} Return  shares
+   */
   static async getShares(slug) {
     const shares = await Share.findAll({
       where: { titleSlug: slug },
@@ -550,10 +577,10 @@ class ArticleHelper {
   }
 
   /**
-     * Return one article
-     * @param {object} shares - an object
-     *@return {object} Return  shares
-     */
+   * Return one article
+   * @param {object} shares - an object
+   *@return {object} Return  shares
+   */
   static async numberOfSharesOnPlatform(shares) {
     let facebook = 0;
     let twitter = 0;

@@ -15,6 +15,10 @@ const articleMigrations = {
     description: {
       type: Sequelize.STRING
     },
+    readingTime: {
+      type: Sequelize.STRING,
+      defaultValue: 0
+    },
     image: {
       type: Sequelize.STRING
     },
