@@ -11,13 +11,13 @@ const likes = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'author',
       onDelete: 'CASCADE',
-      onupdate: 'CASCADE'
+      onUpdate: 'CASCADE'
     });
     Like.belongsTo(models.Article, {
       foreignKey: 'titleSlug',
       targetKey: 'slug',
       onDelete: 'CASCADE',
-      onupdate: 'CASCADE'
+      onUpdate: 'CASCADE'
     });
   };
   return Like;

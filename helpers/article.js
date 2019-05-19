@@ -8,7 +8,7 @@ import emitter from './eventEmitters';
 import tagHelper from './tag.helper';
 
 const {
-  Article, User, Tag, Like, Share
+  Article, User, Tag, Like, Share, Bookmark
 } = db;
 
 /**
@@ -435,6 +435,50 @@ class ArticleHelper {
   }
 
   /**
+ * function for creating bookmarks on articles
+ * @function createBookmark
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { number } appropriate message
+ */
+  static async articleToBookmark(req, res, next) {
+    const { slug } = req.params;
+    const article = await Article.findOne({ where: { slug } });
+    if (!article) { return res.status(404).send({ errors: { body: ['article not found'] } }); }
+    next();
+    return true;
+  }
+
+  /**
+ * function for creating bookmarks on articles
+ * @function createBookmark
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { number } appropriate message
+ */
+  static createBookmark(req, res, next) {
+    const { slug } = req.params;
+    const { id } = req.user;
+    Bookmark.create({
+      userId: id,
+      titleSlug: slug,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).then((bookmark) => {
+      req.body.bookmark = bookmark;
+      next();
+      return true;
+    })
+      .catch((error) => {
+        req.body.bookmark = error.name;
+        next();
+        return true;
+      });
+  }
+
+  /**
   * @param  {object} req - Request object
   * @returns {object} response
   *  @static
@@ -531,6 +575,35 @@ class ArticleHelper {
       }
     });
     return [facebook, twitter, linkedin, gmail];
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async deleteBookmark(req) {
+    const { slug } = req.params;
+    const { id } = req.user;
+    await Bookmark.destroy({ where: { userId: id, titleSlug: slug } });
+    return { message: `your bookmark is for article with slug ${slug} is removed, bookmark again` };
+  }
+
+  /**
+  * @param  {number} id - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async getBookmarks(id) {
+    const bookmarks = await Bookmark.findAll({
+      where: { userId: id },
+      include: [{ model: Article, as: 'article', attributes: ['title', 'description', 'slug'] }],
+      attributes: ['id', 'userId', 'createdAt']
+    });
+    if (bookmarks.length < 1) {
+      return 'no bookmarks made';
+    }
+    return bookmarks;
   }
 }
 export default ArticleHelper;

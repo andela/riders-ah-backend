@@ -22,5 +22,7 @@ router.post('/:slug/tag', Auth, ArticleHelper.isOwner, TagMiddleware.isNotTagAdd
 router.get('/tag/list', articleController.getAllTags);
 router.post('/:slug/share/:option', Auth, ArticleHelper.isPlatformValid, ArticleHelper.isShared, articleController.shareArticle);
 router.get('/:slug/shares', Auth, articleController.getShares);
+router.post('/:slug/bookmark', Auth, ArticleHelper.articleToBookmark, ArticleHelper.createBookmark, articleController.bookmarkArticle);
+router.get('/user/bookmarks', Auth, articleController.getBookmarks);
 
 export default router;

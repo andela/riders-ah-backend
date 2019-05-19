@@ -359,3 +359,61 @@
  *       '404':
  *         article or share not found
  */
+
+/**
+ * @swagger
+ * /articles/{slug}/bookmark:
+ *   post:
+ *     tags:
+ *       - bookmark
+ *     name: bookmark
+ *     summary: create bookmark by a user an article
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: slug
+ *         in: path
+ *         schema:
+ *           type: string
+ *         required:
+ *           - slug
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '201':
+ *         description: bookmark have been created successfully
+ *       '400':
+ *         bookmark have been failed to be created
+ */
+
+/**
+ * @swagger
+ * /articles/user/bookmarks:
+ *   get:
+ *     tags:
+ *       - bookmark
+ *     name: bookmark
+ *     summary: get bookmark made by a user an article
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '200':
+ *         description: bookmarks have been fetched successfully
+ *       '400':
+ *         bookmarks have been failed to be fetched
+ */
