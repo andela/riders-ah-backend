@@ -2,6 +2,7 @@ import passport from 'passport';
 import db from '../models';
 import passportHelper from '../helpers/passport';
 import helper from '../helpers';
+import userHelper from '../helpers/userHelper';
 
 const { User } = db;
 /**
@@ -97,6 +98,23 @@ class UserController {
         return res.status(401).send({ status: 401, err });
       }
     })(req, res);
+  }
+
+  /**
+     * Get list of users
+     * @function listUsers
+     * @param  {object} req - accept object with user info
+     * @param  {object} res - accept object with user info
+     * @return {json} Returns json object
+     * @static
+     */
+  static async listUsers(req, res) {
+    const users = await userHelper.usersList(req.user.id);
+
+    res.status(200).json({
+      status: 200,
+      users
+    });
   }
 }
 export default UserController;

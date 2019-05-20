@@ -1,8 +1,8 @@
 import db from '../models';
 import helper from './index';
+import recordHelper from './passport';
 
-const { User } = db;
-
+const { User, Follows, Sequelize } = db;
 /**
  * @exports UserHelper
  * @class UserHelper
@@ -39,6 +39,30 @@ class UserHelper {
       return res.status(400).json({ status: 400, errors: { body: errorMessage } });
     }
     next();
+  }
+
+  /**
+     * List users and followers
+     * @function usersList
+     * @param {string} userId - User ID
+     * @return {string} - Returns an array of users
+     * @static
+     */
+  static async usersList(userId) {
+    const users = await User.findAll({
+      where: { id: { [Sequelize.Op.ne]: userId } },
+      attributes: ['id', 'username', 'bio', 'image']
+    });
+    await Promise.all(users.map(async (currentUser) => {
+      const conditions = {
+        following: userId, follower: currentUser.dataValues.id
+      };
+      const userFollowing = await recordHelper.findRecord(Follows, conditions);
+      currentUser.dataValues.following = !!userFollowing;
+      return currentUser;
+    }));
+
+    return users;
   }
 }
 export default UserHelper;

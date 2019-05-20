@@ -132,6 +132,27 @@
 
 /**
  * @swagger
+ * /users:
+ *   get:
+ *     tags:
+ *       - User
+ *     name: List all users
+ *     summary: Get a list of users with following
+ *     parameters:
+ *       - name: body
+ *         schema:
+ *           $ref: '#/definitions/User'
+ *           type: object
+ *     responses:
+ *       '200':
+ *         description: Success
+ *       '401':
+ *         description: User is not authenticated.
+ */
+/**
+
+ /**
+ * @swagger
  * /login/facebook/:
  *   get:
  *     tags:
@@ -160,6 +181,7 @@
  *         description: An existing User authenticated successfully.
  */
 /**
+
  * @swagger
  * /login/google/:
  *   get:
