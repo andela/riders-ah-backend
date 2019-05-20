@@ -187,6 +187,16 @@ describe('Test article', () => {
           done();
         });
     });
+
+    it('Should get all articles on a page', (done) => {
+      chai
+        .request(app)
+        .get('/api/v1/articles?limit=5&offset=1')
+        .end((error, res) => {
+          expect(res.body).to.have.property('articles');
+          done();
+        });
+    });
     it('Should have access to delete', (done) => {
       chai
         .request(app)
