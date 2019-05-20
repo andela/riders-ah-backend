@@ -14,8 +14,8 @@ const ratings = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      articleId: {
-        type: DataTypes.INTEGER,
+      articleSlug: {
+        type: DataTypes.STRING,
         allowNull: false
       },
       rate: {
@@ -28,7 +28,9 @@ const ratings = (sequelize, DataTypes) => {
   Rating.associate = (models) => {
     // associations can be defined here
     Rating.belongsTo(models.User, { foreignKey: 'reviewerId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
-    Rating.belongsTo(models.Article, { foreignKey: 'articleId', onUpdate: 'CASCADE' });
+    Rating.belongsTo(models.Article, {
+      foreignKey: 'articleSlug', targetKey: 'slug', onDelete: 'CASCADE', onUpdate: 'CASCADE'
+    });
   };
   return Rating;
 };

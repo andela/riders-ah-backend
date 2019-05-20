@@ -26,7 +26,7 @@ class RatingController {
       image: rateAuthor.image
     };
     const ratings = await Rating.findOne({
-      where: { reviewerId: rateAuthor.id, articleId: req.params.id }
+      where: { reviewerId: rateAuthor.id, articleSlug: req.params.slug }
     });
     if (ratings) {
       const [, updatedRating] = await Rating.update(
@@ -40,7 +40,7 @@ class RatingController {
     }
     const rating = await Rating.create({
       rate,
-      articleId: req.params.id,
+      articleSlug: req.params.slug,
       reviewerId: rateAuthor.id
     });
     return res.status(201).send({

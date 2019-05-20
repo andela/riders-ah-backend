@@ -11,20 +11,21 @@ class ArticRatelehelper {
   /**
        * Check the environment
        * @function validateArticleRated
-       * @param  {string} article - Check the rate
+       * @param  {string} slug - Check the rate
        * @param  {integer} user - Check the user
        * @return {string} Validate the rate
        */
-  static async validateArticleRated(article, user) {
-    const findarticle = await Article.findOne({ where: { id: article } });
+  static async validateArticleRated(slug, user) {
+    const findarticle = await Article.findOne({ where: { slug } });
     if (findarticle) {
       const articleOwner = await Article.findAll({
-        where: { id: article, authorId: user }
+        where: { slug, authorId: user }
       });
       if (articleOwner.length) {
         return 'Oops! You cannot rate your article';
       }
-    } else {
+    }
+    if (findarticle == null) {
       return 'This Article does not exist';
     }
     return true;

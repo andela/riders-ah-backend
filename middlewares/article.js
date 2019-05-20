@@ -19,7 +19,7 @@ class ArticleMiddleware {
     if (req.body.rate === undefined) {
       errorMessage.push('Oops! Rate is required');
     }
-    const validateArticle = await Articlehepler.validateArticleRated(req.params.id, req.user.id);
+    const validateArticle = await Articlehepler.validateArticleRated(req.params.slug, req.user.id);
     if (validateArticle !== true) {
       errorMessage.push(validateArticle);
     }
