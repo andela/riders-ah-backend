@@ -1,4 +1,5 @@
 import db from '../models';
+import RateHelper from '../helpers/articleRatevalidator';
 import PassportHelper from '../helpers/passport';
 
 const { Rating, User } = db;
@@ -47,6 +48,22 @@ class RatingController {
       status: res.statusCode,
       data: { rating, Author: userData }
     });
+  }
+
+  /**
+     * Check the environment
+     * @function getArticleRating
+     * @param  {object} req - accept object with user info
+     * @param  {object} res - accept object with user info
+     * @return {json} Returns json object
+     * @static
+     */
+  static async getArticleRating(req, res) {
+    const allRates = await RateHelper.getRating(req);
+    const statusCode = allRates.status ? allRates.status : 200;
+    const rates = !allRates.status ? allRates : allRates.errors;
+    const key = allRates.status ? 'errors' : 'ratings';
+    return res.status(statusCode).send({ status: res.statusCode, [key]: rates });
   }
 }
 export default RatingController;

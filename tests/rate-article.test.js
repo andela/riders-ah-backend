@@ -24,10 +24,18 @@ const articleTest = {
   image: 'https/piimg.com/img.jpg'
 };
 
+const newArticleTest = {
+  title: 'This is the new title of the article',
+  description: 'This is the new description of the acrticle',
+  body: 'this is the new body of the article',
+  image: 'https/piimg.com/img.jpg'
+};
+
 const rateTest = { rate: 2 };
 
 let toKen = null;
 let articleSlug = null;
+let articleNewSlug = null;
 describe('Rate user posted article', () => {
   it('User Signup', (done) => {
     chai.request(app)
@@ -55,6 +63,25 @@ describe('Rate user posted article', () => {
         expect(res.body.article.title).equals('This is the title of the article');
         expect(res.body.article.description).equals('This is the description of the acrticle');
         expect(res.body.article.body).equals('this is the body of the article');
+        expect(res.body.article.image).equals('https/piimg.com/img.jpg');
+        done();
+      });
+  });
+  it('User create a new article', (done) => {
+    chai.request(app)
+      .post('/api/v1/articles')
+      .set('authorization', toKen)
+      .send(newArticleTest)
+      .end((error, res) => {
+        articleNewSlug = res.body.article.slug;
+        expect(res.body).to.have.property('article');
+        expect(res.body.article).to.have.property('author');
+        expect(res.body.article).to.have.property('title');
+        expect(res.body.article).to.have.property('body');
+        expect(res.body.article).to.have.property('description');
+        expect(res.body.article.title).equals('This is the new title of the article');
+        expect(res.body.article.description).equals('This is the new description of the acrticle');
+        expect(res.body.article.body).equals('this is the new body of the article');
         expect(res.body.article.image).equals('https/piimg.com/img.jpg');
         done();
       });
@@ -141,6 +168,52 @@ describe('Rate user posted article', () => {
       .end((error, res) => {
         expect(res.body).to.have.status(400);
         expect(res.body.errors.body[0]).to.be.equal('This Article does not exist');
+        done();
+      });
+  });
+  it('Get all rating on an article', (done) => {
+    chai.request(app)
+      .get(`/api/v1/articles/${articleSlug}/rate`)
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(200);
+        expect(res.body.ratings[0]).to.have.property('id');
+        expect(res.body.ratings[0]).to.have.property('reviewerId');
+        expect(res.body.ratings[0]).to.have.property('articleSlug');
+        expect(res.body.ratings[0]).to.have.property('rate');
+        expect(res.body.ratings[0]).to.have.property('createdAt');
+        expect(res.body.ratings[0]).to.have.property('updatedAt');
+        expect(res.body.ratings[0]).to.have.property('author');
+        done();
+      });
+  });
+  it('Article has no rating', (done) => {
+    chai.request(app)
+      .get(`/api/v1/articles/${articleNewSlug}/rate`)
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(200);
+        expect(res.body).to.have.property('ratings').that.eql([]);
+        done();
+      });
+  });
+  it('Article has no rating', (done) => {
+    chai.request(app)
+      .get('/api/v1/articles/test-test/rate')
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(404);
+        expect(res.body).to.have.property('errors').to.be.equal('This article does not exist');
+        done();
+      });
+  });
+  it('Article not found', (done) => {
+    chai.request(app)
+      .get('/api/v1/articles/rate')
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(404);
+        expect(res.body).to.have.property('error').to.be.equal('Article Not found');
         done();
       });
   });
