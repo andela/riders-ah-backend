@@ -154,6 +154,52 @@ class ArticleController {
     const result = await ArticleHelper.getDislikes(req);
     return res.status(200).send({ dislikes: result, count: numberOfDislikes });
   }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async shareArticle(req, res) {
+    const article = await ArticleHelper.findArticleBySlug(req.params.slug);
+    if (!article) { return res.status(404).send({ errors: { body: ['article not found'] } }); }
+    const result = await ArticleHelper.shareArticle(req);
+    if (result) {
+      const createdShare = await ArticleHelper.createShare(req);
+      return res.status(201).send({ share: createdShare });
+    }
+    return res.status(400).send({ errors: { body: ['share not created'] } });
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async getShares(req, res) {
+    const { slug } = req.params;
+    const article = await ArticleHelper.findArticleBySlug(slug);
+    if (!article) { return res.status(404).send({ errors: { body: ['article not found'] } }); }
+    const shares = await ArticleHelper.getShares(slug);
+    if (shares.length < 1) {
+      return res.status(200).send({ message: 'this article has not been shared yet' });
+    }
+    const numberOfSharesOnPlatform = await ArticleHelper.numberOfSharesOnPlatform(shares);
+    const facebook = numberOfSharesOnPlatform[0];
+    const twitter = numberOfSharesOnPlatform[1];
+    const linkedin = numberOfSharesOnPlatform[2];
+    const gmail = numberOfSharesOnPlatform[3];
+    return res.status(200).send({
+      titleSlug: slug,
+      Shares: shares,
+      facebookShares: facebook,
+      twitterShares: twitter,
+      linkedinShares: linkedin,
+      gmailShares: gmail
+    });
+  }
 }
 
 export default ArticleController;

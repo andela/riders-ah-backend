@@ -33,6 +33,10 @@ const articles = (sequelize, DataTypes) => {
       foreignKey: 'articleSlug',
       sourceKey: 'slug'
     });
+    Article.hasMany(models.Share, {
+      foreignKey: 'titleSlug',
+      sourceKey: 'slug'
+    });
   };
   return Article;
 };

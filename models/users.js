@@ -51,6 +51,7 @@ const users = (sequelize, DataTypes) => {
     User.hasMany(models.Follows, { foreignKey: 'following' });
     User.hasMany(models.Follows, { foreignKey: 'follower' });
     User.hasMany(models.Notification, { as: 'user', foreignKey: 'userId' });
+    User.hasMany(models.Share, { foreignKey: 'userId' });
   };
   return User;
 };
