@@ -52,13 +52,30 @@ class ArticleRatelehelper {
      */
   static async getRating(req) {
     const { slug } = req.params;
+    const errorMessage = [];
     const getArticle = await Article.findOne({
       where: { slug }
     });
     if (getArticle == null) {
       return { status: 404, errors: 'This article does not exist' };
     }
+    let { limit, offset } = req.query;
+    if (limit === undefined || offset === undefined) {
+      limit = 20;
+      offset = 0;
+    }
+    if (!/^(0|[1-9]\d*)$/.test(limit) && limit !== undefined) {
+      errorMessage.push('Limit must be a number');
+    }
+    if (!/^(0|[1-9]\d*)$/.test(offset) && offset !== undefined) {
+      errorMessage.push('Offset must be a number');
+    }
+    if (errorMessage.length) {
+      return { status: 400, errors: { body: errorMessage } };
+    }
     const getRate = await Rating.findAll({
+      limit,
+      offset,
       where: { articleSlug: slug },
       include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }]
     });
