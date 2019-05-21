@@ -75,8 +75,7 @@ describe('create, read, update and delete comment tests', () => {
       .end((err, res) => {
         res.should.have.status(201);
         res.body.should.be.a('object');
-        res.body.should.have.property('type').eql('threadedComment comment created');
-        res.body.should.have.property('timeRange').eql(res.body.timeRange);
+        res.body.should.have.property('comment');
         done();
       });
   });
@@ -120,7 +119,7 @@ describe('test creation of first comment', () => {
         done();
       });
   });
-  it('should create the first comment', (done) => {
+  it('should create the comment to be replied', (done) => {
     const data = {
       body: 'testing comment'
     };
@@ -129,10 +128,9 @@ describe('test creation of first comment', () => {
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
-        commentId = res.body.id;
+        commentId = res.body.comment.id;
         res.should.have.status(201);
         res.body.should.be.a('object');
-        res.body.should.have.property('message').eql('this is the first comment');
         done();
       });
   });
@@ -141,7 +139,7 @@ describe('test creation of first comment', () => {
       body: 'reply to the testing comment'
     };
     chai.request(app)
-      .post(`/api/v1/comment/${commentId}/reply`)
+      .post(`/api/v1/article/comments/${commentId}/reply`)
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
@@ -160,7 +158,7 @@ describe('test creation of first comment', () => {
   });
   it('should fetch all replies to the first comment', (done) => {
     chai.request(app)
-      .get(`/api/v1/comment/${commentId}/replies`)
+      .get(`/api/v1/article/comments/${commentId}/replies`)
       .set('authorization', Token)
       .end((err, res) => {
         res.should.have.status(200);
@@ -175,7 +173,7 @@ describe('test creation of first comment', () => {
   };
   it('user updates one reply with a new reply', (done) => {
     chai.request(app)
-      .post(`/api/v1/comment/${commentId}/reply/${replyId}`)
+      .put(`/api/v1/article/comments/${commentId}/replies/${replyId}`)
       .set('authorization', Token)
       .send(newReply)
       .end((err, res) => {
@@ -194,7 +192,7 @@ describe('test creation of first comment', () => {
   });
   it('user deletes one reply', (done) => {
     chai.request(app)
-      .delete(`/api/v1/comment/${commentId}/reply/${replyId}`)
+      .delete(`/api/v1/article/comments/${commentId}/replies/${replyId}`)
       .set('authorization', Token)
       .end((err, res) => {
         res.should.have.status(200);
@@ -209,173 +207,6 @@ describe('test creation of first comment', () => {
     });
     await User.destroy({
       where: { username: 'bubble' }
-    });
-    await Comment.destroy({
-      where: { titleSlug: 'this-is-a-post' }
-    });
-  });
-});
-describe('test creation of a non threaded comment', () => {
-  let Token;
-  let ID;
-  before((done) => {
-    Article.create({
-      title: 'this is a post',
-      body: 'this post is going to be used in testing',
-      description: 'a despripton',
-      image: 'http://image.com',
-      slug: 'this-is-a-post',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    Comment.destroy({ force: true, where: {} });
-    const user = {
-      username: 'bubble',
-      email: 'bubble@andela.com',
-      password: 'Fiston@123!'
-    };
-    chai.request(app)
-      .post('/api/v1/users/signup')
-      .send(user)
-      .end((err, res) => {
-        Token = res.body.token;
-        done();
-      });
-  });
-  beforeEach((done) => {
-    const data = {
-      body: 'testing comment before'
-    };
-    chai.request(app)
-      .post('/api/v1/article/this-is-a-post/comments')
-      .set('authorization', Token)
-      .send(data)
-      .end((err, res) => {
-        ID = res.body.userId;
-        done();
-      });
-  });
-  it('should create a non threaded comment', (done) => {
-    Comment.create({
-      userId: ID,
-      titleSlug: 'this-is-a-post',
-      body: 'comment before one minute',
-      createdAt: new Date('Fri May 10 2019 17:27:02 GMT+0200 (Central Africa Time)'),
-      updatedAt: new Date('Fri May 10 2019 17:27:02 GMT+0200 (Central Africa Time)')
-    });
-    const data = {
-      body: 'testing comment'
-    };
-    chai.request(app)
-      .post('/api/v1/article/this-is-a-post/comments')
-      .set('authorization', Token)
-      .send(data)
-      .end((err, res) => {
-        res.should.have.status(201);
-        res.body.should.be.a('object');
-        res.body.should.have.property('type').eql('no threadedComment created');
-        res.body.should.have.property('timeRange').eql(res.body.timeRange);
-        done();
-      });
-  });
-  after(async () => {
-    await Article.destroy({
-      where: { slug: 'this-is-a-post' }
-    });
-    await User.destroy({
-      where: { username: 'bubble' }
-    });
-    await Comment.destroy({
-      where: { titleSlug: 'this-is-a-post' }
-    });
-  });
-});
-describe('test if the authors of successive comments are different', () => {
-  let Token;
-  let Token2;
-  let ID2;
-  before((done) => {
-    Article.create({
-      title: 'this is a post',
-      body: 'this post is going to be used in testing',
-      description: 'a despripton',
-      image: 'http://image.com',
-      slug: 'this-is-a-post',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    Comment.destroy({ force: true, where: {} });
-    const user1 = {
-      username: 'bubble',
-      email: 'bubble@andela.com',
-      password: 'Password@123!'
-    };
-    chai.request(app)
-      .post('/api/v1/users/signup')
-      .send(user1)
-      .end((err, res) => {
-        Token = res.body.token;
-      });
-    const user2 = {
-      username: 'bee',
-      email: 'bee@andela.com',
-      password: 'PASSword@123!'
-    };
-    chai.request(app)
-      .post('/api/v1/users/signup')
-      .send(user2)
-      .end((err, res) => {
-        Token2 = res.body.token;
-        done();
-      });
-  });
-  beforeEach((done) => {
-    const data = {
-      body: 'comment from first user before'
-    };
-    chai.request(app)
-      .post('/api/v1/article/this-is-a-post/comments')
-      .set('authorization', Token2)
-      .send(data)
-      .end((err, res) => {
-        ID2 = res.body.userId;
-        done();
-      });
-  });
-  it('authors of successive comments should be different', (done) => {
-    Comment.create({
-      userId: ID2,
-      titleSlug: 'this-is-a-post',
-      body: 'comment from first user',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    const data = {
-      body: 'comment from second user'
-    };
-    chai.request(app)
-      .post('/api/v1/article/this-is-a-post/comments')
-      .set('authorization', Token)
-      .send(data)
-      .end((err, res) => {
-        res.should.have.status(201);
-        res.body.should.be.a('object');
-        res.body.should.have.property('id');
-        res.body.should.have.property('userId');
-        res.body.should.have.property('titleSlug');
-        res.body.should.have.property('body').eql('comment from second user');
-        res.body.should.have.property('createdAt');
-        res.body.should.have.property('updatedAt');
-        res.body.should.have.property('parentid').eql(null);
-        done();
-      });
-  });
-  after(async () => {
-    await Article.destroy({
-      where: { slug: 'this-is-a-post' }
-    });
-    await User.destroy({
-      where: {}
     });
     await Comment.destroy({
       where: { titleSlug: 'this-is-a-post' }
@@ -488,7 +319,7 @@ describe('test the get one comment', () => {
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
-        commentId = res.body.id;
+        commentId = res.body.comment.id;
         done();
       });
   });
@@ -548,7 +379,7 @@ describe('test the delete one comment', () => {
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
-        commentId = res.body.id;
+        commentId = res.body.comment.id;
         done();
       });
   });
@@ -620,7 +451,7 @@ describe('test user delete comment they created', () => {
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
-        commentId = res.body.id;
+        commentId = res.body.comment.id;
         done();
       });
   });
@@ -680,20 +511,19 @@ describe('test the update one comment', () => {
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
-        commentId = res.body.id;
+        commentId = res.body.comment.id;
         done();
       });
   });
   it('user updates one comment with an empty body', (done) => {
     chai.request(app)
-      .post(`/api/v1/article/this-is-a-post/comments/${commentId}`)
+      .put(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token)
       .end((err, res) => {
         res.should.have.status(201);
         res.body.should.be.a('object');
         res.body.should.have.property('response');
         res.body.response.should.have.property('id').eql(commentId);
-        res.body.response.should.have.property('parentid');
         res.body.response.should.have.property('userId');
         res.body.response.should.have.property('titleSlug').eql('this-is-a-post');
         res.body.response.should.have.property('body').eql('comment to fetch');
@@ -747,7 +577,7 @@ describe('test the update one comment', () => {
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
-        commentId = res.body.id;
+        commentId = res.body.comment.id;
         done();
       });
   });
@@ -756,7 +586,7 @@ describe('test the update one comment', () => {
   };
   it('user updates one comment with a new comment', (done) => {
     chai.request(app)
-      .post(`/api/v1/article/this-is-a-post/comments/${commentId}`)
+      .put(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token)
       .send(newComment)
       .end((err, res) => {
@@ -764,7 +594,6 @@ describe('test the update one comment', () => {
         res.body.should.be.a('object');
         res.body.should.have.property('response');
         res.body.response.should.have.property('id').eql(commentId);
-        res.body.response.should.have.property('parentid');
         res.body.response.should.have.property('userId');
         res.body.response.should.have.property('titleSlug').eql('this-is-a-post');
         res.body.response.should.have.property('body').eql('comment to update');
@@ -830,7 +659,7 @@ describe('test if updating user created the comment', () => {
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
-        commentId = res.body.id;
+        commentId = res.body.comment.id;
         done();
       });
   });
@@ -839,7 +668,7 @@ describe('test if updating user created the comment', () => {
   };
   it('user should update a comment they created', (done) => {
     chai.request(app)
-      .post(`/api/v1/article/this-is-a-post/comments/${commentId}`)
+      .put(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token2)
       .send(newComment)
       .end((err, res) => {
@@ -857,119 +686,119 @@ describe('test if updating user created the comment', () => {
       where: {}
     });
   });
-  describe('Test likes of a comment', () => {
-    let userToken;
-    let comment;
-    let commentFeedbackId;
-    before((done) => {
-      Article.create({
-        title: 'this is new',
-        body: 'this post is going to be used in testing',
-        description: 'a new title',
-        image: 'http://image.com',
-        slug: 'this-is-new',
-        createdAt: new Date(),
-        updatedAt: new Date()
+});
+describe('Test likes of a comment', () => {
+  let userToken;
+  let comment;
+  let commentFeedbackId;
+  before((done) => {
+    Article.create({
+      title: 'this is new',
+      body: 'this post is going to be used in testing',
+      description: 'a new title',
+      image: 'http://image.com',
+      slug: 'this-is-new',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    const newUser = {
+      username: 'username',
+      email: 'username@andela.com',
+      password: 'Andela@123!'
+    };
+    chai.request(app)
+      .post('/api/v1/users/signup')
+      .send(newUser)
+      .end((err, res) => {
+        userToken = res.body.token;
+        done();
       });
-      const newUser = {
-        username: 'username',
-        email: 'username@andela.com',
-        password: 'Andela@123!'
-      };
-      chai.request(app)
-        .post('/api/v1/users/signup')
-        .send(newUser)
-        .end((err, res) => {
-          userToken = res.body.token;
-          done();
-        });
-    });
-    it('should have a comment', (done) => {
-      const data = {
-        body: 'a new comment'
-      };
-      chai.request(app)
-        .post('/api/v1/article/this-is-new/comments')
-        .set('authorization', userToken)
-        .send(data)
-        .end((err, res) => {
-          comment = res.body.id;
-          res.should.have.status(201);
-          res.body.should.be.a('object');
-          done();
-        });
-    });
-    it('User should be able to like a comment', (done) => {
-      chai.request(app)
-        .post(`/api/v1/comments/${comment}/feedback/like`)
-        .set('authorization', userToken)
-        .end((err, res) => {
-          commentFeedbackId = res.body.feedback.id;
-          res.body.should.be.a('object');
-          res.body.should.have.property('feedback');
-          res.body.feedback.should.have.property('id');
-          res.body.feedback.should.have.property('userId');
-          res.body.feedback.should.have.property('commentId');
-          res.body.feedback.should.have.property('feedback').eql('like');
-          done();
-        });
-    });
-    it('Should not accept  wrong parameters', (done) => {
-      chai.request(app)
-        .post(`/api/v1/comments/${comment}/feedback/likes`)
-        .set('authorization', userToken)
-        .end((err, res) => {
-          res.should.have.status(422);
-          res.body.should.be.a('object');
-          res.body.should.have.property('Error').eql('Only option must only be \'like\'');
-          done();
-        });
-    });
-    it('Should not accept  unexesting comment', (done) => {
-      chai.request(app)
-        .post('/api/v1/comments/1000000/feedback/like')
-        .set('authorization', userToken)
-        .end((err, res) => {
-          res.body.should.be.a('object');
-          res.body.should.have.property('errors');
-          res.body.errors.should.have.property('body');
-          done();
-        });
-    });
-    it('Should get likes per comment', (done) => {
-      chai.request(app)
-        .get(`/api/v1/articles/${comment}/likes`)
-        .set('authorization', userToken)
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.have.property('likes');
-          res.body.should.have.property('count');
-          done();
-        });
-    });
-    it('Should not delete an unexistig comment', (done) => {
-      chai.request(app)
-        .delete(`/api/v1/comments/${comment}`)
-        .set('authorization', userToken)
-        .end((err, res) => {
-          res.should.have.status(404);
-          res.body.should.be.a('object');
-          res.body.should.have.property('errors');
-          res.body.errors.should.have.property('body');
-          done();
-        });
-    });
-    it('Should delete a comment', (done) => {
-      chai.request(app)
-        .delete(`/api/v1/comments/${commentFeedbackId}`)
-        .set('authorization', userToken)
-        .end((err, res) => {
-          res.body.should.be.a('object');
-          res.body.should.have.property('message');
-          res.body.message.should.have.property('body');
-          done();
-        });
-    });
+  });
+  it('should have a comment', (done) => {
+    const data = {
+      body: 'a new comment'
+    };
+    chai.request(app)
+      .post('/api/v1/article/this-is-new/comments')
+      .set('authorization', userToken)
+      .send(data)
+      .end((err, res) => {
+        comment = res.body.comment.id;
+        res.should.have.status(201);
+        res.body.should.be.a('object');
+        done();
+      });
+  });
+  it('User should be able to like a comment', (done) => {
+    chai.request(app)
+      .post(`/api/v1/comments/${comment}/feedback/like`)
+      .set('authorization', userToken)
+      .end((err, res) => {
+        commentFeedbackId = res.body.feedback.id;
+        res.body.should.be.a('object');
+        res.body.should.have.property('feedback');
+        res.body.feedback.should.have.property('id');
+        res.body.feedback.should.have.property('userId');
+        res.body.feedback.should.have.property('commentId');
+        res.body.feedback.should.have.property('feedback').eql('like');
+        done();
+      });
+  });
+  it('Should not accept  wrong parameters', (done) => {
+    chai.request(app)
+      .post(`/api/v1/comments/${comment}/feedback/likes`)
+      .set('authorization', userToken)
+      .end((err, res) => {
+        res.should.have.status(422);
+        res.body.should.be.a('object');
+        res.body.should.have.property('Error').eql('Only option must only be \'like\'');
+        done();
+      });
+  });
+  it('Should not accept  unexesting comment', (done) => {
+    chai.request(app)
+      .post('/api/v1/comments/1000000/feedback/like')
+      .set('authorization', userToken)
+      .end((err, res) => {
+        res.body.should.be.a('object');
+        res.body.should.have.property('errors');
+        res.body.errors.should.have.property('body');
+        done();
+      });
+  });
+  it('Should get likes per comment', (done) => {
+    chai.request(app)
+      .get(`/api/v1/articles/${comment}/likes`)
+      .set('authorization', userToken)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('likes');
+        res.body.should.have.property('count');
+        done();
+      });
+  });
+  it('Should not delete an unexistig comment', (done) => {
+    chai.request(app)
+      .delete(`/api/v1/comments/${comment}`)
+      .set('authorization', userToken)
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.be.a('object');
+        res.body.should.have.property('errors');
+        res.body.errors.should.have.property('body');
+        done();
+      });
+  });
+  it('Should delete a comment', (done) => {
+    chai.request(app)
+      .delete(`/api/v1/comments/${commentFeedbackId}`)
+      .set('authorization', userToken)
+      .end((err, res) => {
+        res.body.should.be.a('object');
+        res.body.should.have.property('message');
+        res.body.message.should.have.property('body');
+        done();
+      });
   });
 });

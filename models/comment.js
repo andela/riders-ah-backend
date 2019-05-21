@@ -5,7 +5,6 @@ const comments = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    parentid: DataTypes.INTEGER,
     replyid: DataTypes.INTEGER,
     userId: {
       type: DataTypes.INTEGER,

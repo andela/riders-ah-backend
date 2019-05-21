@@ -6,9 +6,6 @@ const commentMigrations = {
       primaryKey: true,
       type: Sequelize.INTEGER
     },
-    parentid: {
-      type: Sequelize.INTEGER
-    },
     replyid: {
       type: Sequelize.INTEGER,
       onDelete: 'CASCADE',
