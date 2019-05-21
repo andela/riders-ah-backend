@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import db from '../models';
 import helper from './index';
 import recordHelper from './passport';
@@ -63,6 +64,23 @@ class UserHelper {
     }));
 
     return users;
+  }
+
+  /**
+     * List users and followers
+     * @function findUserByToken
+     * @param {string} jwtToken - User ID
+     * @return {number} - Return id of the user or null
+     * @static
+     */
+  static async findUserByToken(jwtToken) {
+    let userId = null;
+    if (jwtToken) {
+      const decoded = jwt.verify(jwtToken, process.env.SECRET);
+      const user = await User.findOne({ where: { id: decoded.id } });
+      if (user) userId = decoded.id;
+    }
+    return userId;
   }
 }
 export default UserHelper;

@@ -8,11 +8,13 @@ import notifications from './auth/notification';
 import article from './article/articles';
 import comment from './comment/comment';
 import likes from './comment/like';
+import userRoute from './user/user.route';
 
 const router = express.Router();
 
 router.use('/', notifications);
 router.use('/users', user);
+router.use('/users', userRoute);
 router.use('/users/roles', roles);
 router.use('/login', auth);
 router.use('/articles', article);

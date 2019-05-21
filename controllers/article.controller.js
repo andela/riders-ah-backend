@@ -1,6 +1,11 @@
 import ArticleHelper from '../helpers/article';
 import tagHelper from '../helpers/tag.helper';
+import statsHelper from '../helpers/read.stats.helper';
+import userHelper from '../helpers/userHelper';
+import recordHelper from '../helpers/passport';
+import models from '../models';
 
+const { Article, ReadingStat } = models;
 /**
  * @author Samuel Niyitanga
  * @exports ArticleController
@@ -54,7 +59,21 @@ class ArticleController {
         error: 'Article Not found'
       });
     }
+    const articleId = article.dataValues.id;
     const tags = await tagHelper.getTagsByArticle(article.dataValues.id);
+
+    const userId = await userHelper.findUserByToken(req.headers.authorization);
+    const isArticleAuthor = await recordHelper.findRecord(Article, {
+      id: articleId, authorId: userId
+    });
+    const hasRead = await recordHelper.findRecord(ReadingStat, {
+      articleId, userId
+    });
+
+    if (!isArticleAuthor && (!hasRead || !hasRead.userId)) {
+      await statsHelper.saveReadingStats(userId, articleId);
+    }
+
     article.dataValues.tagList = tags;
     return res.status(200).send({ article });
   }

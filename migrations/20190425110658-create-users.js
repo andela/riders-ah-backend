@@ -36,6 +36,14 @@ const usersMigration = {
       type: Sequelize.ARRAY(Sequelize.STRING),
       defaultValue: ['email', 'in-app', 'follower', 'articleFavorite']
     },
+    token: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    isVerified: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
+    },
     createdAt: {
       type: Sequelize.DATE
     },

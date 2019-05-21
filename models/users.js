@@ -36,7 +36,15 @@ const users = (sequelize, DataTypes) => {
       notification: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: ['email', 'in-app', 'follower', 'articleFavorite']
-      }
+      },
+      token: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
     },
     {}
   );
@@ -54,6 +62,7 @@ const users = (sequelize, DataTypes) => {
     User.hasMany(models.Share, { foreignKey: 'userId' });
     User.hasMany(models.Bookmark, { foreignKey: 'userId' });
     User.hasMany(models.CommentFeedback, { as: 'liked', foreignKey: 'userId' });
+    User.hasMany(models.ReadingStat, { foreignKey: 'userId' });
   };
   return User;
 };
