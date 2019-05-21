@@ -27,7 +27,9 @@ const ratings = (sequelize, DataTypes) => {
   );
   Rating.associate = (models) => {
     // associations can be defined here
-    Rating.belongsTo(models.User, { foreignKey: 'reviewerId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+    Rating.belongsTo(models.User, {
+      foreignKey: 'reviewerId', as: 'author', onDelete: 'CASCADE', onUpdate: 'CASCADE'
+    });
     Rating.belongsTo(models.Article, {
       foreignKey: 'articleSlug', targetKey: 'slug', onDelete: 'CASCADE', onUpdate: 'CASCADE'
     });

@@ -15,7 +15,7 @@
  * /articles/{slug}/rate:
  *   post:
  *     tags:
- *       - Article
+ *       - Rating
  *     name: Rating
  *     summary: User rate an article
  *     produces:
@@ -55,12 +55,50 @@
  *     properties:
  *       name:
  *         type: string
- *       articleId:
- *         type: integer
+ *       articleSlug:
+ *         type: string
  *       required:
  *         - name
- *         - articleId
-
+ *         - articleSlug
+ * @swagger
+ * /articles/{slug}/rate:
+ *   get:
+ *     tags:
+ *       - Rating
+ *     name: Rating
+ *     summary: User get all rates given to an article
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: slug
+ *         in: path
+ *         schema:
+ *           type: integer
+ *         required:
+ *           - slug
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '201':
+ *         description: Created
+ *       '400':
+ *         description: Bad Request
+ *   Tag:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *       articleSlug:
+ *         type: string
+ *       required:
+ *         - name
+ *         - articleSlug
  * @swagger
  * /articles/{slug}/tag:
  *   post:

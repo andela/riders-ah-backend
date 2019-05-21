@@ -1,13 +1,13 @@
 import db from '../models';
 
-const { Article } = db;
+const { Article, User, Rating } = db;
 
 /**
- * @exports ArticRatelehelper
+ * @exports ArticleRatelehelper
  * @class Articlehelper
  * @description Helps to generate token and passwor hashing
  * */
-class ArticRatelehelper {
+class ArticleRatelehelper {
   /**
        * Check the environment
        * @function validateArticleRated
@@ -44,6 +44,26 @@ class ArticRatelehelper {
     }
     return true;
   }
+
+  /**
+     * get all ratings
+     * @param {object} req - an object
+     *@return {object} Return ratings of an aricle
+     */
+  static async getRating(req) {
+    const { slug } = req.params;
+    const getArticle = await Article.findOne({
+      where: { slug }
+    });
+    if (getArticle == null) {
+      return { status: 404, errors: 'This article does not exist' };
+    }
+    const getRate = await Rating.findAll({
+      where: { articleSlug: slug },
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }]
+    });
+    return getRate;
+  }
 }
 
-export default ArticRatelehelper;
+export default ArticleRatelehelper;
