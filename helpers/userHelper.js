@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import db from '../models';
 import helper from './index';
 import recordHelper from './passport';
+import sendEmail from './utils/mail-sender';
 
 const { User, Follows, Sequelize } = db;
 /**
@@ -43,12 +44,46 @@ class UserHelper {
   }
 
   /**
+   * Update user info
+   * @function updateUser
+   * @param  {object} user - user info
+   * @param  {object} conditions - where clauses
+   * @return {object} updated user
+   * @static
+   */
+  static async updateUser(user, conditions) {
+    const newUser = await User.update(user, { where: conditions }, { logging: false });
+    return newUser;
+  }
+
+  /**
+   * Send verification email
+   * @function sendVerificationEmail
+   * @param  {string} email - user email
+   * @return {boolean} has sent
+   * @static
+   */
+  static async sendVerificationEmail(email) {
+    const userToken = helper.tokenGenerator(30);
+
+    const link = `${process.env.BASE_URL}/api/v1/users/verification?token=${userToken}&email=${email}`;
+    const info = {
+      email,
+      subject: 'Author Heaven Email Verification',
+      html: `<html>An account with your email was created to Author Heaven. Click to <a href='${link}'><strong>this link</strong></a> to validate your account`
+    };
+    const mailSent = await sendEmail.send(info);
+    await this.updateUser({ token: userToken, isVerified: false }, { email });
+    return mailSent;
+  }
+
+  /**
      * List users and followers
      * @function usersList
      * @param {string} userId - User ID
      * @return {string} - Returns an array of users
      * @static
-     */
+    */
   static async usersList(userId) {
     const users = await User.findAll({
       where: { id: { [Sequelize.Op.ne]: userId } },

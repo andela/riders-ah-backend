@@ -14,6 +14,9 @@ const Auth = async (req, res, next) => {
     if (!user) {
       return res.status(401).send({ status: 401, error: 'The token you provided is invalid' });
     }
+    if (!user.isVerified) {
+      return res.status(401).send({ status: 401, error: 'You have to validate your account first' });
+    }
     req.user = {
       id: decoded.id
     };

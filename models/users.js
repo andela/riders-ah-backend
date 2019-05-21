@@ -64,6 +64,10 @@ const users = (sequelize, DataTypes) => {
     User.hasMany(models.CommentFeedback, { as: 'liked', foreignKey: 'userId' });
     User.hasMany(models.ReadingStat, { foreignKey: 'userId' });
   };
+  User.addHook('afterValidate', (user) => {
+    const isTesting = process.env.NODE_ENV === 'test';
+    if (isTesting) user.isVerified = isTesting;
+  });
   return User;
 };
 

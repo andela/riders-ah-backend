@@ -1,4 +1,6 @@
+import Joi from 'joi';
 import models from '../models';
+import Helper from '../helpers/article';
 import recordHelper from '../helpers/passport';
 
 const { User, Follows } = models;
@@ -85,6 +87,32 @@ class userMiddleware {
   }
 
   /**
+   * Check if verification pararms are valid
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @param {function} next - calls the next
+   * @return {json} Returns json object
+   * @static
+   */
+  static async validateParams(req, res, next) {
+    const { email, token } = req.query;
+    if (!email || !token) {
+      return res.status(400).json({
+        status: 400,
+        errors: { body: ['No email or token found'] }
+      });
+    }
+    const user = await recordHelper.findRecord(User, { email, token });
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        errors: { body: ['User for this verification is not found'] }
+      });
+    }
+    return next();
+  }
+
+  /**
    * Check if the user id is valid
    * @param  {object} req - Request object
    * @param {object} res - Response object
@@ -103,6 +131,33 @@ class userMiddleware {
       return res.status(400).json({
         status: 404,
         errors: { body: ['User is not in your followers'] }
+      });
+    }
+    return next();
+  }
+
+  /**
+   * Check if the user email is valid
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @param {function} next - calls the next
+   * @return {json} Returns json object
+   * @static
+   */
+  static async validateEmail(req, res, next) {
+    const schema = Joi.object().keys({
+      email: Joi.string().email().required()
+    });
+    const result = Joi.validate(req.body, schema);
+    if (result.error) {
+      return Helper.invalidDataMessage(res, result);
+    }
+    const { email } = req.body;
+    const user = await recordHelper.findRecord(User, { email });
+    if (!user) {
+      return res.status(400).json({
+        status: 400,
+        errors: { body: ['User with this email not found'] }
       });
     }
     return next();
