@@ -217,4 +217,42 @@ describe('Rate user posted article', () => {
         done();
       });
   });
+  it('Rating pagination', (done) => {
+    chai.request(app)
+      .get(`/api/v1/articles/${articleSlug}/rate?limit=5&offset=0`)
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(200);
+        expect(res.body.ratings[0]).to.have.property('id');
+        expect(res.body.ratings[0]).to.have.property('reviewerId');
+        expect(res.body.ratings[0]).to.have.property('articleSlug');
+        expect(res.body.ratings[0]).to.have.property('rate');
+        expect(res.body.ratings[0]).to.have.property('createdAt');
+        expect(res.body.ratings[0]).to.have.property('updatedAt');
+        expect(res.body.ratings[0]).to.have.property('author');
+        done();
+      });
+  });
+  it('Rating pagination limit must be a number', (done) => {
+    chai.request(app)
+      .get(`/api/v1/articles/${articleSlug}/rate?limit=y&offset=0`)
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body).to.have.property('errors');
+        expect(res.body.errors.body[0]).to.be.equal('Limit must be a number');
+        done();
+      });
+  });
+  it('Rating pagination limit must be a number', (done) => {
+    chai.request(app)
+      .get(`/api/v1/articles/${articleSlug}/rate?limit=1&offset=t`)
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(400);
+        expect(res.body).to.have.property('errors');
+        expect(res.body.errors.body[0]).to.be.equal('Offset must be a number');
+        done();
+      });
+  });
 });
