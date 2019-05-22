@@ -178,6 +178,21 @@ class ArticleController {
  * @returns {object} response
  *  @static
  */
+  static async bookmarkArticle(req, res) {
+    const { bookmark } = req.body;
+    if (bookmark === 'SequelizeUniqueConstraintError') {
+      const result = await ArticleHelper.deleteBookmark(req);
+      return res.status(200).send(result);
+    }
+    return res.status(201).send({ Bookmark: bookmark });
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
   static async getShares(req, res) {
     const { slug } = req.params;
     const article = await ArticleHelper.findArticleBySlug(slug);
@@ -199,6 +214,18 @@ class ArticleController {
       linkedinShares: linkedin,
       gmailShares: gmail
     });
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async getBookmarks(req, res) {
+    const { id } = req.user;
+    const bookmarks = await ArticleHelper.getBookmarks(id);
+    return res.status(200).send({ Bookmarks: bookmarks });
   }
 }
 
