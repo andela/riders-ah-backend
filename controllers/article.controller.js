@@ -9,13 +9,13 @@ import tagHelper from '../helpers/tag.helper';
  * */
 class ArticleController {
   /**
-     * Create a new article
-     * @async
-     * @param  {object} req - Request object
-     * @param {object} res - Response object
-     * @return {json} Returns json object
-     * @static
-     */
+   * Create a new article
+   * @async
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @return {json} Returns json object
+   * @static
+   */
   static async createArticle(req, res) {
     const result = await ArticleHelper.createNewArticle(req);
     const article = result.article.toJSON();
@@ -25,11 +25,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async updateArticle(req, res) {
     await ArticleHelper.updateArticle(req);
     const response = {
@@ -41,11 +41,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getArticle(req, res) {
     const article = await ArticleHelper.getOneArticle(req);
     if (!article) {
@@ -60,11 +60,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getAllArticles(req, res) {
     const articles = await ArticleHelper.getAllArticles();
     if (!articles) {
@@ -77,11 +77,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async deleteArticle(req, res) {
     await ArticleHelper.deleteArticle(req);
     const response = {
@@ -92,11 +92,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async tagArticle(req, res) {
     const newCreatedTag = await ArticleHelper.createArticleTag(req);
     return res.status(201).json({
@@ -106,11 +106,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getAllTags(req, res) {
     const tagList = await ArticleHelper.listTags();
     return res.status(200).json({
@@ -120,11 +120,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async reactOnArticle(req, res) {
     const result = await ArticleHelper.createReaction(req);
     const reactionCreated = result.toJSON();
@@ -132,11 +132,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getLikes(req, res) {
     const { numberOfLikes } = req.body;
     const result = await ArticleHelper.getLikes(req);
@@ -144,11 +144,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getDislikes(req, res) {
     const { numberOfDislikes } = req.body;
     const result = await ArticleHelper.getDislikes(req);
@@ -156,14 +156,16 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async shareArticle(req, res) {
     const article = await ArticleHelper.findArticleBySlug(req.params.slug);
-    if (!article) { return res.status(404).send({ errors: { body: ['article not found'] } }); }
+    if (!article) {
+      return res.status(404).send({ errors: { body: ['article not found'] } });
+    }
     const result = await ArticleHelper.shareArticle(req);
     if (result) {
       const createdShare = await ArticleHelper.createShare(req);
@@ -196,7 +198,9 @@ class ArticleController {
   static async getShares(req, res) {
     const { slug } = req.params;
     const article = await ArticleHelper.findArticleBySlug(slug);
-    if (!article) { return res.status(404).send({ errors: { body: ['article not found'] } }); }
+    if (!article) {
+      return res.status(404).send({ errors: { body: ['article not found'] } });
+    }
     const shares = await ArticleHelper.getShares(slug);
     if (shares.length < 1) {
       return res.status(200).send({ message: 'this article has not been shared yet' });

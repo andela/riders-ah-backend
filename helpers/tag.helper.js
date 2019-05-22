@@ -23,6 +23,7 @@ class TagHelper {
         slug: currentArticle.slug,
         title: currentArticle.title,
         description: currentArticle.description,
+        readingTime: currentArticle.readingTime,
         body: currentArticle.body,
         tagList: articleTags,
         author: currentArticle.author,
@@ -34,15 +35,16 @@ class TagHelper {
   }
 
   /**
-  * @param  {number} articleId - Article ID
-  * @param  {string} tagName - Name of tag
-  * @returns {object} array of tags
-  *  @static
-  */
+   * @param  {number} articleId - Article ID
+   * @param  {string} tagName - Name of tag
+   * @returns {object} array of tags
+   *  @static
+   */
   static async getArticleTag(articleId, tagName) {
     const conditions = {
       where: {
-        articleId, name: tagName
+        articleId,
+        name: tagName
       }
     };
     const articleTags = await Tag.findAll(conditions);
@@ -50,14 +52,15 @@ class TagHelper {
   }
 
   /**
-  * @function getTagsByArticle
-  * @param  {number} articleId - Article ID
-  * @returns {object} array of tags
-  *  @static
-  */
+   * @function getTagsByArticle
+   * @param  {number} articleId - Article ID
+   * @returns {object} array of tags
+   *  @static
+   */
   static async getTagsByArticle(articleId) {
     const conditions = {
-      where: { articleId }, attributes: ['name']
+      where: { articleId },
+      attributes: ['name']
     };
     const tags = await Tag.findAll(conditions).map(article => article.name);
     return tags || [];
