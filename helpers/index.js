@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import stubTransport from 'nodemailer-stub-transport';
 import sgTransport from 'nodemailer-sendgrid-transport';
