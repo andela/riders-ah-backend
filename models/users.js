@@ -7,6 +7,14 @@ const users = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true
       },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       username: {
         type: DataTypes.STRING,
         unique: true,
@@ -32,6 +40,10 @@ const users = (sequelize, DataTypes) => {
       roles: {
         type: DataTypes.JSON('user', 'admin', 'super_user'),
         defaultValue: 'user'
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
       },
       notification: {
         type: DataTypes.ARRAY(DataTypes.STRING),

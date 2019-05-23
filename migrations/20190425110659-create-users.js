@@ -11,6 +11,14 @@ const usersMigration = {
       unique: true,
       allowNull: false
     },
+    firstName: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    lastName: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     email: {
       type: Sequelize.STRING,
       unique: true,
@@ -31,6 +39,10 @@ const usersMigration = {
     roles: {
       type: Sequelize.JSON('user', 'admin', 'super_admin'),
       defaultValue: 'user'
+    },
+    isActive: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true
     },
     notification: {
       type: Sequelize.ARRAY(Sequelize.STRING),

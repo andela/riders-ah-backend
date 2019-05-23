@@ -88,8 +88,8 @@ class UserController {
   }
 
   /**
-     * Verify account of a user
-     * @function verifyAccount
+    * Verify account of a user
+    * @function verifyAccount
      * @param  {object} req - accept object with user info
      * @param  {object} res - accept object with user info
      * @return {json} Returns json object
@@ -121,6 +121,63 @@ class UserController {
       status: 200,
       message: 'Email was sent. Check you email account'
     });
+  }
+
+  /**
+     * Create a new User
+     * @function addUser
+     * @param  {object} req - accept object with user info
+     * @param  {object} res - accept object with user info
+     * @return {json} Returns json object
+     * @static
+     */
+  static async createUser(req, res) {
+    const newUser = await userHelper.createNewUser(req);
+    if (!newUser) {
+      return res.status(422).send({
+        status: 422, message: 'Error happened while creating user'
+      });
+    }
+    return res.status(201).send({
+      status: 201, message: `New User created and the password is ${newUser.generatedPassword}`
+    });
+  }
+
+  /**
+   * @param {object} req
+   * @param {object} res
+   * @returns {object} return object containg user info
+   */
+  static async updateUser(req, res) {
+    const { ...user } = req.body;
+    try {
+      const { username } = req.params;
+      const updateUser = await User.update(
+        user,
+        { where: { username }, returning: true, plain: true }
+      );
+      if (user.email) {
+        await User.update(
+          { isVerified: false },
+          { where: { username }, returning: true, plain: true }
+        );
+        await userHelper.sendVerificationEmail(user.email);
+      }
+      const newUserUpdated = {
+        firstName: updateUser[1].firstName,
+        lastName: updateUser[1].lastName,
+        email: updateUser[1].email
+      };
+      res.status(200).send({
+        status: 200,
+        data: newUserUpdated
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 500,
+        error: error.message
+      });
+    }
   }
 
   /**
@@ -158,6 +215,34 @@ class UserController {
       status: 200,
       users
     });
+  }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async getUser(req, res) {
+    const user = await userHelper.getOneUser(req);
+    if (!user) {
+      return res.status(404).json({
+        status: res.statusCode,
+        error: 'User Not found'
+      });
+    }
+    return res.status(200).send({ user });
+  }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async enableOrDisableUser(req, res) {
+    const user = await userHelper.enableOrDisableUser(req);
+    return res.status(200).send({ user });
   }
 }
 export default UserController;
