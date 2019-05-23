@@ -188,10 +188,24 @@ class ArticleHelper {
 
   /**
    * Return all article
+   *@param {@object} req request
    *@return {object} Return all articles
    */
-  static async getAllArticles() {
+  static async getAllArticles(req) {
+    const { limit, offset } = req.query;
+    const errorMessage = [];
+    if (!/^(0|[1-9]\d*)$/.test(limit) && limit !== undefined) {
+      errorMessage.push('Limit must be a number');
+    }
+    if (!/^(0|[1-9]\d*)$/.test(offset) && offset !== undefined) {
+      errorMessage.push('Offset must be a number');
+    }
+    if (errorMessage.length) {
+      return { status: 400, errors: { body: errorMessage } };
+    }
     const articles = await Article.findAll({
+      limit,
+      offset,
       include: [
         {
           model: User,
@@ -205,7 +219,7 @@ class ArticleHelper {
           raw: true
         }
       ],
-      attributes: ['slug', 'title', 'description', 'readingTime', 'body', 'createdAt', 'updatedAt']
+      attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt', 'updatedAt']
     });
     const articlesWithTags = await tagHelper.addTagsToArticles(articles);
     return articlesWithTags;

@@ -66,7 +66,7 @@ class ArticleController {
    *  @static
    */
   static async getAllArticles(req, res) {
-    const articles = await ArticleHelper.getAllArticles();
+    const articles = await ArticleHelper.getAllArticles(req);
     if (!articles) {
       return res.status(404).send({
         status: res.statusCode,
