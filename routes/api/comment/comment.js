@@ -15,4 +15,5 @@ router.get('/:id/replies', Auth, comment.getCommentReplies);
 router.delete('/:id/reply/:replyId', Auth, commentHelper.isReplytExist, comment.deleteOneReply);
 router.post('/:id/reply/:replyId', Auth, commentHelper.isReplytExist, comment.updateOneReply);
 
+
 export default router;

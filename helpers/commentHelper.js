@@ -1,7 +1,9 @@
 import joi from 'joi';
 import model from '../models';
 
-const { User, Article, Comment } = model;
+const {
+  User, Article, Comment, CommentFeedback
+} = model;
 
 /**
  * @exports CommentHelper
@@ -109,7 +111,8 @@ class CommentHelper {
     const { slug } = req.params;
     const fetchedComments = await Comment.findAll({
       where: { titleSlug: slug },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
+        { model: CommentFeedback, as: 'like', attributes: ['feedback', 'userId'] }],
       attributes: ['id', 'createdAt', 'updatedAt', 'body']
     });
     if (!fetchedComments[0]) {
@@ -305,6 +308,136 @@ class CommentHelper {
     await Comment.update({ body: body || reply.body }, { where: { replyid: id, id: replyId } });
     const updatedReply = await Comment.findOne({ where: { id: replyId } });
     return { response: updatedReply };
+  }
+
+  /**
+     * Add feedback on article (Either like or neutral)
+     * @param {object} req - an object
+     * @return {Object} Return object of feedback created
+     * @static
+     */
+  static async createFeedback(req) {
+    const { id } = req.user;
+    const commentId = req.params.id;
+    const { option } = req.params;
+    const feedbackCreated = await CommentFeedback.create({
+      userId: id,
+      commentId,
+      feedback: option
+    });
+    return feedbackCreated;
+  }
+
+  /**
+     * Check if it is valid option
+     * @param {object} req - an object
+     * @param {object} res - an object
+     * @param {object} next - an object
+     * @return {boolean} Returns if true if it is valid else return false
+     * @static
+     */
+  static isValidOption(req, res, next) {
+    if (req.params.option !== 'like') {
+      return res.status(422).send({ status: 422, Error: 'Only option must only be \'like\'' });
+    }
+    next();
+  }
+
+  /**
+     * Check if comment exist and the user who created it
+     * @param {object} req - an object
+     * @param {object} res - an object
+     * @param {object} next - an object
+     * @return {boolean} Returns if true if it is valid else return a message explaining an error
+     * @static
+     */
+  static async isItValidComment(req, res, next) {
+    const { option } = req.params;
+    const { id } = req.params;
+    const userId = req.user.id;
+    const comment = await Comment.findOne({ where: { id } });
+    if (!comment) {
+      return res.status(404).send({ errors: { body: ['comment  not found'] } });
+    }
+    const commentFeedback = await CommentFeedback
+      .findOne({ where: { commentId: comment.id, userId } });
+    if (!commentFeedback) {
+      next();
+    }
+    if (option === 'like' && commentFeedback.feedback === 'like') {
+      await CommentFeedback.update({ feedback: 'neutral' }, { where: { commentId: id, userId } });
+      return res.status(200).send({ message: 'Your  like become neutral' });
+    }
+    await CommentFeedback.update({ feedback: 'like' }, { where: { commentId: id, userId } });
+    return res.status(200).send({ message: 'your liked a comment' });
+  }
+
+  /**
+ * Calculate number of likes per comment
+ * @function likesNumber
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { number } number of comments
+ */
+  static async likesNumber(req, res, next) {
+    const { id } = req.params;
+    const result = await CommentFeedback.findAndCountAll({
+      where: { commentId: id, feedback: 'like' },
+    });
+    req.body.numberOfLikes = result.count;
+    next();
+    return true;
+  }
+
+  /**
+     * Get likes
+     * @param {object} req - an object
+     * @return {Object} Returns an object
+     * @static
+     */
+  static async getLikes(req) {
+    const { id } = req.params;
+    const likesFetched = await CommentFeedback.findAll({
+      where: { commentId: id, feedback: 'like' },
+      include: [{ model: User, as: 'liked', attributes: ['username', 'bio', 'image'] },
+        { model: Comment, as: 'like', attributes: ['titleSlug', 'body'] },
+      ],
+    });
+    return likesFetched;
+  }
+
+  /**
+     * Check if comment feedback exist
+     * @param {object} req - an object
+     * @param {object} res - an object
+     * @param {object} next - an object
+     * @return {boolean} Returns if true if  fedback exists
+     * @static
+     */
+  static async isFeedbackExist(req, res, next) {
+    const { id } = req.params;
+    const commentFeedback = await CommentFeedback.findOne({ where: { id } });
+    if (!commentFeedback) {
+      return res.status(404).send({ errors: { body: ['No feedback found'] } });
+    }
+    if (commentFeedback.userId !== req.user.id) {
+      return res.status(404).send({ errors: { body: ['No authorized, Only Owner can delete it'] } });
+    }
+    next();
+  }
+
+  /**
+     * Delete  comment feedback
+     * @param {object} req - an object
+     * @param {object} res - an object
+     *@return {boolean} Return true if deleted
+     */
+  static async deleteFeedback(req) {
+    const { id } = req.params;
+    const deleteFeedback = await
+    CommentFeedback.destroy({ where: { id }, returning: true });
+    return deleteFeedback;
   }
 }
 

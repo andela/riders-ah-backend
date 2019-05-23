@@ -235,3 +235,64 @@
  *       '400':
  *         The reply have failed to be created
  */
+
+/**
+ * @swagger
+ * /comment/{id}/likes:
+ *   get:
+ *     tags:
+ *       - like
+ *     name: like
+ *     summary: get likes on a comment
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         schema:
+ *           type:integer
+ *         required:
+ *           - id
+ *     responses:
+ *       '200':
+ *         description: likes have been fetched successfully
+ *       '400':
+ *         likes have been failed to be fetched
+ */
+/**
+ * @swagger
+ * /comment/{id}/feedback/{like}:
+ *   post:
+ *     tags:
+ *       - like
+ *     name: like
+ *     summary: like a comment
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: like
+ *         in: path
+ *         schema:
+ *           type: string
+ *         required:
+ *           - like
+ *       - name: id
+ *         in: path
+ *         schema:
+ *           type: integer
+ *         required:
+ *           - id
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '200':
+ *         description:  Successfully liked a comment
+ */

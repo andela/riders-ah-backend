@@ -857,4 +857,119 @@ describe('test if updating user created the comment', () => {
       where: {}
     });
   });
+  describe('Test likes of a comment', () => {
+    let userToken;
+    let comment;
+    let commentFeedbackId;
+    before((done) => {
+      Article.create({
+        title: 'this is new',
+        body: 'this post is going to be used in testing',
+        description: 'a new title',
+        image: 'http://image.com',
+        slug: 'this-is-new',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      const newUser = {
+        username: 'username',
+        email: 'username@andela.com',
+        password: 'Andela@123!'
+      };
+      chai.request(app)
+        .post('/api/v1/users/signup')
+        .send(newUser)
+        .end((err, res) => {
+          userToken = res.body.token;
+          done();
+        });
+    });
+    it('should have a comment', (done) => {
+      const data = {
+        body: 'a new comment'
+      };
+      chai.request(app)
+        .post('/api/v1/article/this-is-new/comments')
+        .set('authorization', userToken)
+        .send(data)
+        .end((err, res) => {
+          comment = res.body.id;
+          res.should.have.status(201);
+          res.body.should.be.a('object');
+          done();
+        });
+    });
+    it('User should be able to like a comment', (done) => {
+      chai.request(app)
+        .post(`/api/v1/comments/${comment}/feedback/like`)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          commentFeedbackId = res.body.feedback.id;
+          res.body.should.be.a('object');
+          res.body.should.have.property('feedback');
+          res.body.feedback.should.have.property('id');
+          res.body.feedback.should.have.property('userId');
+          res.body.feedback.should.have.property('commentId');
+          res.body.feedback.should.have.property('feedback').eql('like');
+          done();
+        });
+    });
+    it('Should not accept  wrong parameters', (done) => {
+      chai.request(app)
+        .post(`/api/v1/comments/${comment}/feedback/likes`)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          res.should.have.status(422);
+          res.body.should.be.a('object');
+          res.body.should.have.property('Error').eql('Only option must only be \'like\'');
+          done();
+        });
+    });
+    it('Should not accept  unexesting comment', (done) => {
+      chai.request(app)
+        .post('/api/v1/comments/1000000/feedback/like')
+        .set('authorization', userToken)
+        .end((err, res) => {
+          res.body.should.be.a('object');
+          res.body.should.have.property('errors');
+          res.body.errors.should.have.property('body');
+          done();
+        });
+    });
+    it('Should get likes per comment', (done) => {
+      chai.request(app)
+        .get(`/api/v1/articles/${comment}/likes`)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.have.property('likes');
+          res.body.should.have.property('count');
+          done();
+        });
+    });
+    it('Should not delete an unexistig comment', (done) => {
+      chai.request(app)
+        .delete(`/api/v1/comments/${comment}`)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          res.should.have.status(404);
+          res.body.should.be.a('object');
+          res.body.should.have.property('errors');
+          res.body.errors.should.have.property('body');
+          done();
+        });
+    });
+    it('Should delete a comment', (done) => {
+      chai.request(app)
+        .delete(`/api/v1/comments/${commentFeedbackId}`)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          res.body.should.be.a('object');
+          res.body.should.have.property('message');
+          res.body.message.should.have.property('body');
+          done();
+        });
+    });
+  });
 });

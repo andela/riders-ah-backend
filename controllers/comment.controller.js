@@ -108,6 +108,41 @@ class Comments {
     const result = await commentHelper.updateOneReply(req);
     return res.status(201).send(result);
   }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async reactOnComment(req, res) {
+    const result = await commentHelper.createFeedback(req);
+    const feedbackCreated = result.toJSON();
+    return res.status(201).send({ feedback: feedbackCreated });
+  }
+
+  /**
+ * @param  {object} req - Request object
+ * @param {object} res - Response object
+ * @returns {object} response
+ *  @static
+ */
+  static async getLikes(req, res) {
+    const { numberOfLikes } = req.body;
+    const result = await commentHelper.getLikes(req);
+    return res.status(200).send({ likes: result, count: numberOfLikes });
+  }
+
+  /**
+   * @function deleteAFeedback
+   * @param {Object} req
+   * @param {Object} res
+   * @returns {Object} Object with one comment on an article and its author
+  */
+  static async deleteFeedback(req, res) {
+    await commentHelper.deleteFeedback(req);
+    return res.send({ message: { body: ['Deleted successfully'] } });
+  }
 }
 
 export default Comments;

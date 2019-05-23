@@ -29,6 +29,7 @@ const comments = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE'
     });
     Comment.hasMany(models.Comment, { foreignKey: 'replyid' });
+    Comment.hasMany(models.CommentFeedback, { as: 'like', foreignKey: 'commentId' });
   };
   return Comment;
 };
