@@ -5,6 +5,7 @@ import TagMiddleware from '../../../middlewares/tag.middleware';
 import ArticleHelper from '../../../helpers/article';
 import ArticleMiddleware from '../../../middlewares/article';
 import Ratingcontroller from '../../../controllers/rating.controller';
+import statsController from '../../../controllers/read.stats.controller';
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.post('/:slug/share/:option', Auth, ArticleHelper.isPlatformValid, Article
 router.get('/:slug/shares', Auth, articleController.getShares);
 router.post('/:slug/bookmark', Auth, ArticleHelper.articleToBookmark, ArticleHelper.createBookmark, articleController.bookmarkArticle);
 router.get('/user/bookmarks', Auth, articleController.getBookmarks);
+router.get('/reading/statistics', Auth, statsController.getArticlesReadingStats);
 
 export default router;
