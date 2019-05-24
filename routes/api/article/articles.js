@@ -13,7 +13,7 @@ router.post('/', Auth, ArticleHelper.isValidArticle, articleController.createArt
 router.put('/:slug', Auth, ArticleHelper.isOwner, ArticleHelper.isValidUpdatedArticle, articleController.updateArticle);
 router.delete('/:slug', Auth, ArticleHelper.isOwner, articleController.deleteArticle);
 router.get('/:slug', articleController.getArticle);
-router.get('/', articleController.getAllArticles);
+router.get('/', ArticleMiddleware.searchArticle, articleController.getAllArticles);
 router.post('/:slug/ratings', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
 router.get('/:slug/ratings', Auth, Ratingcontroller.getArticleRating);
 router.post('/:slug/reaction/:option', Auth, ArticleHelper.isExisting, articleController.reactOnArticle);

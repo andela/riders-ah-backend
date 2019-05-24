@@ -646,5 +646,20 @@ class ArticleHelper {
     }
     return bookmarks;
   }
+
+  /**
+  * @param  {object} param - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async searchArticle(param) {
+    const result = await Article.findAll({
+      include: [{
+        model: User, as: 'author', where: param, attributes: ['username', 'bio', 'image']
+      }],
+      attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+    });
+    return result;
+  }
 }
 export default ArticleHelper;
