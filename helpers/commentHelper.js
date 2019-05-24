@@ -12,28 +12,6 @@ const {
  * */
 class CommentHelper {
   /**
-     * Check and return the previous comment's id
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {integer} Returns previous comment's id
-     * @static
-     */
-  static async parentId(req, res, next) {
-    let maxId = 1;
-    await Comment.findAll().then((result) => {
-      // eslint-disable-next-line array-callback-return
-      result.map((comment) => {
-        if (comment.id > maxId) {
-          maxId = comment.id;
-        }
-      });
-    });
-    req.body.previousId = maxId;
-    next();
-  }
-
-  /**
      * Check if Article exist and comment body is there
      * @param {object} req - an object
      * @param {object} res - an object
@@ -73,7 +51,6 @@ class CommentHelper {
      *@return {object} Return the created comment
      */
   static async createComment(req) {
-    const parentID = req.body.previousId;
     const { slug } = req.params;
 
     const createdComment = await Comment.create({
@@ -84,22 +61,8 @@ class CommentHelper {
       updatedAt: new Date()
     });
 
-    const childComment = createdComment.toJSON();
-
-    const parentComment = await Comment.findOne({ where: { id: parentID } });
-    if (parentComment === null) {
-      return { message: 'this is the first comment', id: childComment.id, userId: req.user.id };
-    }
-    if (parentComment.userId !== childComment.userId) {
-      return childComment;
-    }
-    const range = childComment.createdAt.getTime() - parentComment.createdAt.getTime();
-
-    if (range <= 60000) {
-      await Comment.update({ parentid: parentID }, { where: { id: childComment.id } });
-      return { type: 'threadedComment comment created', timeRange: `${range} milliseconds` };
-    }
-    return { type: 'no threadedComment created', timeRange: `${range} milliseconds` };
+    const comment = createdComment.toJSON();
+    return comment;
   }
 
   /**

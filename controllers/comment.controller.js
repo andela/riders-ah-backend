@@ -16,7 +16,7 @@ class Comments {
   */
   static async addComment(req, res) {
     const result = await commentHelper.createComment(req);
-    return res.status(201).send(result);
+    return res.status(201).send({ comment: result });
   }
 
   /**
