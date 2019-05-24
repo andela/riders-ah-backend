@@ -47,7 +47,8 @@ class UserController {
     const newUser = await User.create({
       username: req.user.username,
       email: req.user.email,
-      password: encryptedPassword
+      password: encryptedPassword,
+      isVerified: true
     });
     if (!newUser) {
       return res.status(500).send('Internal error');
@@ -69,15 +70,57 @@ class UserController {
      * @static
      */
   static async addUser(req, res) {
-    passport.authenticate('local_signup', (err, user) => {
+    passport.authenticate('local_signup', async (err, user) => {
       if (user) {
+        const { email } = user.dataValues;
+
         const issueToken = helper.generateToken(user.dataValues);
+
+        await userHelper.sendVerificationEmail(email);
         return res.status(201).send({
-          status: 201, message: 'User added successfully', token: issueToken
+          status: 201,
+          message: 'You have successfully registered. Check you email to validate you account',
+          token: issueToken
         });
       }
       return res.status(500).send({ status: 500, message: 'Internal Server Error' });
     })(req, res);
+  }
+
+  /**
+     * Verify account of a user
+     * @function verifyAccount
+     * @param  {object} req - accept object with user info
+     * @param  {object} res - accept object with user info
+     * @return {json} Returns json object
+     * @static
+     */
+  static async verifyAccount(req, res) {
+    const { email } = req.query;
+    const userToken = { token: null, isVerified: true };
+    await userHelper.updateUser(userToken, { email });
+    return res.status(200).json({
+      status: 200,
+      message: 'Your account has successfully verified'
+    });
+  }
+
+  /**
+     * Resent email
+     * @function resentEmail
+     * @param  {object} req - accept object with user info
+     * @param  {object} res - accept object with user info
+     * @return {json} Returns json object
+     * @static
+     */
+  static async resentEmail(req, res) {
+    const { email } = req.body;
+
+    await userHelper.sendVerificationEmail(email);
+    return res.status(200).json({
+      status: 200,
+      message: 'Email was sent. Check you email account'
+    });
   }
 
   /**

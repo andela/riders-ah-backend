@@ -334,3 +334,52 @@
  *           '200':
  *             description:  Notification received
  */
+/**
+ * @swagger
+ * /users/verification?token={user-token}&email={user-email}:
+ *   get:
+ *     tags:
+ *       - User
+ *     name: User verification
+ *     summary: Verifying user after creating an account
+ *     parameters:
+ *       - name: body
+ *         schema:
+ *           $ref: '#/definitions/User'
+ *           type: object
+ *     responses:
+ *       '200':
+ *         description: Account successfully verified
+ *       '400':
+ *         description: Token or email was not provided.
+ *       '404':
+ *         description: Token or email was not found into the system.
+ */
+/**
+ * @swagger
+ * /users/send/email:
+ *   post:
+ *     tags:
+ *       - User
+ *     name: Send email
+ *     summary: Send verification email to the user
+ *     parameters:
+ *       - name: body
+ *         schema:
+ *           $ref: '#/definitions/User'
+ *           type: object
+ *           properties:
+ *             email:
+ *               type: string
+ *         required:
+ *           - email
+ *     responses:
+ *       '200':
+ *         description: Email successfully sent
+ *       '400':
+ *         description: Invalid email.
+ *       '404':
+ *         description: Email not found.
+ *       '422':
+ *         description: Unknown email type.
+ */

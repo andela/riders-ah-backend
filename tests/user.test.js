@@ -1,9 +1,11 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import server from '../app';
+import helper from '../helpers';
+import models from '../models';
 
 chai.use(chaiHttp);
-
+const { User } = models;
 const user = {
   username: 'test',
   email: 'andela@gmail.com',
@@ -19,7 +21,15 @@ const incorrectpassword = {
   email: 'andela@gmail.com',
   password: 'abcbdbdb'
 };
-
+const token = helper.tokenGenerator(30);
+const testUser = {
+  email: 'testingmail@email.com',
+  username: 'testingtest',
+  password: 'some@pass',
+  token,
+  isVerified: false
+};
+const { email } = testUser;
 describe('Users Authentication', () => {
   it('User Signup', (done) => {
     chai.request(server)
@@ -213,5 +223,66 @@ describe('Users Authentication', () => {
         expect(res.body.err.message).to.be.equal('Incorrect credentials.');
         done();
       });
+  });
+  describe('/api/v1/users/verification. User verification link', () => {
+    before(async () => {
+      await User.create(testUser);
+    });
+    it('Should have email and token in url', (done) => {
+      chai.request(server)
+        .get('/api/v1/users/verification')
+        .end((err, res) => {
+          expect(res.body).to.have.status(400);
+          expect(res.body.errors.body[0]).to.be.equal('No email or token found');
+          done();
+        });
+    });
+    it('Should have email and token that are saved into system', (done) => {
+      chai.request(server)
+        .get(`/api/v1/users/verification?token=${token}&email=someemail@mail.com`)
+        .end((err, res) => {
+          expect(res.body).to.have.status(404);
+          expect(res.body.errors.body[0]).to.be.equal('User for this verification is not found');
+          done();
+        });
+    });
+    it('Should be verified', (done) => {
+      chai.request(server)
+        .get(`/api/v1/users/verification?token=${token}&email=${email}`)
+        .end((err, res) => {
+          expect(res.body).to.have.status(200);
+          expect(res.body.message).to.be.equal('Your account has successfully verified');
+          done();
+        });
+    });
+    it('Should resent to a valid email', (done) => {
+      chai.request(server)
+        .post('/api/v1/users/send/email')
+        .end((err, res) => {
+          expect(res.body).to.have.status(422);
+          expect(res.body.Error).to.be.an('array');
+          done();
+        });
+    });
+    it('Email sent should be in the system', (done) => {
+      chai.request(server)
+        .post('/api/v1/users/send/email')
+        .send({ email: 'anyemail@somedomain.com' })
+        .end((err, res) => {
+          expect(res.body).to.have.status(400);
+          expect(res.body.errors.body[0]).to.be.equal('User with this email not found');
+          done();
+        });
+    });
+    it('Email should be sent', (done) => {
+      chai.request(server)
+        .post('/api/v1/users/send/email')
+        .send({ email })
+        .end((err, res) => {
+          expect(res.body).to.have.status(200);
+          expect(res.body.message).to.be.equal('Email was sent. Check you email account');
+          done();
+        });
+    });
   });
 });

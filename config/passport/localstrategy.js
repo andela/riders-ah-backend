@@ -37,6 +37,9 @@ const pass = (passport) => {
         if (!Helper.comparePassword(user.password, password)) {
           return done({ message: 'Incorrect credentials.' });
         }
+        if (!user.isVerified) {
+          return done({ message: 'Verify your account first' });
+        }
         return done(null, user);
       }).catch(() => done({ message: 'Incorrect Credentials.' }));
     }
