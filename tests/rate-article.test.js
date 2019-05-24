@@ -88,7 +88,7 @@ describe('Rate user posted article', () => {
   });
   it('User try to rate their article', (done) => {
     chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/rate`)
+      .post(`/api/v1/articles/${articleSlug}/ratings`)
       .set('authorization', toKen)
       .send(rateTest)
       .end((error, res) => {
@@ -110,7 +110,7 @@ describe('Rate user posted article', () => {
   });
   it('User rate another user article', (done) => {
     chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/rate`)
+      .post(`/api/v1/articles/${articleSlug}/ratings`)
       .set('authorization', toKen)
       .send(rateTest)
       .end((error, res) => {
@@ -122,7 +122,7 @@ describe('Rate user posted article', () => {
   });
   it('User give a rate an article < 5', (done) => {
     chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/rate`)
+      .post(`/api/v1/articles/${articleSlug}/ratings`)
       .set('authorization', toKen)
       .send({
         rate: 6
@@ -135,7 +135,7 @@ describe('Rate user posted article', () => {
   });
   it('User update their rate on article', (done) => {
     chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/rate`)
+      .post(`/api/v1/articles/${articleSlug}/ratings`)
       .set('authorization', toKen)
       .send({
         rate: 5
@@ -149,7 +149,7 @@ describe('Rate user posted article', () => {
   });
   it('Check if rate was provided', (done) => {
     chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/rate`)
+      .post(`/api/v1/articles/${articleSlug}/ratings`)
       .set('authorization', toKen)
       .send()
       .end((error, res) => {
@@ -160,7 +160,7 @@ describe('Rate user posted article', () => {
   });
   it('Check if the article exist', (done) => {
     chai.request(app)
-      .post('/api/v1/articles/this-is-the-title-of-the-article/rate')
+      .post('/api/v1/articles/this-is-the-title-of-the-article/ratings')
       .set('authorization', toKen)
       .send({
         rate: 4
@@ -173,7 +173,7 @@ describe('Rate user posted article', () => {
   });
   it('Get all rating on an article', (done) => {
     chai.request(app)
-      .get(`/api/v1/articles/${articleSlug}/rate`)
+      .get(`/api/v1/articles/${articleSlug}/ratings`)
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(200);
@@ -189,7 +189,7 @@ describe('Rate user posted article', () => {
   });
   it('Article has no rating', (done) => {
     chai.request(app)
-      .get(`/api/v1/articles/${articleNewSlug}/rate`)
+      .get(`/api/v1/articles/${articleNewSlug}/ratings`)
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(200);
@@ -199,7 +199,7 @@ describe('Rate user posted article', () => {
   });
   it('Article has no rating', (done) => {
     chai.request(app)
-      .get('/api/v1/articles/test-test/rate')
+      .get('/api/v1/articles/test-test/ratings')
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(404);
@@ -209,7 +209,7 @@ describe('Rate user posted article', () => {
   });
   it('Article not found', (done) => {
     chai.request(app)
-      .get('/api/v1/articles/rate')
+      .get('/api/v1/articles/ratings')
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(404);
@@ -219,7 +219,7 @@ describe('Rate user posted article', () => {
   });
   it('Rating pagination', (done) => {
     chai.request(app)
-      .get(`/api/v1/articles/${articleSlug}/rate?limit=5&offset=0`)
+      .get(`/api/v1/articles/${articleSlug}/ratings?limit=5&offset=0`)
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(200);
@@ -235,7 +235,7 @@ describe('Rate user posted article', () => {
   });
   it('Rating pagination limit must be a number', (done) => {
     chai.request(app)
-      .get(`/api/v1/articles/${articleSlug}/rate?limit=y&offset=0`)
+      .get(`/api/v1/articles/${articleSlug}/ratings?limit=y&offset=0`)
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(400);
@@ -246,7 +246,7 @@ describe('Rate user posted article', () => {
   });
   it('Rating pagination limit must be a number', (done) => {
     chai.request(app)
-      .get(`/api/v1/articles/${articleSlug}/rate?limit=1&offset=t`)
+      .get(`/api/v1/articles/${articleSlug}/ratings?limit=1&offset=t`)
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(400);

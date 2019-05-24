@@ -14,8 +14,8 @@ router.put('/:slug', Auth, ArticleHelper.isOwner, ArticleHelper.isValidUpdatedAr
 router.delete('/:slug', Auth, ArticleHelper.isOwner, articleController.deleteArticle);
 router.get('/:slug', articleController.getArticle);
 router.get('/', articleController.getAllArticles);
-router.post('/:slug/rate', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
-router.get('/:slug/rate', Auth, Ratingcontroller.getArticleRating);
+router.post('/:slug/ratings', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
+router.get('/:slug/ratings', Auth, Ratingcontroller.getArticleRating);
 router.post('/:slug/reaction/:option', Auth, ArticleHelper.isExisting, articleController.reactOnArticle);
 router.get('/:slug/likes', Auth, ArticleHelper.likesNumber, articleController.getLikes);
 router.get('/:slug/dislikes', Auth, ArticleHelper.dislikesNumber, articleController.getDislikes);
