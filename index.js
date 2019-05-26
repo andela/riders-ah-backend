@@ -1,11 +1,9 @@
 import dotenv from 'dotenv';
 import app from './app';
+import socketIo from './helpers/utils/socketIo';
 
 dotenv.config();
 
-// finally, let's start our server...
-const server = app.listen(process.env.PORT || 3000, () => {
-  console.log(`Listening on port ${server.address().port}`);
-});
+socketIo(app);
 
 export default app;
