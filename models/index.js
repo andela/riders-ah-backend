@@ -28,7 +28,6 @@ try {
 } catch (err) {
   // console.log(err)
 }
-
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

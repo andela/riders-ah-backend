@@ -2,6 +2,7 @@ import express from 'express';
 import articleController from '../../../controllers/article.controller';
 import Auth from '../../../middlewares/auth';
 import TagMiddleware from '../../../middlewares/tag.middleware';
+import catchErrors from '../../../middlewares/catch.errors.middleware';
 import ArticleHelper from '../../../helpers/article';
 import ArticleMiddleware from '../../../middlewares/article';
 import Ratingcontroller from '../../../controllers/rating.controller';
@@ -13,7 +14,7 @@ router.post('/', Auth, ArticleHelper.isValidArticle, articleController.createArt
 router.put('/:slug', Auth, ArticleHelper.isOwner, ArticleHelper.isValidUpdatedArticle, articleController.updateArticle);
 router.delete('/:slug', Auth, ArticleHelper.isOwner, articleController.deleteArticle);
 router.get('/:slug', articleController.getArticle);
-router.get('/', ArticleMiddleware.searchArticle, articleController.getAllArticles);
+router.get('/', catchErrors(ArticleMiddleware.searchArticle), catchErrors(articleController.getAllArticles));
 router.post('/:slug/ratings', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
 router.get('/:slug/ratings', Auth, Ratingcontroller.getArticleRating);
 router.post('/:slug/reaction/:option', Auth, ArticleHelper.isExisting, articleController.reactOnArticle);
