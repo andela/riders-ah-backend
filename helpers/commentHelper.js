@@ -2,7 +2,7 @@ import joi from 'joi';
 import model from '../models';
 
 const {
-  User, Article, Comment, CommentFeedback
+  User, Article, Comment, CommentFeedback, CommentHistory
 } = model;
 
 /**
@@ -81,6 +81,12 @@ class CommentHelper {
     if (!fetchedComments[0]) {
       return { errors: { body: ['no commemts found on this article'] } };
     }
+    await Promise.all(fetchedComments.map(async (currentComment) => {
+      const commentId = currentComment.dataValues.id;
+      const commentHistories = await this.getCommentsHistories(commentId);
+      currentComment.dataValues.histories = commentHistories;
+      return currentComment;
+    }));
     return fetchedComments;
   }
 
@@ -100,6 +106,9 @@ class CommentHelper {
     if (!fetchedComment) {
       return { errors: { body: ['commemt not found'] } };
     }
+    const commentId = fetchedComment.dataValues.id;
+    const commentHistories = await this.getCommentsHistories(commentId);
+    fetchedComment.dataValues.histories = commentHistories;
     return fetchedComment;
   }
 
@@ -136,6 +145,7 @@ class CommentHelper {
     await Comment.destroy({ where: { titleSlug: slug, id } });
     const destroyed = await Comment.findOne({ where: { titleSlug: slug, id } });
     if (destroyed === null) {
+      await CommentHistory.destroy({ where: { parentComment: id } });
       return { message: `comment with id ${id} have been deleted` };
     }
     return { message: `comment with id ${id} have failed to be deleted` };
@@ -152,7 +162,12 @@ class CommentHelper {
     const { body } = req.body;
     const { comment } = req.body;
     await Comment.update({ body: body || comment.body }, { where: { titleSlug: slug, id } });
+    await this.saveCommentHistory({ body: comment, parentComment: id });
+
     const updatedComment = await Comment.findOne({ where: { id } });
+    const commentHistories = await this.getCommentsHistories(id);
+    updatedComment.dataValues.histories = commentHistories;
+
     return { response: updatedComment };
   }
 
@@ -269,7 +284,10 @@ class CommentHelper {
     const { body } = req.body;
     const { reply } = req.body;
     await Comment.update({ body: body || reply.body }, { where: { replyid: id, id: replyId } });
+    await this.saveCommentHistory({ body: reply, parentComment: id });
     const updatedReply = await Comment.findOne({ where: { id: replyId } });
+    const commentHistories = await this.getCommentsHistories(id);
+    updatedReply.dataValues.histories = commentHistories;
     return { response: updatedReply };
   }
 
@@ -401,6 +419,30 @@ class CommentHelper {
     const deleteFeedback = await
     CommentFeedback.destroy({ where: { id }, returning: true });
     return deleteFeedback;
+  }
+
+  /**
+     * Save previous comment before editing
+     * @param {object} comment - an object
+     *@return {object} Return saved history
+     */
+  static async saveCommentHistory(comment) {
+    const history = await CommentHistory.create(comment);
+    return history;
+  }
+
+  /**
+     * Get all comment edits
+     * @param {number} commentId - an object
+     *@return {array} Return an array of all comments
+     */
+  static async getCommentsHistories(commentId) {
+    const histories = await CommentHistory.findAndCountAll({
+      where: { parentComment: commentId },
+      attributes: ['body', 'createdAt'],
+      order: [['createdAt', 'DESC']]
+    });
+    return histories;
   }
 }
 

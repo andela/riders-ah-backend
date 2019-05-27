@@ -42,6 +42,22 @@ class Comments {
   }
 
   /**
+   * @function getCommentHistories
+   * @param {Object} req
+   * @param {Object} res
+   * @returns {array} An array of comments histories
+  */
+  static async getCommentHistories(req, res) {
+    const commentId = req.params.id;
+
+    const histories = await commentHelper.getCommentsHistories(commentId);
+    return res.status(200).json({
+      status: 200,
+      commentsHistories: histories.rows
+    });
+  }
+
+  /**
    * @function deleteOneComment
    * @param {Object} req
    * @param {Object} res

@@ -729,6 +729,16 @@ describe('Test likes of a comment', () => {
         done();
       });
   });
+  it('should get comment edit histories', (done) => {
+    chai.request(app)
+      .get(`/api/v1/article/this-is-new/comments/${comment}/histories`)
+      .set('authorization', userToken)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.commentsHistories.should.be.a('array');
+        done();
+      });
+  });
   it('User should be able to like a comment', (done) => {
     chai.request(app)
       .post(`/api/v1/comments/${comment}/feedback/like`)
