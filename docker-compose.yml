@@ -1,0 +1,39 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - "./postgres-data:/var/lib/postgresql/data"
+    ports:
+      - ${DB_DOCKER_PORT}:${DB_DOCKER_PORT}
+    environment:         
+      - POSTGRES_DB= ${DB_NAME}
+      - POSTGRES_USER= ${DB_USER}
+      - POSTGRES_PASSWORD= ${DB_PASSWORD}
+  server:
+    build: .
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      - BASE_URL= ${BASE_URL}
+      - DB_HOST=db
+      - DB_USER= ${DB_USER}
+      - DB_NAME= ${DB_NAME}
+      - DB_PASSWORD= ${DB_PASSWORD}
+      - DB_PORT=5432
+      - DB_DOCKER_PORT=${DB_DOCKER_PORT}
+      - TESTDB_NAME= ${TESTDB_NAME}
+      - SECRET= ${SECRET}
+      - FACEBOOK_APP_ID= ${FACEBOOK_APP_ID}
+      - FACEBOOK_APP_SECRET= ${FACEBOOK_APP_SECRET}
+      - GOOGLE_CLIENT_ID= ${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET= ${GOOGLE_CLIENT_SECRET}
+      - TWITTER_CONSUMER_KEY= ${TWITTER_CONSUMER_KEY}
+      - TWITTER_CONSUMER_SECRET= ${TWITTER_CONSUMER_SECRET}
+      - APP_EMAIL= ${APP_EMAIL}
+      - APP_LINK= ${APP_LINK}
+      - SENDGRID_API_KEY= ${SENDGRID_API_KEY}
