@@ -38,6 +38,7 @@ if (!isProduction) {
   app.use(errorhandler());
 }
 
+
 registerApiDocEndpoint(app);
 app.use(routes);
 
@@ -51,13 +52,27 @@ app.use((req, res, next) => {
 // Handle application error
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.log(err.stack);
   let error = {};
   if (!isProduction) {
     error = err;
   }
   res.status(err.status || 500);
-
+  if (err.message === 'Validation error') {
+    res.json({
+      status: 409,
+      errors: {
+        body: error.errors[0].message
+      }
+    });
+  }
+  if (err.message === 'SequelizeDatabaseError') {
+    res.json({
+      status: 401,
+      errors: {
+        body: 'Unable to access database'
+      }
+    });
+  }
   res.json({
     errors: {
       message: err.message,
@@ -65,5 +80,6 @@ app.use((err, req, res, next) => {
     }
   });
 });
+
 
 export default app;

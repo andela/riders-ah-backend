@@ -9,16 +9,17 @@ import Ratingcontroller from '../../../controllers/rating.controller';
 import statsController from '../../../controllers/read.stats.controller';
 import Role from '../../../middlewares/roles';
 
+
 const router = express.Router();
 
-router.post('/', Auth, ArticleHelper.isValidArticle, articleController.createArticle);
-router.put('/:slug', Auth, ArticleHelper.isOwner, ArticleHelper.isValidUpdatedArticle, articleController.updateArticle);
+router.post('/', Auth, ArticleHelper.isValidArticle, catchErrors(articleController.createArticle));
+router.put('/:slug', Auth, ArticleHelper.isOwner, catchErrors(ArticleHelper.isValidUpdatedArticle), catchErrors(articleController.updateArticle));
 router.delete('/:slug', Auth, ArticleHelper.isOwner, articleController.deleteArticle);
 router.get('/reported', Auth, Role.isSuperAdmin, catchErrors(articleController.getAllReportedArticle));
 router.get('/:slug', articleController.getArticle);
 router.get('/', catchErrors(ArticleMiddleware.searchArticle), catchErrors(articleController.getAllArticles));
 router.post('/:slug/ratings', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
-router.get('/:slug/ratings', Auth, Ratingcontroller.getArticleRating);
+router.get('/:slug/ratings', Auth, catchErrors(Ratingcontroller.getArticleRating));
 router.post('/:slug/reaction/:option', Auth, ArticleHelper.isExisting, articleController.reactOnArticle);
 router.get('/:slug/likes', Auth, ArticleHelper.likesNumber, articleController.getLikes);
 router.get('/:slug/dislikes', Auth, ArticleHelper.dislikesNumber, articleController.getDislikes);
