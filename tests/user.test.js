@@ -30,6 +30,7 @@ const testUser = {
   isVerified: false
 };
 const { email } = testUser;
+let unauthorizedToken;
 describe('Users Authentication', () => {
   it('User Signup', (done) => {
     chai.request(server)
@@ -198,6 +199,7 @@ describe('Users Authentication', () => {
       .post('/api/v1/users/login')
       .send(user)
       .end((err, res) => {
+        unauthorizedToken = res.body.token;
         expect(res.body).to.have.status(200);
         expect(res.body.message).to.be.equal('User logged in successfully');
         expect(res.body).to.have.property('token').to.be.a('string');
@@ -281,6 +283,145 @@ describe('Users Authentication', () => {
         .end((err, res) => {
           expect(res.body).to.have.status(200);
           expect(res.body.message).to.be.equal('Email was sent. Check you email account');
+          done();
+        });
+    });
+  });
+  describe('Testing Super Admin CRUD', () => {
+    let userToken;
+    const newUser = {
+      firstName: 'andela',
+      lastName: 'sims',
+      username: 'samue',
+      email: 'niyitangasam.nik@andela.com'
+
+    };
+    const invalidUser = {
+      lastName: 'andela',
+      username: 'samuel',
+      email: 'kigali@andela.com'
+    };
+    const updateInfo = {
+      firstName: 'new user',
+      lastName: 'my name',
+    };
+    const userLogins = {
+      email: 'andela@andela.com',
+      password: 'Password@1'
+    };
+    before((done) => {
+      User.create({
+        firstName: 'Kigali',
+        lastName: 'Andela',
+        username: 'andela',
+        email: 'andela@andela.com',
+        password: helper.hashPassword('Password@1'),
+        roles: 'super_admin',
+        isVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      done();
+    });
+    it('Super Admin must be logged in', (done) => {
+      chai.request(server)
+        .post('/api/v1/users/login')
+        .send(userLogins)
+        .end((err, res) => {
+          userToken = res.body.token;
+          done();
+        });
+    });
+    it('Only Super Admin should perform the action', (done) => {
+      chai.request(server)
+        .post('/api/v1/users/')
+        .send(newUser)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          expect(res.body).to.have.status(201);
+          expect(res.body).to.have.property('message').to.be.a('string');
+          done();
+        });
+    });
+    it('Only Super Admin must create a new user', (done) => {
+      chai.request(server)
+        .post('/api/v1/users/')
+        .send(newUser)
+        .set('authorization', unauthorizedToken)
+        .end((err, res) => {
+          expect(res.body).to.have.status(401);
+          expect(res.body).to.have.property('message').to.be.a('string').to.be.equal('You are not a Super Admin!');
+          done();
+        });
+    });
+    it('Super Admin should provide valid info', (done) => {
+      chai.request(server)
+        .post('/api/v1/users/')
+        .send(invalidUser)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          expect(res.body).to.have.status(422);
+          expect(res.body).to.have.property('Error').to.be.an('array');
+          done();
+        });
+    });
+    it('Super Admin should be able to get a specif user', (done) => {
+      chai.request(server)
+        .get('/api/v1/users/andela')
+        .send(invalidUser)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.property('user').to.be.an('object');
+          done();
+        });
+    });
+    it('Super Admin should be able to update specific user', (done) => {
+      chai.request(server)
+        .put('/api/v1/users/andela')
+        .send(updateInfo)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.status(200);
+          expect(res.body).to.have.property('data').to.be.an('object');
+          done();
+        });
+    });
+    it('Super Admin should be able to deactivate a user', (done) => {
+      chai.request(server)
+        .put('/api/v1/users/andela/active/disable')
+        .send(updateInfo)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.property('user').to.be.an('object');
+          expect(res.body.user).to.have.property('isActive').to.be.equal(false);
+          done();
+        });
+    });
+    it('Super Admin should not disable already disabled user', (done) => {
+      chai.request(server)
+        .put('/api/v1/users/andela/active/disable')
+        .send(updateInfo)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.status(422);
+          expect(res.body).to.have.property('Error').to.be.a('string');
+          expect(res.body.Error).to.be.equal('Can not perform existing action');
+          done();
+        });
+    });
+    it('Super Admin should be able to  enable a user', (done) => {
+      chai.request(server)
+        .put('/api/v1/users/andela/active/enable')
+        .send(updateInfo)
+        .set('authorization', userToken)
+        .end((err, res) => {
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.property('user').to.be.an('object');
+          expect(res.body.user).to.have.property('isActive').to.be.equal(true);
           done();
         });
     });

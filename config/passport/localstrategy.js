@@ -20,7 +20,6 @@ const pass = (passport) => {
       }).then(user => done(null, user)).catch(error => done(error));
     }
   ));
-
   passport.use('local_signin', new LocalStrategy(
     {
       usernameField: 'email',
