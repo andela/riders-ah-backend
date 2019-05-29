@@ -1,3 +1,4 @@
+
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import server from '../app';
@@ -31,20 +32,39 @@ const testUser = {
 };
 const { email } = testUser;
 let unauthorizedToken;
+let userToken;
 describe('Users Authentication', () => {
   it('User Signup', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send(user)
       .end((err, res) => {
         expect(res.body).to.have.status(201);
-        expect(res.body).to.have.property('token').to.be.a('string');
+        expect(res.body)
+          .to.have.property('token')
+          .to.be.a('string');
         expect(res.body.token).to.not.be.equal('');
         done();
       });
   });
+  it('the user should be logged in', (done) => {
+    chai
+      .request(server)
+      .post('/api/v1/users/login')
+      .send({
+        email: 'andela@gmail.com',
+        password: '123Qa@5678'
+      })
+      .end((err, res) => {
+        userToken = res.body.token;
+        expect(res.body).to.have.property('token');
+        done();
+      });
+  });
   it('Email is required', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtotest',
@@ -57,7 +77,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Username is required', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         email: 'testtotest@gmail.com',
@@ -70,11 +91,12 @@ describe('Users Authentication', () => {
       });
   });
   it('Password is required', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtotest',
-        email: 'testtotest@gmail.com',
+        email: 'testtotest@gmail.com'
       })
       .end((err, res) => {
         expect(res.body).to.have.status(400);
@@ -83,7 +105,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Invalid E-mail', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         email: 'testtotestgmail.com',
@@ -97,7 +120,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Email already in use', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtest',
@@ -111,7 +135,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Username already in use', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'test',
@@ -125,7 +150,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Check if the password contains digit', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtoftest',
@@ -139,7 +165,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Check if the password contains lowercase character', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtoftest',
@@ -153,7 +180,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Check if the password contains uppercase character', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtoftest',
@@ -167,7 +195,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Check if the password contains special character', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtoftest',
@@ -181,7 +210,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Check if the password does not contains less than 8 characters', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/signup')
       .send({
         username: 'testtoftest',
@@ -195,19 +225,23 @@ describe('Users Authentication', () => {
       });
   });
   it('user login', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/login')
       .send(user)
       .end((err, res) => {
         unauthorizedToken = res.body.token;
         expect(res.body).to.have.status(200);
         expect(res.body.message).to.be.equal('User logged in successfully');
-        expect(res.body).to.have.property('token').to.be.a('string');
+        expect(res.body)
+          .to.have.property('token')
+          .to.be.a('string');
         done();
       });
   });
   it('Incorrect email', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/login')
       .send(incorrectnuser)
       .end((err, res) => {
@@ -217,7 +251,8 @@ describe('Users Authentication', () => {
       });
   });
   it('Incorrect password', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/api/v1/users/login')
       .send(incorrectpassword)
       .end((err, res) => {
@@ -231,7 +266,8 @@ describe('Users Authentication', () => {
       await User.create(testUser);
     });
     it('Should have email and token in url', (done) => {
-      chai.request(server)
+      chai
+        .request(server)
         .get('/api/v1/users/verification')
         .end((err, res) => {
           expect(res.body).to.have.status(400);
@@ -240,7 +276,8 @@ describe('Users Authentication', () => {
         });
     });
     it('Should have email and token that are saved into system', (done) => {
-      chai.request(server)
+      chai
+        .request(server)
         .get(`/api/v1/users/verification?token=${token}&email=someemail@mail.com`)
         .end((err, res) => {
           expect(res.body).to.have.status(404);
@@ -249,7 +286,8 @@ describe('Users Authentication', () => {
         });
     });
     it('Should be verified', (done) => {
-      chai.request(server)
+      chai
+        .request(server)
         .get(`/api/v1/users/verification?token=${token}&email=${email}`)
         .end((err, res) => {
           expect(res.body).to.have.status(200);
@@ -258,7 +296,8 @@ describe('Users Authentication', () => {
         });
     });
     it('Should resent to a valid email', (done) => {
-      chai.request(server)
+      chai
+        .request(server)
         .post('/api/v1/users/send/email')
         .end((err, res) => {
           expect(res.body).to.have.status(422);
@@ -267,7 +306,8 @@ describe('Users Authentication', () => {
         });
     });
     it('Email sent should be in the system', (done) => {
-      chai.request(server)
+      chai
+        .request(server)
         .post('/api/v1/users/send/email')
         .send({ email: 'anyemail@somedomain.com' })
         .end((err, res) => {
@@ -277,7 +317,8 @@ describe('Users Authentication', () => {
         });
     });
     it('Email should be sent', (done) => {
-      chai.request(server)
+      chai
+        .request(server)
         .post('/api/v1/users/send/email')
         .send({ email })
         .end((err, res) => {
@@ -288,7 +329,7 @@ describe('Users Authentication', () => {
     });
   });
   describe('Testing Super Admin CRUD', () => {
-    let userToken;
+    let superToken;
     const newUser = {
       firstName: 'andela',
       lastName: 'sims',
@@ -328,7 +369,7 @@ describe('Users Authentication', () => {
         .post('/api/v1/users/login')
         .send(userLogins)
         .end((err, res) => {
-          userToken = res.body.token;
+          superToken = res.body.token;
           done();
         });
     });
@@ -336,7 +377,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .post('/api/v1/users/')
         .send(newUser)
-        .set('authorization', userToken)
+        .set('authorization', superToken)
         .end((err, res) => {
           expect(res.body).to.have.status(201);
           expect(res.body).to.have.property('message').to.be.a('string');
@@ -358,7 +399,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .post('/api/v1/users/')
         .send(invalidUser)
-        .set('authorization', userToken)
+        .set('authorization', superToken)
         .end((err, res) => {
           expect(res.body).to.have.status(422);
           expect(res.body).to.have.property('Error').to.be.an('array');
@@ -369,7 +410,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .get('/api/v1/users/andela')
         .send(invalidUser)
-        .set('authorization', userToken)
+        .set('authorization', superToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.property('user').to.be.an('object');
@@ -380,7 +421,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela')
         .send(updateInfo)
-        .set('authorization', userToken)
+        .set('authorization', superToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.status(200);
@@ -392,7 +433,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela/active/disable')
         .send(updateInfo)
-        .set('authorization', userToken)
+        .set('authorization', superToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.property('user').to.be.an('object');
@@ -404,7 +445,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela/active/disable')
         .send(updateInfo)
-        .set('authorization', userToken)
+        .set('authorization', superToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.status(422);
@@ -417,11 +458,22 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela/active/enable')
         .send(updateInfo)
-        .set('authorization', userToken)
+        .set('authorization', superToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.property('user').to.be.an('object');
           expect(res.body.user).to.have.property('isActive').to.be.equal(true);
+          done();
+        });
+    });
+    it('create a drop token', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/users/logout')
+        .set('Authorization', userToken)
+        .end((err, res) => {
+          expect(res.status).to.be.equal(201);
+          expect(res.body).to.have.property('message');
           done();
         });
     });

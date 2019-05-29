@@ -4,7 +4,7 @@ import passportHelper from '../helpers/passport';
 import helper from '../helpers';
 import userHelper from '../helpers/userHelper';
 
-const { User } = db;
+const { User, DroppedTokens } = db;
 /**
  * @exports UserController
  * @class UserController
@@ -12,23 +12,20 @@ const { User } = db;
  * */
 class UserController {
   /**
-     * Create, login and Authenticate user.
-     * @async
-     * @param  {object} req - Request object
-     * @param {object} res - Response object
-     * @return {json} Returns json object
-     * @static
-     */
+   * Create, login and Authenticate user.
+   * @async
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @return {json} Returns json object
+   * @static
+   */
   static async socialAuth(req, res) {
     const userExist = await passportHelper.findRecord(User, {
       email: req.user.email
     });
     if (userExist) {
       const { password } = req.user;
-      const isValidPassword = await helper.comparePassword(
-        userExist.dataValues.password,
-        password
-      );
+      const isValidPassword = await helper.comparePassword(userExist.dataValues.password, password);
       if (isValidPassword) {
         const token = helper.generateToken(userExist.dataValues);
         return res.status(200).send({
@@ -62,13 +59,13 @@ class UserController {
   }
 
   /**
-     * Check the environment
-     * @function addUser
-     * @param  {object} req - accept object with user info
-     * @param  {object} res - accept object with user info
-     * @return {json} Returns json object
-     * @static
-     */
+   * Check the environment
+   * @function addUser
+   * @param  {object} req - accept object with user info
+   * @param  {object} res - accept object with user info
+   * @return {json} Returns json object
+   * @static
+   */
   static async addUser(req, res) {
     passport.authenticate('local_signup', async (err, user) => {
       if (user) {
@@ -106,13 +103,13 @@ class UserController {
   }
 
   /**
-     * Resent email
-     * @function resentEmail
-     * @param  {object} req - accept object with user info
-     * @param  {object} res - accept object with user info
-     * @return {json} Returns json object
-     * @static
-     */
+   * Resent email
+   * @function resentEmail
+   * @param  {object} req - accept object with user info
+   * @param  {object} res - accept object with user info
+   * @return {json} Returns json object
+   * @static
+   */
   static async resentEmail(req, res) {
     const { email } = req.body;
 
@@ -192,7 +189,9 @@ class UserController {
     passport.authenticate('local_signin', (err, user) => {
       if (user) {
         const issueToken = helper.generateToken(user.dataValues);
-        return res.status(200).send({ status: 200, message: 'User logged in successfully', token: issueToken });
+        return res
+          .status(200)
+          .send({ status: 200, message: 'User logged in successfully', token: issueToken });
       }
       if (err) {
         return res.status(401).send({ status: 401, err });
@@ -201,13 +200,13 @@ class UserController {
   }
 
   /**
-     * Get list of users
-     * @function listUsers
-     * @param  {object} req - accept object with user info
-     * @param  {object} res - accept object with user info
-     * @return {json} Returns json object
-     * @static
-     */
+   * Get list of users
+   * @function listUsers
+   * @param  {object} req - accept object with user info
+   * @param  {object} res - accept object with user info
+   * @return {json} Returns json object
+   * @static
+   */
   static async listUsers(req, res) {
     const users = await userHelper.usersList(req.user.id);
 
@@ -243,6 +242,22 @@ class UserController {
   static async enableOrDisableUser(req, res) {
     const user = await userHelper.enableOrDisableUser(req);
     return res.status(200).send({ user });
+  }
+
+  /**
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns {object} res
+   */
+  static async signOut(req, res) {
+    const token = req.headers.authorization;
+    try {
+      await DroppedTokens.create({ token });
+      return res.status(201).json({ status: 201, message: 'You are now logged out' });
+    } catch (error) {
+      return res.status(401).json({ status: 401, error: 'You need to login' });
+    }
   }
 }
 export default UserController;
