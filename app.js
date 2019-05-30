@@ -7,9 +7,9 @@ import session from 'express-session';
 import routes from './routes';
 import registerApiDocEndpoint from './config/swagger';
 import pass from './config/passport/localstrategy';
-import initNotification from './helpers/utils/eventHandlers';
+import initEventListener from './helpers/utils/eventHandlers';
 
-initNotification();
+initEventListener();
 
 const isProduction = process.env.NODE_ENV === 'production';
 

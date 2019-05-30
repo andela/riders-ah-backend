@@ -230,7 +230,7 @@ class UserHelper {
         'bio',
         'image',
         'roles',
-        'notification',
+        'notificationSettings',
         'createdAt',
         'updatedAt'
       ]

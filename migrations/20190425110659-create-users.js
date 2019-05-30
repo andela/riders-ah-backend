@@ -44,9 +44,9 @@ const usersMigration = {
       type: Sequelize.BOOLEAN,
       defaultValue: true
     },
-    notification: {
+    notificationSettings: {
       type: Sequelize.ARRAY(Sequelize.STRING),
-      defaultValue: ['email', 'in-app', 'follower', 'articleFavorite']
+      defaultValue: ['receiveEmail', 'receiveInApp', 'onfollowPublish', 'onArticleFavoritedInteraction']
     },
     token: {
       type: Sequelize.STRING,

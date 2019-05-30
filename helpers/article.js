@@ -378,7 +378,7 @@ class ArticleHelper {
     const { slug } = req.params;
     const likesFetched = await Like.findAll({
       where: { titleSlug: slug, status: 'like' },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image', 'email', 'notificationSettings'] }],
       attributes: ['id', 'titleSlug', 'status']
     });
     return likesFetched;
