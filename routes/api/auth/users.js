@@ -17,5 +17,6 @@ router.post('/', Auth, Role.isSuperAdmin, Uservalidator.isValidInfo, Uservalidat
 router.put('/:username', Auth, Role.isSuperAdmin, Uservalidator.checkEmail, Uservalidator.isValidUpdateInfo, Usercontroller.updateUser);
 router.get('/:username', Auth, Role.isSuperAdmin, Usercontroller.getUser);
 router.put('/:username/active/:action', Auth, Role.isSuperAdmin, Uservalidator.isValidAction, Uservalidator.isItAlreadySet, Usercontroller.enableOrDisableUser);
+router.post('/logout', Auth, Usercontroller.signOut);
 
 export default router;
