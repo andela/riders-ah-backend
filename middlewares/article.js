@@ -1,8 +1,11 @@
 import Sequelize from 'sequelize';
 import Articlehepler from '../helpers/articleRatevalidator';
 import searchArticleHelper from '../helpers/article';
+import models from '../models';
+import recordHelper from '../helpers/passport';
 
 const { Op } = Sequelize;
+const { ReportedArticle } = models;
 
 /**
  * @exports ArticleMiddleware
@@ -250,6 +253,43 @@ class ArticleMiddleware {
     }
     next();
     return true;
+  }
+
+  /**
+     * Validate article and rate
+     * @param {string} req - a request
+     * @param {string} res - a response
+     * @param {string} next - next function for continue
+     * @return {string} Returns error or proceed the execution
+     * @static
+     */
+  static async validateParams(req, res, next) {
+    const { reportType, slug } = req.params;
+    const reportTypes = ['plagiarism', 'spam', 'harassment', 'others'];
+
+    const article = await searchArticleHelper.findArticleBySlug(slug);
+
+    if (reportTypes.indexOf(reportType) === -1) {
+      return res.status(422).json({
+        status: 422,
+        error: 'Report type can only be plagiarism, spam, harassment or others'
+      });
+    }
+    if (!article) {
+      return res.status(404).json({
+        status: 404,
+        error: 'This article does not exist'
+      });
+    }
+    const articleReport = await recordHelper
+      .findRecord(ReportedArticle, { reportType, articleSlug: slug });
+    if (articleReport) {
+      return res.status(409).json({
+        status: 409,
+        error: 'Article has been already reported'
+      });
+    }
+    return next();
   }
 }
 export default ArticleMiddleware;

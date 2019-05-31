@@ -7,12 +7,14 @@ import ArticleHelper from '../../../helpers/article';
 import ArticleMiddleware from '../../../middlewares/article';
 import Ratingcontroller from '../../../controllers/rating.controller';
 import statsController from '../../../controllers/read.stats.controller';
+import Role from '../../../middlewares/roles';
 
 const router = express.Router();
 
 router.post('/', Auth, ArticleHelper.isValidArticle, articleController.createArticle);
 router.put('/:slug', Auth, ArticleHelper.isOwner, ArticleHelper.isValidUpdatedArticle, articleController.updateArticle);
 router.delete('/:slug', Auth, ArticleHelper.isOwner, articleController.deleteArticle);
+router.get('/reported', Auth, Role.isSuperAdmin, catchErrors(articleController.getAllReportedArticle));
 router.get('/:slug', articleController.getArticle);
 router.get('/', catchErrors(ArticleMiddleware.searchArticle), catchErrors(articleController.getAllArticles));
 router.post('/:slug/ratings', Auth, ArticleMiddleware.checkRatedArticle, Ratingcontroller.rateArticle);
@@ -31,6 +33,7 @@ router.post('/:slug/highlight', catchErrors(Auth), catchErrors(ArticleHelper.isV
 router.get('/:slug/highlight', catchErrors(Auth), catchErrors(articleController.getHighlightText));
 router.get('/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(articleController.getCommentHighlights));
 router.post('/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(ArticleHelper.isValidHighlightTextCommented), catchErrors(articleController.addCommentHighlights));
+router.post('/:slug/report/:reportType', Auth, catchErrors(ArticleMiddleware.validateParams), catchErrors(articleController.reportArticle));
 
 
 export default router;

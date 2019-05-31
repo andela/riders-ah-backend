@@ -54,6 +54,10 @@ const articles = (sequelize, DataTypes) => {
       foreignKey: 'articleSlug',
       sourceKey: 'slug'
     });
+    Article.hasMany(models.ReportedArticle, {
+      foreignKey: 'articleSlug',
+      sourceKey: 'slug'
+    });
   };
   return Article;
 };

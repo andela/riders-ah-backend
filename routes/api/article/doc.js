@@ -652,3 +652,90 @@
  *       '404':
  *         description: Highlighted text not found
  */
+/**
+ * @swagger
+ * definitions:
+ *   ReportedArticle:
+ *     type: object
+ *     properties:
+ *       userId:
+ *         type: integer
+ *       articleId:
+ *         type: integer
+ *       reportType:
+ *         type: enum
+ *       reason:
+ *         type: text
+ */
+/**
+* @swagger
+*  /articles/{slug}/report/{reportType}:
+*   post:
+*     tags:
+*       - Report
+*     name: Report
+*     summary: User must be able to report an article.
+*     produces:
+*       - application/json
+*     consumes:
+*       - application/json
+*     parameters:
+*       - name: slug
+*         in: path
+*         schema:
+*           type: string
+*         required:
+*           - slug
+*       - name: reportType
+*         in: path
+*         schema:
+*           type: string
+*         required:
+*           - reportType
+*       - name: authorization
+*         in: header
+*         schema:
+*           type: string
+*         required:
+*           - authorization
+*       - name: reason
+*         in: reason
+*         schema:
+*           $ref: '#/definitions/ReportedArticle'
+*           type: object
+*           properties:
+*             reason:
+*               type: text
+*     responses:
+*       '201':
+*         description: Article reported
+*       '400':
+*         description: Bad Request
+*       '404':
+*         description: article not found
+*/
+/**
+* @swagger
+*  /articles/reported:
+*   get:
+*     tags:
+*       - Report
+*     name: Report
+*     summary: Get all reported articles
+*     produces:
+*       - application/json
+*     consumes:
+*       - application/json
+*     parameters:
+*       - name: authorization
+*         in: header
+*         schema:
+*           type: string
+*         required:
+*           - authorization
+*     responses:
+*       '200':
+*         description: ok
+*       '404':
+*         description: article not found
+*/
