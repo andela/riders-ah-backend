@@ -64,10 +64,12 @@ class ArticleController {
 
     const userId = await userHelper.findUserByToken(req.headers.authorization);
     const isArticleAuthor = await recordHelper.findRecord(Article, {
-      id: articleId, authorId: userId
+      id: articleId,
+      authorId: userId
     });
     const hasRead = await recordHelper.findRecord(ReadingStat, {
-      articleId, userId
+      articleId,
+      userId
     });
 
     if (!isArticleAuthor && (!hasRead || !hasRead.userId)) {
@@ -194,11 +196,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async bookmarkArticle(req, res) {
     const { bookmark } = req.body;
     if (bookmark === 'SequelizeUniqueConstraintError') {
@@ -209,11 +211,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getShares(req, res) {
     const { slug } = req.params;
     const article = await ArticleHelper.findArticleBySlug(slug);
@@ -222,9 +224,13 @@ class ArticleController {
     }
     const shares = await ArticleHelper.getShares(slug);
     if (shares.length < 1) {
-      return res.status(200).send({ message: 'this article has not been shared yet' });
+      return res
+        .status(200)
+        .send({ message: 'this article has not been shared yet' });
     }
-    const numberOfSharesOnPlatform = await ArticleHelper.numberOfSharesOnPlatform(shares);
+    const numberOfSharesOnPlatform = await ArticleHelper.numberOfSharesOnPlatform(
+      shares
+    );
     const facebook = numberOfSharesOnPlatform[0];
     const twitter = numberOfSharesOnPlatform[1];
     const linkedin = numberOfSharesOnPlatform[2];
@@ -240,11 +246,11 @@ class ArticleController {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getBookmarks(req, res) {
     const { id } = req.user;
     const bookmarks = await ArticleHelper.getBookmarks(id);
