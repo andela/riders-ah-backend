@@ -250,6 +250,59 @@ class ArticleController {
     const bookmarks = await ArticleHelper.getBookmarks(id);
     return res.status(200).send({ Bookmarks: bookmarks });
   }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async highlightText(req, res) {
+    const highlightAndComment = await ArticleHelper.highlightedText(req);
+    if (highlightAndComment.error) {
+      return res.status(400).send({ status: 400, errors: { body: highlightAndComment.error } });
+    }
+    return res.status(201).send({ status: 201, data: highlightAndComment });
+  }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async getHighlightText(req, res) {
+    const highlights = await ArticleHelper.getHighlightedText(req);
+    if (highlights.error) {
+      return res.status(404).send({ status: 404, errors: { body: [highlights.error] } });
+    }
+    return res.status(200).send({ status: 200, data: highlights });
+  }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async getCommentHighlights(req, res) {
+    const highlights = await ArticleHelper.getHighlightedTextComment(req);
+    if (highlights.error) {
+      return res.status(404).send({ status: 404, errors: { body: [highlights.error] } });
+    }
+    return res.status(200).send({ status: 200, data: highlights });
+  }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async addCommentHighlights(req, res) {
+    const comment = await ArticleHelper.commentHighlighedText(req);
+    return res.status(201).send({ status: 201, data: comment });
+  }
 }
 
 export default ArticleController;

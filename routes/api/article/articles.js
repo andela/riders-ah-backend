@@ -27,5 +27,10 @@ router.get('/:slug/shares', Auth, articleController.getShares);
 router.post('/:slug/bookmark', Auth, ArticleHelper.articleToBookmark, ArticleHelper.createBookmark, articleController.bookmarkArticle);
 router.get('/user/bookmarks', Auth, articleController.getBookmarks);
 router.get('/reading/statistics', Auth, statsController.getArticlesReadingStats);
+router.post('/:slug/highlight', catchErrors(Auth), catchErrors(ArticleHelper.isValidHighlightText), catchErrors(articleController.highlightText));
+router.get('/:slug/highlight', catchErrors(Auth), catchErrors(articleController.getHighlightText));
+router.get('/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(articleController.getCommentHighlights));
+router.post('/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(ArticleHelper.isValidHighlightTextCommented), catchErrors(articleController.addCommentHighlights));
+
 
 export default router;
