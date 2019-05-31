@@ -40,7 +40,7 @@ class ArticleHelper {
    */
   static async createNewArticle(req) {
     const {
-      body, title, description, image
+      body, title, description, image, tags
     } = req.body;
     const readingTime = readTime(body, title, description);
     const slug = ArticleHelper.createSlug(title);
@@ -60,11 +60,18 @@ class ArticleHelper {
       slug,
       authorId: articleAuthor.id
     });
+    await Promise.all(tags.map(async (currentTag) => {
+      await Tag.create({
+        name: currentTag,
+        articleId: article.dataValues.id
+      });
+    }));
     emitter.emit('onFollowPublish', {
       title,
       authorId: articleAuthor.id,
       slug
     });
+    article.dataValues.tagList = tags;
     const values = {
       userData,
       article
@@ -81,11 +88,13 @@ class ArticleHelper {
    * @static
    */
   static isValidArticle(req, res, next) {
+    req.body.tags = req.body.tags ? req.body.tags : [];
     const schema = Joi.object().keys({
       body: Joi.string().required(),
       title: Joi.string().required(),
       description: Joi.string().required(),
-      image: Joi.string().required()
+      image: Joi.string().required(),
+      tags: Joi.array().items(Joi.string())
     });
     const result = Joi.validate(req.body, schema);
     if (result.error) {
