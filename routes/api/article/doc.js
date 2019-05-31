@@ -417,3 +417,45 @@
  *       '400':
  *         bookmarks have been failed to be fetched
  */
+
+/**
+ * @swagger
+ * /articles:
+ *   get:
+ *     tags:
+ *       - search engine
+ *     name: search article
+ *     summary: search for articles using different filtering parameters
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: author
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: title
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: tag
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: keyword
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '200':
+ *         description: articles fetched successfuly
+ *       '404':
+ *         articles not found
+ */

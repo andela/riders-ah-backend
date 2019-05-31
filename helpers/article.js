@@ -646,5 +646,192 @@ class ArticleHelper {
     }
     return bookmarks;
   }
+
+  /**
+  * @param  {object} param - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async searchArticle(param) {
+    let result;
+    if (param.username) {
+      result = await Article.findAll({
+        include: [{
+          model: User, as: 'author', where: param, attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.title) {
+      result = await Article.findAll({
+        where: param,
+        include: [{
+          model: User, as: 'author', attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.name) {
+      result = await Article.findAll({
+        include: [{
+          model: User, as: 'author', attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param, attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.keyword) {
+      result = await Article.findAll({
+        where: param.keyword,
+        include: [{
+          model: User, as: 'author', attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.authorTitle) {
+      result = await Article.findAll({
+        where: param.authorTitle[1],
+        include: [{
+          model: User, as: 'author', where: param.authorTitle[0], attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.authorTag) {
+      result = await Article.findAll({
+        include: [{
+          model: User, as: 'author', where: param.authorTag[0], attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param.authorTag[1], attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.titleKeyword) {
+      result = await Article.findAll({
+        where: param.titleKeyword,
+        include: [{
+          model: User, as: 'author', attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.authorKeyword) {
+      result = await Article.findAll({
+        where: param.authorKeyword[1],
+        include: [{
+          model: User, as: 'author', where: param.authorKeyword[0], attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.titleTag) {
+      result = await Article.findAll({
+        where: param.titleTag[0],
+        include: [{
+          model: User, as: 'author', attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param.titleTag[1], attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.tagKeyword) {
+      result = await Article.findAll({
+        where: param.tagKeyword[1],
+        include: [{
+          model: User, as: 'author', attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param.tagKeyword[0], attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.authorTitleTag) {
+      result = await Article.findAll({
+        where: param.authorTitleTag[1],
+        include: [{
+          model: User, as: 'author', where: param.authorTitleTag[0], attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param.authorTitleTag[2], attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.authorTitleKeyword) {
+      result = await Article.findAll({
+        where: param.authorTitleKeyword[1],
+        include: [{
+          model: User, as: 'author', where: param.authorTitleKeyword[0], attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.titleTagKeyword) {
+      result = await Article.findAll({
+        where: param.titleTagKeyword[0],
+        include: [{
+          model: User, as: 'author', attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param.titleTagKeyword[1], attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.authorTagKeyword) {
+      result = await Article.findAll({
+        where: param.authorTagKeyword[2],
+        include: [{
+          model: User, as: 'author', where: param.authorTagKeyword[0], attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param.authorTagKeyword[1], attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    if (param.allParams) {
+      result = await Article.findAll({
+        where: param.allParams[1],
+        include: [{
+          model: User, as: 'author', where: param.allParams[0], attributes: ['username', 'bio', 'image']
+        },
+        {
+          model: Tag, as: 'tagList', where: param.allParams[2], attributes: ['name']
+        }],
+        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+      });
+    }
+    return result;
+  }
 }
 export default ArticleHelper;
