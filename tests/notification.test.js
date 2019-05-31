@@ -15,8 +15,11 @@ const article = {
   body: 'why I spent the last three years as a Design Ethicisted',
   image: 'https/piimg.com'
 };
-
-let userToken = null;
+const commentOnArticle = {
+  body: 'New comment on the article'
+};
+let articleSlug = null;
+let TokenToTestNotification = null;
 let userId, followingId;
 describe('Notifications Test', () => {
   before(async () => {
@@ -63,7 +66,7 @@ describe('Notifications Test', () => {
           password: 'password@123K'
         })
         .end((err, res) => {
-          userToken = res.body.token;
+          TokenToTestNotification = res.body.token;
           expect(res.body).to.have.property('token').to.be.a('string');
           done();
         });
@@ -72,8 +75,8 @@ describe('Notifications Test', () => {
   describe('User should be able to unset and set notifications preference', () => {
     it('User should be able to unset email option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/unSet/email')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/unSet/receiveEmail')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification successfully unsetted.');
@@ -82,8 +85,8 @@ describe('Notifications Test', () => {
     });
     it('User should be able to set email option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/set/email')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/set/receiveEmail')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification option setted.');
@@ -92,8 +95,8 @@ describe('Notifications Test', () => {
     });
     it('User should be able to unset in app option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/unSet/in-app')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/unSet/receiveInApp')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification successfully unsetted.');
@@ -102,8 +105,8 @@ describe('Notifications Test', () => {
     });
     it('User should be able to set in app option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/set/in-app')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/set/receiveInApp')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification option setted.');
@@ -112,8 +115,8 @@ describe('Notifications Test', () => {
     });
     it('User should be able to unset follower option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/unSet/follower')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/unSet/onfollowPublish')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification successfully unsetted.');
@@ -122,8 +125,8 @@ describe('Notifications Test', () => {
     });
     it('User should be able to set follower option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/set/follower')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/set/onfollowPublish')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification option setted.');
@@ -132,8 +135,8 @@ describe('Notifications Test', () => {
     });
     it('User should be able to unset notification for article favorited option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/unSet/articleFavorite')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/unSet/onArticleFavoritedInteraction')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification successfully unsetted.');
@@ -142,8 +145,8 @@ describe('Notifications Test', () => {
     });
     it('User should be able to set notification for article favorited option', (done) => {
       chai.request(app)
-        .put('/api/v1/users/notification/set/articleFavorite')
-        .set('authorization', userToken)
+        .put('/api/v1/users/notification/set/onArticleFavoritedInteraction')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('Message').to.be.a('string');
           expect(res.body.Message).equals('Notification option setted.');
@@ -155,11 +158,11 @@ describe('Notifications Test', () => {
     it('User should get a message when setting a wrong option', (done) => {
       chai.request(app)
         .put('/api/v1/users/notification/set/xxxxx123')
-        .set('authorization', userToken)
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body.status).to.be.equal(422);
           expect(res.body).to.have.property('Error').to.be.a('string');
-          expect(res.body.Error).equals('Only option must be email,in-app,follower or articleFavorite');
+          expect(res.body.Error).equals('Only option must be receiveEmail, receiveInApp, onfollowPublish or onArticleFavoritedInteraction');
           done();
         });
     });
@@ -167,8 +170,8 @@ describe('Notifications Test', () => {
   describe('User should to get notification', () => {
     it('User should be able to get notifications', (done) => {
       chai.request(app)
-        .get('/api/v1/users/notification/')
-        .set('authorization', userToken)
+        .get('/api/v1/users/notifications/')
+        .set('authorization', TokenToTestNotification)
         .end((err, res) => {
           expect(res.body).to.have.property('notification').to.be.an('array');
           done();
@@ -178,12 +181,29 @@ describe('Notifications Test', () => {
   describe('Notification when article created', () => {
     const notificationEmitter = sinon.spy();
     emitter.on('onFollowPublish', notificationEmitter);
-    it('Should emit event', (done) => {
+    it('Should emit event on article publish', (done) => {
       chai.request(app)
         .post('/api/v1/articles')
-        .set('authorization', userToken)
+        .set('authorization', TokenToTestNotification)
         .send(article)
+        .end((err, res) => {
+          articleSlug = res.body.article.slug;
+          // check if event is called
+          expect(notificationEmitter.called).to.equal(true);
+          done();
+        });
+    });
+  });
+  describe('Notification when a comment is created', () => {
+    const notificationEmitter = sinon.spy();
+    emitter.on('onArticleInteraction', notificationEmitter);
+    it('Should emit event', (done) => {
+      chai.request(app)
+        .post(`api/v1/article/${articleSlug}/comments`)
+        .set('authorization', TokenToTestNotification)
+        .send(commentOnArticle)
         .end(() => {
+          // check if event is called
           expect(notificationEmitter.called).to.equal(true);
           done();
         });

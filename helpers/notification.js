@@ -21,9 +21,9 @@ class NotificationHelper {
   static async setOption(req) {
     const { option } = req.params;
     const user = await User.findOne({ where: { id: req.user.id } });
-    const notifsArray = user.dataValues.notification;
+    const notifsArray = user.dataValues.notificationSettings;
     notifsArray.push(option);
-    const optionSet = await user.update({ notification: notifsArray });
+    const optionSet = await user.update({ notificationSettings: notifsArray });
     return optionSet;
   }
 
@@ -36,10 +36,10 @@ class NotificationHelper {
   static async UnsetOption(req) {
     const { option } = req.params;
     const user = await User.findOne({ where: { id: req.user.id } });
-    const notifsArray = user.dataValues.notification;
+    const notifsArray = user.dataValues.notificationSettings;
     const optionIndex = notifsArray.indexOf(option);
     notifsArray.splice(optionIndex, 1);
-    const optionUnsetted = await user.update({ notification: notifsArray });
+    const optionUnsetted = await user.update({ notificationSettings: notifsArray });
     return optionUnsetted;
   }
 
@@ -53,7 +53,7 @@ class NotificationHelper {
      */
   static async isOptionAvailable(req, res, next) {
     const user = await User.findOne({ where: { id: req.user.id } });
-    const index = user.dataValues.notification
+    const index = user.dataValues.notificationSettings
       .findIndex(notification => notification === req.params.option);
     if (index !== -1) {
       return res.status(422).send({ status: 422, Error: 'You already have this Option set' });
@@ -71,7 +71,7 @@ class NotificationHelper {
      */
   static async isOptionIn(req, res, next) {
     const user = await User.findOne({ where: { id: req.user.id } });
-    const index = user.dataValues.notification
+    const index = user.dataValues.notificationSettings
       .findIndex(notification => notification === req.params.option);
     if (index === -1) {
       return res.status(422).send({ status: 422, Error: 'You don\'t have this Option set' });
@@ -88,9 +88,9 @@ class NotificationHelper {
      * @static
      */
   static isValidOption(req, res, next) {
-    const validValues = ['email', 'in-app', 'follower', 'articleFavorite'];
+    const validValues = ['receiveEmail', 'receiveInApp', 'onfollowPublish', 'onArticleFavoritedInteraction'];
     if (validValues.indexOf(req.params.option) === -1) {
-      return res.status(422).send({ status: 422, Error: 'Only option must be email,in-app,follower or articleFavorite' });
+      return res.status(422).send({ status: 422, Error: 'Only option must be receiveEmail, receiveInApp, onfollowPublish or onArticleFavoritedInteraction' });
     }
     next();
   }
@@ -102,7 +102,7 @@ class NotificationHelper {
   static getfollowersWithEmailOption(followers) {
     const followersWithEmails = [];
     followers.forEach((follower) => {
-      if (follower.notification.indexOf('email') !== -1) {
+      if (follower.notificationSettings.indexOf('receiveEmail') !== -1) {
         followersWithEmails.push(follower);
       }
     });
@@ -118,7 +118,7 @@ class NotificationHelper {
   static getfollowersWithAppOption(followers) {
     const followersWithApp = [];
     followers.forEach((follower) => {
-      if (follower.notification.indexOf('in-app') !== -1) {
+      if (follower.notificationSettings.indexOf('receiveInApp') !== -1) {
         followersWithApp.push(follower);
       }
     });
@@ -150,8 +150,8 @@ class NotificationHelper {
   static sendEmailOnInteraction(email, user, title) {
     return mailSender.send({
       email,
-      subject: `Reaction on Article by  ${user} on Author Haven`,
-      html: `<html>On Author Haven<strong>${title}</strong> had a new interaction </html>`
+      subject: `A new comment on Article by  ${user} on Author Haven`,
+      html: `<html>On Author Haven <strong>${title}</strong> had a new comment </html>`
     });
   }
 
@@ -164,7 +164,7 @@ class NotificationHelper {
   static inAppNotifications(followers, title, username) {
     const notifications = [];
     followers.forEach((follower) => {
-      if (follower.notification.indexOf('follower') !== -1) {
+      if (follower.notificationSettings.indexOf('onfollowPublish') !== -1) {
         const singleNotification = {
           userId: follower.id,
           notificationMessage: `New article called ${title} was created by ${username} `,
@@ -172,7 +172,7 @@ class NotificationHelper {
         notifications.push(singleNotification);
         return;
       }
-      if (follower.notification.indexOf('articleFavorite') !== -1) {
+      if (follower.notificationSettings.indexOf('onArticleFavoritedInteraction') !== -1) {
         const singleNotification = {
           userId: follower.id,
           notificationMessage: `Reaction on Article  called ${title}  by ${username} `,

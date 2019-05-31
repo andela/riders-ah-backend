@@ -7,5 +7,5 @@ const router = express.Router();
 
 router.put('/users/notification/set/:option', Auth, NotificationHelper.isValidOption, NotificationHelper.isOptionAvailable, NotificationController.setNotification);
 router.put('/users/notification/unSet/:option', Auth, NotificationHelper.isValidOption, NotificationHelper.isOptionIn, NotificationController.unsetNotification);
-router.get('/users/notification/', Auth, NotificationController.getNotificationByUser);
+router.get('/users/notifications/', Auth, NotificationController.getNotificationByUser);
 export default router;

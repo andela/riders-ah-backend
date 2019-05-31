@@ -32,6 +32,7 @@ const testUser = {
 };
 const { email } = testUser;
 let unauthorizedToken;
+let superAdminToken;
 let userToken;
 describe('Users Authentication', () => {
   it('User Signup', (done) => {
@@ -329,7 +330,6 @@ describe('Users Authentication', () => {
     });
   });
   describe('Testing Super Admin CRUD', () => {
-    let superToken;
     const newUser = {
       firstName: 'andela',
       lastName: 'sims',
@@ -362,14 +362,11 @@ describe('Users Authentication', () => {
         createdAt: new Date(),
         updatedAt: new Date()
       });
-      done();
-    });
-    it('Super Admin must be logged in', (done) => {
       chai.request(server)
         .post('/api/v1/users/login')
         .send(userLogins)
         .end((err, res) => {
-          superToken = res.body.token;
+          superAdminToken = res.body.token;
           done();
         });
     });
@@ -377,7 +374,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .post('/api/v1/users/')
         .send(newUser)
-        .set('authorization', superToken)
+        .set('authorization', superAdminToken)
         .end((err, res) => {
           expect(res.body).to.have.status(201);
           expect(res.body).to.have.property('message').to.be.a('string');
@@ -399,7 +396,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .post('/api/v1/users/')
         .send(invalidUser)
-        .set('authorization', superToken)
+        .set('authorization', superAdminToken)
         .end((err, res) => {
           expect(res.body).to.have.status(422);
           expect(res.body).to.have.property('Error').to.be.an('array');
@@ -410,7 +407,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .get('/api/v1/users/andela')
         .send(invalidUser)
-        .set('authorization', superToken)
+        .set('authorization', superAdminToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.property('user').to.be.an('object');
@@ -421,7 +418,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela')
         .send(updateInfo)
-        .set('authorization', superToken)
+        .set('authorization', superAdminToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.status(200);
@@ -433,7 +430,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela/active/disable')
         .send(updateInfo)
-        .set('authorization', superToken)
+        .set('authorization', superAdminToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.property('user').to.be.an('object');
@@ -445,7 +442,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela/active/disable')
         .send(updateInfo)
-        .set('authorization', superToken)
+        .set('authorization', superAdminToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.status(422);
@@ -458,7 +455,7 @@ describe('Users Authentication', () => {
       chai.request(server)
         .put('/api/v1/users/andela/active/enable')
         .send(updateInfo)
-        .set('authorization', superToken)
+        .set('authorization', superAdminToken)
         .end((err, res) => {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.property('user').to.be.an('object');

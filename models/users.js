@@ -45,9 +45,9 @@ const users = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true
       },
-      notification: {
+      notificationSettings: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        defaultValue: ['email', 'in-app', 'follower', 'articleFavorite']
+        defaultValue: ['receiveEmail', 'receiveInApp', 'onfollowPublish', 'onArticleFavoritedInteraction']
       },
       token: {
         type: DataTypes.STRING,
