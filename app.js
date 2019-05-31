@@ -27,20 +27,18 @@ app.use(
   })
 );
 
-
 // Normal express config defaults
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(passport.initialize());
 pass(passport);
-app.use(express.static(`${__dirname}/public`));
+app.use('/html', express.static(`${__dirname}/html`));
 
 if (!isProduction) {
   app.use(errorhandler());
 }
 
 registerApiDocEndpoint(app);
-
 app.use(routes);
 
 // / catch 404 and forward to error handler
@@ -67,9 +65,5 @@ app.use((err, req, res, next) => {
     }
   });
 });
-
-// Normal express config defaults
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
 export default app;

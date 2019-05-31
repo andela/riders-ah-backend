@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Socket.IO chat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 90%;
+      margin-right: 0.5%;
+    }
+
+    form button {
+      width: 9%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+
+    .display {
+      background-color: teal;
+      margin-bottom: 5%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="display">
+    <ul id="messages"></ul>
+  </div>
+  <form action="">
+    <input id="m" autocomplete="off" /><button>Send</button>
+  </form>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    let socket = io();
+    function getMessages() {
+      const route = 'http://localhost:3000/api/v1/messages';
+      const request = new Request(route, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: localStorage.Authorization
+        }
+      });
+      fetch(request)
+        .then(res => {
+          return res.json();
+        })
+        .then(resJson => {
+          for (const msg of resJson.messages) {
+            // console.log(msg);
+            $('#messages').append($('<li>').text(msg.message));
+            $('#messages').append(
+              $('<li>').text(new Date(msg.createdAt).toDateString())
+            );
+            $('#messages').append($('<li>').text(msg.User.username));
+          }
+        });
+    }
+
+    $(() => {
+      getMessages();
+      socket.on('message_created', msg => {
+        $('#messages').append($('<li>').text(msg.message));
+        $('#messages').append($('<li>').text(msg.username));
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      $('form').submit(e => {
+        socket.emit('new_message', { token: localStorage.Authorization, message: $('#m').val() })
+        $('#m').val() == '';
+        e.preventDefault();
+      });
+    });
+  </script>
+</body>
+
+</html>
