@@ -70,8 +70,10 @@ class ArticleController {
       articleId, userId
     });
 
-    if (!isArticleAuthor && (!hasRead || !hasRead.userId)) {
-      await statsHelper.saveReadingStats(userId, articleId);
+    if (!isArticleAuthor && !hasRead) {
+      await statsHelper.saveReadingStats({ userId, articleId, isDuplicate: false });
+    } else if (!isArticleAuthor && (hasRead)) {
+      await statsHelper.saveReadingStats({ userId, articleId, isDuplicate: true });
     }
 
     article.dataValues.tagList = tags;

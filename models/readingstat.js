@@ -3,6 +3,10 @@ const readingStats = (sequelize, DataTypes) => {
   const ReadingStat = sequelize.define('ReadingStat', {
     articleId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
+    isDuplicate: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
   }, {});
   ReadingStat.associate = (models) => {
     // associations can be defined here
