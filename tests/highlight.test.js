@@ -21,7 +21,7 @@ const articleTest = {
 const highlightTest = {
   startindex: 0,
   endindex: 15,
-  content: 'this is the body'
+  highlightedtext: 'this is the body'
 };
 
 const commentOnHighlight = {
@@ -77,23 +77,23 @@ describe('Hightlight and comment a text in an article', () => {
         expect(res.body.data.highlights.articleSlug).equals(articleSlug);
         expect(res.body.data.highlights.startIndex).equals(0);
         expect(res.body.data.highlights.endIndex).equals(15);
-        expect(res.body.data.highlights.content).equals('this is the body');
+        expect(res.body.data.highlights.highlightedText).equals('this is the body');
         done();
       });
   });
-  it('content lenght mismatch with the number of indexes', (done) => {
+  it('Highlighted Text length mismatch with the number of indexes', (done) => {
     chai.request(app)
       .post(`/api/v1/articles/${articleSlug}/highlight`)
       .set('authorization', toKen)
       .send({
         startindex: 0,
         endindex: 11,
-        content: 'this is the body'
+        highlightedtext: 'this is the body'
       })
       .end((error, res) => {
         expect(res.body).to.have.status(400);
         expect(res.body).to.have.property('errors');
-        expect(res.body.errors.body[0]).to.be.equals('Content Length does not match with the start and end index');
+        expect(res.body.errors.body[0]).to.be.equals('Highlighted Text Length does not match with the start and end index');
         done();
       });
   });
@@ -106,7 +106,7 @@ describe('Hightlight and comment a text in an article', () => {
         expect(res.body).to.have.property('data');
         expect(res.body.data[0]).to.have.property('id');
         expect(res.body.data[0]).to.have.property('articleSlug');
-        expect(res.body.data[0]).to.have.property('content');
+        expect(res.body.data[0]).to.have.property('highlightedText');
         expect(res.body.data[0]).to.have.property('createdAt');
         expect(res.body.data[0]).to.have.property('updatedAt');
         expect(res.body.data[0]).to.have.property('author');
@@ -115,7 +115,7 @@ describe('Hightlight and comment a text in an article', () => {
   });
   it('User comment on a highlighted text of an article', (done) => {
     chai.request(app)
-      .post(`/api/v1/articles/highlight/${highlightedText}/comment`)
+      .post(`/api/v1/articles/${articleSlug}/highlight/${highlightedText}/comment`)
       .set('authorization', toKen)
       .send(commentOnHighlight)
       .end((error, res) => {
@@ -125,6 +125,37 @@ describe('Hightlight and comment a text in an article', () => {
         expect(res.body.data.comment).to.have.property('id');
         expect(res.body.data.comment.highlightId).equals(highlightedText);
         expect(res.body.data.comment.comment).equals('this is a text');
+        done();
+      });
+  });
+
+  it('Get all comments of highlighted text related to an article', (done) => {
+    chai.request(app)
+      .get(`/api/v1/articles/${articleSlug}/highlights/comments`)
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(200);
+        expect(res.body).to.have.property('data');
+        expect(res.body.data[0]).to.have.property('id');
+        expect(res.body.data[0]).to.have.property('articleSlug').to.be.equal(articleSlug);
+        expect(res.body.data[0]).to.have.property('startIndex').to.be.equal(0);
+        expect(res.body.data[0]).to.have.property('endIndex').to.be.equal(15);
+        expect(res.body.data[0]).to.have.property('highlightedText').to.be.equal('this is the body');
+        expect(res.body.data[0]).to.have.property('createdAt');
+        expect(res.body.data[0]).to.have.property('updatedAt');
+        expect(res.body.data[0]).to.have.property('author');
+        expect(res.body.data[0]).to.have.property('comments');
+        done();
+      });
+  });
+  it('Article does not exit', (done) => {
+    chai.request(app)
+      .get('/api/v1/articles/test-to-test-to-test/highlights/comments')
+      .set('authorization', toKen)
+      .end((error, res) => {
+        expect(res.body).to.have.status(404);
+        expect(res.body).to.have.property('errors');
+        expect(res.body.errors.body[0]).to.be.equal('The Article does not exist');
         done();
       });
   });
@@ -141,7 +172,7 @@ describe('Hightlight and comment a text in an article', () => {
   });
   it('Highlighted text does not exist', (done) => {
     chai.request(app)
-      .get('/api/v1/articles/highlight/100/comment')
+      .get(`/api/v1/articles/${articleSlug}/highlight/100/comment`)
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(404);
@@ -152,7 +183,7 @@ describe('Hightlight and comment a text in an article', () => {
   });
   it('User get comments on highlighted text', (done) => {
     chai.request(app)
-      .get(`/api/v1/articles/highlight/${highlightedText}/comment`)
+      .get(`/api/v1/articles/${articleSlug}/highlight/${highlightedText}/comment`)
       .set('authorization', toKen)
       .end((error, res) => {
         expect(res.body).to.have.status(200);
@@ -164,7 +195,7 @@ describe('Hightlight and comment a text in an article', () => {
         expect(res.body.data[0]).to.have.property('author');
         expect(res.body.data[0]).to.have.property('highlight');
         expect(res.body.data[0].highlight).to.have.property('articleSlug');
-        expect(res.body.data[0].highlight).to.have.property('content');
+        expect(res.body.data[0].highlight).to.have.property('highlightedText');
         done();
       });
   });
@@ -187,7 +218,7 @@ describe('Hightlight and comment a text in an article', () => {
       .send({
         startindex: 0,
         endindex: 6,
-        content: 'txtxtx',
+        highlightedtext: 'txtxtx',
       })
       .end((error, res) => {
         expect(res.body).to.have.status(400);
@@ -203,7 +234,7 @@ describe('Hightlight and comment a text in an article', () => {
       .send({
         startindex: 0,
         endindex: 6,
-        content: 'body of',
+        highlightedtext: 'body of',
         comment: 'I not well spelled'
       })
       .end((error, res) => {
@@ -216,14 +247,14 @@ describe('Hightlight and comment a text in an article', () => {
         expect(res.body.data.highlights.articleSlug).equals(articleSlug);
         expect(res.body.data.highlights.startIndex).equals(0);
         expect(res.body.data.highlights.endIndex).equals(6);
-        expect(res.body.data.highlights.content).equals('body of');
+        expect(res.body.data.highlights.highlightedText).equals('body of');
         expect(res.body.data.comment).equals('I not well spelled');
         done();
       });
   });
   it('Highlighted text does not exist', (done) => {
     chai.request(app)
-      .post('/api/v1/articles/highlight/100/comment')
+      .post(`/api/v1/articles/${articleSlug}/highlight/100/comment`)
       .set('authorization', toKen)
       .send(commentOnHighlight)
       .end((error, res) => {
@@ -235,7 +266,7 @@ describe('Hightlight and comment a text in an article', () => {
   });
   it('Comment required on commneting a highlight', (done) => {
     chai.request(app)
-      .post(`/api/v1/articles/highlight/${highlightedText}/comment`)
+      .post(`/api/v1/articles/${articleSlug}/highlight/${highlightedText}/comment`)
       .set('authorization', toKen)
       .send()
       .end((error, res) => {
@@ -257,7 +288,7 @@ describe('Hightlight and comment a text in an article', () => {
         done();
       });
   });
-  it('Comment required on commneting a highlight', (done) => {
+  it('Validation fields on highlight', (done) => {
     chai.request(app)
       .post(`/api/v1/articles/${articleSlug}/highlight`)
       .set('authorization', toKen)
@@ -267,7 +298,7 @@ describe('Hightlight and comment a text in an article', () => {
         expect(res.body).to.have.property('errors');
         expect(res.body.errors.body[0]).to.be.equals('startindex is required');
         expect(res.body.errors.body[1]).to.be.equals('endindex is required');
-        expect(res.body.errors.body[2]).to.be.equals('content is required');
+        expect(res.body.errors.body[2]).to.be.equals('highlightedtext is required');
         done();
       });
   });

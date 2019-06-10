@@ -26,7 +26,7 @@ const articleHighlight = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      content: {
+      highlightedText: {
         type: DataTypes.STRING,
         allowNull: false
       }
