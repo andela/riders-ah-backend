@@ -10,7 +10,7 @@ import tagHelper from './tag.helper';
 import readTime from './readTime';
 
 const {
-  Article, User, Tag, Like, Share, Bookmark, ArticleHighlight, HighlightComment
+  Article, User, Tag, Like, Share, Bookmark, ArticleHighlight, HighlightComment, ReportedArticle
 } = db;
 
 const { Op } = Sequelize;
@@ -1054,6 +1054,31 @@ class ArticleHelper {
       comment: createdComment, author
     };
     return dataValues;
+  }
+
+  /**
+  * @function saveReportedArticle
+  * @param {object} reportInfo
+  * @returns {object} article Reported
+  *  @static
+  */
+  static async saveReportedArticle(reportInfo) {
+    const report = await ReportedArticle.create(reportInfo);
+    return report;
+  }
+
+  /**
+* @function getReportedArticles
+* @param {object} conditions
+* @returns {object} article Reported
+*  @static
+*/
+  static async getReportedArticles() {
+    const reports = await ReportedArticle.findAndCountAll({
+      include: [{ model: Article, attributes: ['title'] }]
+    });
+
+    return reports;
   }
 }
 export default ArticleHelper;

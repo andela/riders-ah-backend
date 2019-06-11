@@ -303,6 +303,46 @@ class ArticleController {
     const comment = await ArticleHelper.commentHighlighedText(req);
     return res.status(201).send({ status: 201, data: comment });
   }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async reportArticle(req, res) {
+    const { reason } = req.body;
+    const userId = req.user.id;
+    const { reportType, slug } = req.params;
+
+    await ArticleHelper.saveReportedArticle({
+      articleSlug: slug, userId, reportType, reason: reason || null
+    });
+    return res.status(201).json({
+      status: 201,
+      message: 'Article has successfully reported'
+    });
+  }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async getAllReportedArticle(req, res) {
+    const reports = await ArticleHelper.getReportedArticles();
+    const totalReports = reports.count;
+    const data = {
+      total: totalReports,
+      reports: reports.rows
+    };
+
+    return res.status(200).send({
+      status: 200,
+      data
+    });
+  }
 }
 
 export default ArticleController;
