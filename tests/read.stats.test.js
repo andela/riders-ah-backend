@@ -88,7 +88,7 @@ describe('/api/v1/articles/reading/statistics. Article reading statistics', () =
       .set('authorization', readerToken)
       .end((err, res) => {
         expect(res.body).to.have.status(200);
-        expect(res.body.readStats).to.be.an('object');
+        expect(res.body.readStats).to.be.an('array');
         done();
       });
   });
