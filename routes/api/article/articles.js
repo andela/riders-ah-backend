@@ -31,9 +31,10 @@ router.get('/user/bookmarks', Auth, articleController.getBookmarks);
 router.get('/reading/statistics', Auth, statsController.getArticlesReadingStats);
 router.post('/:slug/highlight', catchErrors(Auth), catchErrors(ArticleHelper.isValidHighlightText), catchErrors(articleController.highlightText));
 router.get('/:slug/highlight', catchErrors(Auth), catchErrors(articleController.getHighlightText));
-router.get('/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(articleController.getCommentHighlights));
-router.post('/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(ArticleHelper.isValidHighlightTextCommented), catchErrors(articleController.addCommentHighlights));
 router.post('/:slug/report/:reportType', Auth, catchErrors(ArticleMiddleware.validateParams), catchErrors(articleController.reportArticle));
+router.get('/:slug/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(articleController.getCommentHighlights));
+router.get('/:slug/highlights/comments', catchErrors(Auth), catchErrors(articleController.getAllCommentHighlights));
+router.post('/:slug/highlight/:highlightId/comment', catchErrors(Auth), catchErrors(ArticleHelper.isValidHighlightTextCommented), catchErrors(articleController.addCommentHighlights));
 
 
 export default router;

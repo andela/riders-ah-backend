@@ -32,7 +32,7 @@ const articleHighlightsMigration = {
       allowNull: false,
       type: Sequelize.INTEGER
     },
-    content: {
+    highlightedText: {
       allowNull: false,
       type: Sequelize.STRING
     },

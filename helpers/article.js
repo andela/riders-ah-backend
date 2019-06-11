@@ -881,7 +881,7 @@ class ArticleHelper {
     const schema = Joi.object().keys({
       startindex: Joi.number().required(),
       endindex: Joi.number().required(),
-      content: Joi.string().required(),
+      highlightedtext: Joi.string().required(),
       comment: Joi.string()
     });
     const result = Joi.validate(req.body, schema, options);
@@ -900,8 +900,10 @@ class ArticleHelper {
    * @static
    */
   static async isValidHighlightTextCommented(req, res, next) {
-    const { highlightId } = req.params;
-    const highlight = await ArticleHighlight.findOne({ where: { id: highlightId } });
+    const { highlightId, slug } = req.params;
+    const highlight = await ArticleHighlight.findOne({
+      where: { id: highlightId, articleSlug: slug }
+    });
     if (!highlight) {
       return res.status(404).send({ status: 404, errors: { body: ['The Highlighted text does not exist'] } });
     }
@@ -927,14 +929,14 @@ class ArticleHelper {
   static async highlightedText(req) {
     let addComment = '';
     const {
-      content, startindex, endindex, comment
+      highlightedtext, startindex, endindex, comment
     } = req.body;
     const errorMessage = [];
     const isContentExist = await Article.findAll({
       where: {
         slug: req.params.slug,
         body: {
-          [Op.like]: `%${content}%`
+          [Op.like]: `%${highlightedtext}%`
         }
       }
     });
@@ -942,10 +944,10 @@ class ArticleHelper {
       errorMessage.push('The text highlighted is not in the article');
       return { error: errorMessage };
     }
-    const contentLength = content.split('').length;
+    const contentLength = highlightedtext.split('').length;
     const indexesLength = (endindex - startindex) + 1;
     if (contentLength !== indexesLength) {
-      errorMessage.push('Content Length does not match with the start and end index');
+      errorMessage.push('Highlighted Text Length does not match with the start and end index');
       return { error: errorMessage };
     }
     const isHighlightExist = await ArticleHighlight.findOne({
@@ -954,7 +956,7 @@ class ArticleHelper {
         userId: req.user.id,
         startIndex: startindex,
         endIndex: endindex,
-        content
+        highlightedText: highlightedtext
       }
     });
     if (isHighlightExist) {
@@ -966,7 +968,7 @@ class ArticleHelper {
       userId: req.user.id,
       startIndex: startindex,
       endIndex: endindex,
-      content
+      highlightedText: highlightedtext
     });
     if (comment) {
       addComment = await HighlightComment.create({
@@ -1003,7 +1005,7 @@ class ArticleHelper {
     const result = await ArticleHighlight.findAll({
       where: { articleSlug: slug },
       include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
-      attributes: ['id', 'articleSlug', 'content', 'createdAt', 'updatedAt']
+      attributes: ['id', 'articleSlug', 'highlightedText', 'createdAt', 'updatedAt']
     });
     return result;
   }
@@ -1014,15 +1016,17 @@ class ArticleHelper {
   *  @static
   */
   static async getHighlightedTextComment(req) {
-    const { highlightId } = req.params;
-    const highlight = await ArticleHighlight.findOne({ where: { id: highlightId } });
+    const { highlightId, slug } = req.params;
+    const highlight = await ArticleHighlight.findOne({
+      where: { id: highlightId, articleSlug: slug }
+    });
     if (highlight == null) {
       return { error: 'The Highlighted text does not exist' };
     }
     const result = await HighlightComment.findAll({
       where: { highlightId },
       include: [
-        { model: ArticleHighlight, as: 'highlight', attributes: ['articleSlug', 'content'] },
+        { model: ArticleHighlight, as: 'highlight', attributes: ['articleSlug', 'highlightedText'] },
         { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
       ],
       attributes: ['id', 'comment', 'createdAt', 'updatedAt']
@@ -1080,5 +1084,42 @@ class ArticleHelper {
 
     return reports;
   }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async getallHighlightedTextComment(req) {
+    const { slug } = req.params;
+    const article = await Article.findOne({
+      where: { slug }
+    });
+    if (article == null) {
+      return { error: 'The Article does not exist' };
+    }
+    const highlights = await ArticleHighlight.findAll({
+      where: { articleSlug: slug },
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+      ],
+      attributes: ['id', 'articleSlug', 'startIndex', 'endIndex', 'highlightedText', 'createdAt', 'updatedAt']
+    });
+    await Promise.all(highlights.map(async (highlight) => {
+      const { id } = highlight.dataValues;
+      const comments = await HighlightComment.findAll({
+        where: { highlightId: id },
+        include: [
+          { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+        ],
+        attributes: ['id', 'comment', 'createdAt', 'updatedAt']
+      });
+      highlight.dataValues.comments = comments;
+      return highlight;
+    }));
+
+    return highlights;
+  }
 }
+
 export default ArticleHelper;

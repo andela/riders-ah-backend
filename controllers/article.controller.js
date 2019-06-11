@@ -343,6 +343,20 @@ class ArticleController {
       data
     });
   }
+
+  /**
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
+  static async getAllCommentHighlights(req, res) {
+    const highlights = await ArticleHelper.getallHighlightedTextComment(req);
+    if (highlights.error) {
+      return res.status(404).send({ status: 404, errors: { body: [highlights.error] } });
+    }
+    return res.status(200).send({ status: 200, data: highlights });
+  }
 }
 
 export default ArticleController;
