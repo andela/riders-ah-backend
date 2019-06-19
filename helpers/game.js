@@ -98,7 +98,7 @@ class GameHelper {
           attributes: ['id', 'name'],
         }
       ],
-      attributes: ['id', 'roomId', 'userId', 'createdAt', 'updatedAt']
+      attributes: ['id', 'roomId', 'marks', 'userId', 'createdAt', 'updatedAt']
     });
     return marks;
   }
