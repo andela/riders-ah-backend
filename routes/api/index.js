@@ -10,6 +10,7 @@ import comment from './comment/comment';
 import likes from './comment/like';
 import userRoute from './user/user.route';
 import message from './message/message';
+import game from './game/game';
 
 const router = express.Router();
 
@@ -35,5 +36,6 @@ router.use((err, req, res, next) => {
 router.use('/profiles', users);
 router.use('/users', resetPassword);
 router.use('/messages', message);
+router.use('/game', game);
 
 export default router;

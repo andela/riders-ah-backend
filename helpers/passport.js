@@ -18,11 +18,13 @@ class PassportHelper {
     let user;
     try {
       const userName = profile.username || profile.name.familyName || profile.name.givenName;
+      const email = profile.emails[0].value;
       user = {
-        username: userName,
-        email: profile.emails[0].value,
+        username: userName || email.substring(0, email.indexOf('@')),
+        email,
         password: profile.id,
-        provider: profile.provider
+        provider: profile.provider,
+        image: profile.photos[0].value || null
       };
       done(null, user);
     } catch (error) {

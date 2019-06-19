@@ -17,7 +17,8 @@ const googleStrategy = new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.BASE_URL}/api/v1/login/google/callback`
+    callbackURL: `${process.env.BASE_URL}/api/v1/login/google/callback`,
+    profileFields: ['id', 'emails', 'name', 'photos']
   },
   passportHelper.verifyCallback
 );
