@@ -43,11 +43,10 @@ const SocketIO = (app) => {
     socket.on('joined', async (info) => {
       await gameHelper.updateJoinedUser(info);
       const userInRoom = await gameHelper.findRoomInfo(info.roomId);
-      console.log('New User joined =========>', userInRoom);
       const invited = userInRoom.emails.length;
       const joined = userInRoom.joined.length;
       console.log('New User joined =========>', joined);
-      if (invited === (joined + 1)) {
+      if ((invited + 1) === joined) {
         console.log('invited', invited);
         console.log('joined', joined);
         socket.emit('Alljoined');
