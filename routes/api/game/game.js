@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.post('/', auth, gameController.createGameRoom);
 router.post('/marks', auth, gameController.createUserMark);
-router.get('/marks', auth, gameController.getAllMarks);
+router.get('/marks/:roomId', auth, gameController.getAllMarks);
 
 export default router;

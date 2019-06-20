@@ -46,7 +46,7 @@ class GameController {
    *  @static
    */
   static async getAllMarks(req, res) {
-    const marks = await GameHelper.getAllMarks(req);
+    const marks = await GameHelper.getAllMarks(req.params.roomId);
     if (!marks) {
       return res.status(404).send({
         status: res.statusCode,
