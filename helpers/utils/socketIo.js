@@ -24,9 +24,9 @@ const SocketIO = (app) => {
 		next(null, next);
 	});
 	io.on('connection', (socket) => {
-		socket.on('create', (name) => socket.join(name));
-		socket.on('auto_submit', (roomName) => {
-			io.sockets.in(roomName).emit('submit', { isSubmited: true, user: 'test' });
+		socket.on('create', (room) => socket.join(room.name));
+		socket.on('auto_submit', (room) => {
+			io.sockets.in(room.name).emit('submit', { isSubmited: true, user: 'test' });
 			console.log('====>Auto Submit called');
 		});
 		socket.on('new_message', async (data) => {
