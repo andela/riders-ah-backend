@@ -55,14 +55,18 @@ class GameHelper {
    */
   static async sendInviteEmails(userData, emails, game) {
     const link = `${process.env.FRONTEND_URL}/waiting/${game.id}`;
-    await Promise.all(emails.map(async (email) => {
-      const info = {
-        email,
-        subject: 'Invitation to play Game',
-        html: `<html> ${userData.username} invited you to play game. Click to <a href='${link}'><strong>this link</strong></a> to play the game`
-      };
-      await sendEmail.send(info);
-    }));
+    try {
+      await Promise.all(emails.map(async (email) => {
+        const info = {
+          email,
+          subject: 'Invitation to play Game',
+          html: `<html> ${userData.username} invited you to play game. Click to <a href='${link}'><strong>this link</strong></a> to play the game`
+        };
+        await sendEmail.send(info);
+      }));
+    } catch (e) {
+      console.log('ERROR ==============', e);
+    }
   }
 
   /**
