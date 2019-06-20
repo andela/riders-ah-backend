@@ -12,6 +12,10 @@ const GamesMigration = {
     emails: {
       type: Sequelize.ARRAY(Sequelize.STRING)
     },
+    joined: {
+      type: Sequelize.ARRAY(Sequelize.STRING),
+      defaultValue: []
+    },
     userId: {
       type: Sequelize.INTEGER
     },

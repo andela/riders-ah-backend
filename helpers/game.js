@@ -30,12 +30,13 @@ class GameHelper {
       bio: gameCreator.bio,
       image: gameCreator.image
     };
-    await this.sendInviteEmails(userData, emails);
     const gameRoom = await GameRoom.create({
       name,
       emails,
       userId: req.user.id
     });
+    const game = gameRoom.toJSON();
+    await this.sendInviteEmails(userData, emails, game);
     const values = {
       userData,
       gameRoom
@@ -48,11 +49,12 @@ class GameHelper {
    * @function sendInvitationEmail
    * @param  {object} userData - user Data
    * @param  {Array} emails - user email
+   * @param  {object} game - user email
    * @return {boolean} has sent
    * @static
    */
-  static async sendInviteEmails(userData, emails) {
-    const link = `${process.env.FRONTEND_URL}/questions`;
+  static async sendInviteEmails(userData, emails, game) {
+    const link = `${process.env.FRONTEND_URL}/waiting/${game.id}`;
     await Promise.all(emails.map(async (email) => {
       const info = {
         email,
@@ -84,7 +86,7 @@ class GameHelper {
   /**
    * Return all marks
    *@param {@object} req request
-   *@return {object} Return all articles
+   *@return {object} Return all marks
    */
   static async getAllMarks() {
     const marks = await UserMarks.findAll({
@@ -101,6 +103,41 @@ class GameHelper {
       attributes: ['id', 'roomId', 'userId', 'createdAt', 'updatedAt']
     });
     return marks;
+  }
+
+  /**
+   * Return all user
+   *@param {Integer} roomId req
+   *@return {object} Return all user in room
+   */
+  static async findRoomInfo(roomId) {
+    const roomInfo = await GameRoom.findOne({ where: { id: roomId } });
+    return roomInfo;
+  }
+
+  /**
+   * Update Joined User
+   *@param {object} info
+   *@return {object} Return all user in room
+   */
+  static async updateJoinedUser(info) {
+    const userInRoom = await this.findRoomInfo(info.roomId);
+    const { joined } = userInRoom;
+    const result = await this.findIfAlreadyJoined(joined, info.user.email);
+    if (result) {
+      joined.push(info.user.email);
+      await GameRoom.update({ joined }, { where: { id: info.roomId } });
+    }
+  }
+
+  /**
+   * Return boolean
+   *@param {Array} joined array
+   *@param {string} email req
+   *@return {boolean} Return true or false
+   */
+  static async findIfAlreadyJoined(joined, email) {
+    return joined.indexOf(email) === -1;
   }
 }
 export default GameHelper;
