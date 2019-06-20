@@ -4,6 +4,10 @@ const gameRooms = (sequelize, DataTypes) => {
     {
       name: DataTypes.STRING,
       emails: DataTypes.ARRAY(DataTypes.STRING),
+      joined: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: []
+      },
       userId: DataTypes.INTEGER
     }, {}
   );

@@ -2,6 +2,7 @@ import http from 'http';
 import socketIo from 'socket.io';
 import models from '../../models';
 import userHelper from '../userHelper';
+import gameHelper from '../game';
 
 const { Message, User } = models;
 
@@ -38,6 +39,15 @@ const SocketIO = (app) => {
 			});
 			if (!saveMessage) socket.emit('message_failed', { error: 'Last message was not sent' });
 			socket.emit('message_created', { message: data.message, username });
+		});
+		socket.on('joined', async (info) => {
+			await gameHelper.updateJoinedUser(info);
+			const userInRoom = await gameHelper.findRoomInfo(info.roomId);
+			const invited = userInRoom.emails.length;
+			const joined = userInRoom.joined.length;
+			if (invited === joined) {
+				socket.emit('Alljoined');
+			}
 		});
 		socket.on('disconnect', () => {});
 	});
