@@ -49,7 +49,7 @@ const SocketIO = (app) => {
       if ((invited + 1) === joined) {
         console.log('invited', invited);
         console.log('joined', joined);
-        socket.emit('Alljoined');
+        io.sockets.in(info.roomId).emit('Alljoined');
       }
     });
     socket.on('disconnect', () => {});
