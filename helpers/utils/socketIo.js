@@ -48,6 +48,8 @@ const SocketIO = (app) => {
       const joined = userInRoom.joined.length;
       console.log('New User joined =========>', joined);
       if (invited === joined) {
+        console.log('invited', invited);
+        console.log('joined', joined);
         socket.emit('Alljoined');
       }
     });
