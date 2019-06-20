@@ -38,6 +38,7 @@ const SocketIO = (app) => {
       const userInRoom = await gameHelper.findRoomInfo(info.roomId);
       const invited = userInRoom.emails.length;
       const joined = userInRoom.joined.length;
+      console.log('Currently ===============>', joined);
       if (invited === joined) {
         socket.emit('Alljoined');
       }
