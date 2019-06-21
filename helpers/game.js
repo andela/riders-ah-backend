@@ -79,11 +79,14 @@ class GameHelper {
     const {
       roomId, marks
     } = req.body;
-    const markCreated = await UserMarks.create({
-      roomId,
-      marks,
-      userId: req.user.id
-    });
+    let markCreated = await UserMarks.findOne({ where: { roomId, userId: req.user.id } });
+    if (!markCreated) {
+      markCreated = await UserMarks.create({
+        roomId,
+        marks,
+        userId: req.user.id
+      });
+    }
     return markCreated;
   }
 
