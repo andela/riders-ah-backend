@@ -47,12 +47,6 @@ class GameController {
    */
   static async getAllMarks(req, res) {
     const marks = await GameHelper.getAllMarks(req);
-    if (!marks) {
-      return res.status(404).send({
-        status: res.statusCode,
-        error: 'marks Not found'
-      });
-    }
     return res.status(200).send({ marks });
   }
 }
