@@ -97,7 +97,7 @@ class GameHelper {
    */
   static async getAllMarks(req) {
     const marks = await UserMarks.findAll({
-      where: { roomId: req.params.id },
+      where: { roomId: req.params.roomId },
       include: [
         {
           model: User,
