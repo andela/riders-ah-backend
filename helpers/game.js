@@ -96,7 +96,7 @@ class GameHelper {
    *@param {@object} req request
    *@return {object} Return all marks
    */
-  static async getAllMarks(id) {
+  static async getAllMarks(id, req) {
     const marks = await UserMarks.findAll({
       where: { roomId: id },
       include: [
@@ -112,6 +112,8 @@ class GameHelper {
       attributes: ['id', 'roomId', 'marks', 'userId', 'createdAt', 'updatedAt'],
       order: [['marks', 'DESC']]
     });
+    console.log('Marks ........', req.user.id);
+    console.log('Marks ........', marks);
     return marks;
   }
 
