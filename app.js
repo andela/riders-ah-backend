@@ -28,8 +28,8 @@ app.use(
 );
 
 // Normal express config defaults
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: '500mb', extended: false, parameterLimit: 500000 }));
+app.use(bodyParser.json({ limit: '500mb' }));
 app.use(passport.initialize());
 pass(passport);
 app.use('/html', express.static(`${__dirname}/html`));
