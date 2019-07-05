@@ -52,7 +52,8 @@ class Password {
         id: user.id
       };
       const token = Helper.generateToken(userDetails);
-      const info = { email, subject: 'Authorshaven Reset Password', html: `<html>User with the following email <strong>${email}</strong> has required to reset their password please copy this token <strong>${token}</strong></html>` };
+      const url = `${process.env.FRONTEND_URL}/completReset/${token}`;
+      const info = { email, subject: 'Authorshaven Reset Password', html: `<html>User with the following email <strong>${email}</strong> has required to reset their password please use <a href=${url}> this link</a></html>` };
       mailSender.send(info).then(result => res.status(200).send({ Result: result, Token: token })).catch(() => res.status(400).send({ ERROR: 'issue with sending email' }));
     }).catch(error => res.status(400).send({ ERROR: error }));
   }
