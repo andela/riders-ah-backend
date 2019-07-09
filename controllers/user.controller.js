@@ -28,16 +28,9 @@ class UserController {
       const isValidPassword = await helper.comparePassword(userExist.dataValues.password, password);
       if (isValidPassword) {
         const token = helper.generateToken(userExist.dataValues);
-        return res.status(200).send({
-          status: res.statusCode,
-          token,
-          data: { username: userExist.dataValues.username, email: userExist.dataValues.email }
-        });
+        return res.redirect(`${process.env.FRONTEND_URL}/articles?token=${token}&username=${req.user.username}`);
       }
-      return res.status(422).send({
-        status: res.statusCode,
-        message: 'Email Already registered with other platform'
-      });
+      return res.redirect(`${process.env.FRONTEND_URL}/verify/409`);
     }
     const encryptedPassword = await helper.hashPassword(req.user.password);
 
