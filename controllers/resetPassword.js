@@ -18,6 +18,7 @@ class Password {
     const { User } = model;
     const { newPassword } = req.body;
     const { confirmNewPassword } = req.body;
+    console.log('Request =========>', req.body);
     if (newPassword.trim() !== confirmNewPassword.trim()) {
       return res.status(401).send({ message: 'new password and confirm new password must be equal' });
     }

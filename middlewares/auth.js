@@ -9,8 +9,10 @@ const { User, DroppedTokens } = models;
 
 const Auth = async (req, res, next) => {
   const token = req.headers.authorization;
+  console.log('================== token', token);
   try {
     const decoded = jwt.verify(token, process.env.SECRET);
+    console.log('================== decoded', decoded);
     const user = await User.findOne({ where: { id: decoded.id } });
     if (!user) {
       return res.status(401).send({ status: 401, error: 'The token you provided is invalid' });
