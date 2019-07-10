@@ -15,21 +15,19 @@ class Users {
   static async user(req, res) {
     const { username } = req.params;
     try {
-      const foundUser = await User.findOne({ where: { username } });
+      const foundUser = await User.findOne({
+        where: { username },
+        attributes: ['id', 'firstName', 'lastName', 'username', 'bio', 'image', 'email']
+      });
       if (!foundUser) {
         return res.status(404).json({
           status: 404,
           message: 'User not found!'
         });
       }
-      const profileData = {
-        username: foundUser.username,
-        bio: foundUser.bio,
-        image: foundUser.image
-      };
       return res.status(200).json({
         status: 200,
-        data: profileData
+        data: foundUser
       });
     } catch (error) {
       return res.status(500).json({
@@ -47,15 +45,18 @@ class Users {
   static async editProfile(req, res) {
     try {
       const { username } = req.params;
+      const {
+        firstName, lastName, bio, image
+      } = req.body;
       const updateProfile = await User.update(
         {
-          username: req.body.username,
-          bio: req.body.bio,
-          image: req.body.image
+          firstName, lastName, bio, image,
         },
         { where: { username }, returning: true, plain: true }
       );
       const newProfile = {
+        firstName: updateProfile[1].firstName,
+        lastName: updateProfile[1].lastName,
         username: updateProfile[1].username,
         email: updateProfile[1].email,
         image: updateProfile[1].image,
