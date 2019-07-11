@@ -18,8 +18,9 @@ class PassportHelper {
     let user;
     try {
       const userName = profile.username || profile.name.familyName || profile.name.givenName;
+      const email = profile.emails[0].value;
       user = {
-        username: userName,
+        username: userName || email.substring(0, email.indexOf('@')),
         email: profile.emails[0].value,
         password: profile.id,
         provider: profile.provider

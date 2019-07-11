@@ -44,11 +44,7 @@ class UserController {
       return res.status(500).send('Internal error');
     }
     const token = helper.generateToken(newUser.dataValues);
-    return res.status(201).send({
-      status: res.statusCode,
-      token,
-      data: { username: newUser.dataValues.username, email: newUser.dataValues.email }
-    });
+    return res.redirect(`${process.env.FRONTEND_URL}/articles?token=${token}&username=${req.user.username}`);
   }
 
   /**
