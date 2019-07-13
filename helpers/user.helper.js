@@ -87,7 +87,7 @@ class UserHelper {
         bio: userInfo.dataValues.bio,
         image: userInfo.dataValues.image,
         email: userInfo.dataValues.email,
-        notification: userInfo.dataValues.notification
+        notificationSettings: userInfo.dataValues.notificationSettings
       });
     }));
     return userList;

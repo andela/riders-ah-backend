@@ -1,5 +1,6 @@
 import joi from 'joi';
 import model from '../models';
+import emitter from './eventEmitters';
 
 const {
   User, Article, Comment, CommentFeedback, CommentHistory
@@ -62,8 +63,11 @@ class CommentHelper {
       createdAt: new Date(),
       updatedAt: new Date()
     });
-
     const comment = createdComment.toJSON();
+    emitter.emit('onArticleInteraction', {
+      req,
+      comment
+    });
     return comment;
   }
 

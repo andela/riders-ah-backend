@@ -4,10 +4,15 @@ import Uservalidator from '../../../helpers/userHelper';
 import Auth from '../../../middlewares/auth';
 import userMiddleware from '../../../middlewares/user.middleware';
 import Role from '../../../middlewares/roles';
+import catchErrors from '../../../middlewares/catch.errors.middleware';
 
 const router = express.Router();
 router.get('/', Auth, Usercontroller.listUsers);
-router.post('/signup', Uservalidator.addUser, Usercontroller.addUser);
+router.post(
+  '/signup',
+  catchErrors(Uservalidator.addUser),
+  catchErrors(Usercontroller.addUser)
+);
 router.get(
   '/verification',
   userMiddleware.validateParams,
@@ -26,7 +31,7 @@ router.post(
   Role.isSuperAdmin,
   Uservalidator.isValidInfo,
   Uservalidator.addUser,
-  Usercontroller.createUser
+  catchErrors(Usercontroller.createUser)
 );
 router.put(
   '/:username',

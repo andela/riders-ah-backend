@@ -2,6 +2,7 @@ import slugify from 'slug';
 import uniqid from 'uniqid';
 import Joi from 'joi';
 import open from 'open';
+import Sequelize from 'sequelize';
 import PassportHelper from './passport';
 import db from '../models';
 import emitter from './eventEmitters';
@@ -9,9 +10,10 @@ import tagHelper from './tag.helper';
 import readTime from './readTime';
 
 const {
-  Article, User, Tag, Like, Share, Bookmark
+  Article, User, Tag, Like, Share, Bookmark, ArticleHighlight, HighlightComment, ReportedArticle
 } = db;
 
+const { Op } = Sequelize;
 /**
  * @author Samuel Niyitanga
  * @exports ArticleHelper
@@ -38,7 +40,7 @@ class ArticleHelper {
    */
   static async createNewArticle(req) {
     const {
-      body, title, description, image
+      body, title, description, image, tags
     } = req.body;
     const readingTime = readTime(body, title, description);
     const slug = ArticleHelper.createSlug(title);
@@ -58,11 +60,18 @@ class ArticleHelper {
       slug,
       authorId: articleAuthor.id
     });
+    await Promise.all(tags.map(async (currentTag) => {
+      await Tag.create({
+        name: currentTag,
+        articleId: article.dataValues.id
+      });
+    }));
     emitter.emit('onFollowPublish', {
       title,
       authorId: articleAuthor.id,
       slug
     });
+    article.dataValues.tagList = tags;
     const values = {
       userData,
       article
@@ -79,11 +88,13 @@ class ArticleHelper {
    * @static
    */
   static isValidArticle(req, res, next) {
+    req.body.tags = req.body.tags ? req.body.tags : [];
     const schema = Joi.object().keys({
       body: Joi.string().required(),
       title: Joi.string().required(),
       description: Joi.string().required(),
-      image: Joi.string().required()
+      image: Joi.string().required(),
+      tags: Joi.array().items(Joi.string())
     });
     const result = Joi.validate(req.body, schema);
     if (result.error) {
@@ -367,7 +378,7 @@ class ArticleHelper {
     const { slug } = req.params;
     const likesFetched = await Like.findAll({
       where: { titleSlug: slug, status: 'like' },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image', 'email', 'notificationSettings'] }],
       attributes: ['id', 'titleSlug', 'status']
     });
     return likesFetched;
@@ -833,5 +844,282 @@ class ArticleHelper {
     }
     return result;
   }
+
+  /**
+   * Return Invalid data message
+   * @param {object} res - an object with response
+   *@param{object} result - an object with all errors
+   *@return {res} Returns a response with error
+   * @static
+   */
+  static validatorMessageError(res, result) {
+    const body = [];
+    for (let index = 0; index < result.error.details.length; index += 1) {
+      body.push(result.error.details[index].message.split('"').join(''));
+    }
+    return res.status(422).send({ status: 422, errors: { body } });
+  }
+
+  /**
+   * Check if Article text is highlighted
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {boolean} Returns if true if it is valid else return false
+   * @static
+   */
+  static async isValidHighlightText(req, res, next) {
+    const { slug } = req.params;
+    const article = await ArticleHelper.findArticleBySlug(slug);
+    if (!article) {
+      return res.status(404).send({ status: 404, errors: { body: ['article not found'] } });
+    }
+    const options = {
+      allowUnknown: true,
+      abortEarly: false
+    };
+    const schema = Joi.object().keys({
+      startindex: Joi.number().required(),
+      endindex: Joi.number().required(),
+      highlightedtext: Joi.string().required(),
+      comment: Joi.string()
+    });
+    const result = Joi.validate(req.body, schema, options);
+    if (result.error) {
+      return ArticleHelper.validatorMessageError(res, result);
+    }
+    next();
+  }
+
+  /**
+   * Check if highlighed text is commented
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {boolean} Returns if true if it is valid else return false
+   * @static
+   */
+  static async isValidHighlightTextCommented(req, res, next) {
+    const { highlightId, slug } = req.params;
+    const highlight = await ArticleHighlight.findOne({
+      where: { id: highlightId, articleSlug: slug }
+    });
+    if (!highlight) {
+      return res.status(404).send({ status: 404, errors: { body: ['The Highlighted text does not exist'] } });
+    }
+    const options = {
+      allowUnknown: true,
+      abortEarly: false
+    };
+    const schema = Joi.object().keys({
+      comment: Joi.string().required()
+    });
+    const result = Joi.validate(req.body, schema, options);
+    if (result.error) {
+      return ArticleHelper.validatorMessageError(res, result);
+    }
+    next();
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async highlightedText(req) {
+    let addComment = '';
+    const {
+      highlightedtext, startindex, endindex, comment
+    } = req.body;
+    const errorMessage = [];
+    const isContentExist = await Article.findAll({
+      where: {
+        slug: req.params.slug,
+        body: {
+          [Op.like]: `%${highlightedtext}%`
+        }
+      }
+    });
+    if (!isContentExist.length) {
+      errorMessage.push('The text highlighted is not in the article');
+      return { error: errorMessage };
+    }
+    const contentLength = highlightedtext.split('').length;
+    const indexesLength = (endindex - startindex) + 1;
+    if (contentLength !== indexesLength) {
+      errorMessage.push('Highlighted Text Length does not match with the start and end index');
+      return { error: errorMessage };
+    }
+    const isHighlightExist = await ArticleHighlight.findOne({
+      where: {
+        articleSlug: req.params.slug,
+        userId: req.user.id,
+        startIndex: startindex,
+        endIndex: endindex,
+        highlightedText: highlightedtext
+      }
+    });
+    if (isHighlightExist) {
+      errorMessage.push('You have already highlighted this text');
+      return { error: errorMessage };
+    }
+    const createdHighlight = await ArticleHighlight.create({
+      articleSlug: req.params.slug,
+      userId: req.user.id,
+      startIndex: startindex,
+      endIndex: endindex,
+      highlightedText: highlightedtext
+    });
+    if (comment) {
+      addComment = await HighlightComment.create({
+        userId: req.user.id,
+        highlightId: createdHighlight.id,
+        comment
+      });
+    }
+    const highlights = createdHighlight.toJSON();
+    const articleAuthor = await PassportHelper.findRecord(User, req.user.id);
+    const author = {
+      username: articleAuthor.username,
+      email: articleAuthor.email,
+      bio: articleAuthor.bio,
+      image: articleAuthor.image
+    };
+    const dataValues = {
+      highlights, comment: comment ? addComment.comment : '', author
+    };
+    return dataValues;
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async getHighlightedText(req) {
+    const { slug } = req.params;
+    const article = await ArticleHelper.findArticleBySlug(slug);
+    if (!article) {
+      return { error: 'This article does not exist' };
+    }
+    const result = await ArticleHighlight.findAll({
+      where: { articleSlug: slug },
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      attributes: ['id', 'articleSlug', 'highlightedText', 'createdAt', 'updatedAt']
+    });
+    return result;
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async getHighlightedTextComment(req) {
+    const { highlightId, slug } = req.params;
+    const highlight = await ArticleHighlight.findOne({
+      where: { id: highlightId, articleSlug: slug }
+    });
+    if (highlight == null) {
+      return { error: 'The Highlighted text does not exist' };
+    }
+    const result = await HighlightComment.findAll({
+      where: { highlightId },
+      include: [
+        { model: ArticleHighlight, as: 'highlight', attributes: ['articleSlug', 'highlightedText'] },
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+      ],
+      attributes: ['id', 'comment', 'createdAt', 'updatedAt']
+    });
+    return result;
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async commentHighlighedText(req) {
+    const { highlightId } = req.params;
+    const addComment = await HighlightComment.create({
+      userId: req.user.id,
+      highlightId,
+      comment: req.body.comment
+    });
+    const createdComment = addComment.toJSON();
+    const articleAuthor = await PassportHelper.findRecord(User, req.user.id);
+    const author = {
+      username: articleAuthor.username,
+      email: articleAuthor.email,
+      bio: articleAuthor.bio,
+      image: articleAuthor.image
+    };
+    const dataValues = {
+      comment: createdComment, author
+    };
+    return dataValues;
+  }
+
+  /**
+  * @function saveReportedArticle
+  * @param {object} reportInfo
+  * @returns {object} article Reported
+  *  @static
+  */
+  static async saveReportedArticle(reportInfo) {
+    const report = await ReportedArticle.create(reportInfo);
+    return report;
+  }
+
+  /**
+* @function getReportedArticles
+* @param {object} conditions
+* @returns {object} article Reported
+*  @static
+*/
+  static async getReportedArticles() {
+    const reports = await ReportedArticle.findAndCountAll({
+      include: [{ model: Article, attributes: ['title'] }]
+    });
+
+    return reports;
+  }
+
+  /**
+  * @param  {object} req - Request object
+  * @returns {object} response
+  *  @static
+  */
+  static async getallHighlightedTextComment(req) {
+    const { slug } = req.params;
+    const article = await Article.findOne({
+      where: { slug }
+    });
+    if (article == null) {
+      return { error: 'The Article does not exist' };
+    }
+    const highlights = await ArticleHighlight.findAll({
+      where: { articleSlug: slug },
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+      ],
+      attributes: ['id', 'articleSlug', 'startIndex', 'endIndex', 'highlightedText', 'createdAt', 'updatedAt']
+    });
+    await Promise.all(highlights.map(async (highlight) => {
+      const { id } = highlight.dataValues;
+      const comments = await HighlightComment.findAll({
+        where: { highlightId: id },
+        include: [
+          { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+        ],
+        attributes: ['id', 'comment', 'createdAt', 'updatedAt']
+      });
+      highlight.dataValues.comments = comments;
+      return highlight;
+    }));
+
+    return highlights;
+  }
 }
+
 export default ArticleHelper;

@@ -54,6 +54,7 @@
     "sequelize-cli": "^5.4.0",
     "sinon": "^7.3.2",
     "slug": "^1.1.0",
+    "socket.io": "^2.2.0",
     "swagger-jsdoc": "^3.2.9",
     "swagger-ui-express": "^4.0.4",
     "underscore": "^1.9.1",

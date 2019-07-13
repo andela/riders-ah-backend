@@ -7,9 +7,9 @@ import session from 'express-session';
 import routes from './routes';
 import registerApiDocEndpoint from './config/swagger';
 import pass from './config/passport/localstrategy';
-import initNotification from './helpers/utils/eventHandlers';
+import initEventListener from './helpers/utils/eventHandlers';
 
-initNotification();
+initEventListener();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -27,20 +27,19 @@ app.use(
   })
 );
 
-
 // Normal express config defaults
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: '500mb', extended: false, parameterLimit: 500000 }));
+app.use(bodyParser.json({ limit: '500mb' }));
 app.use(passport.initialize());
 pass(passport);
-app.use(express.static(`${__dirname}/public`));
+app.use('/html', express.static(`${__dirname}/html`));
 
 if (!isProduction) {
   app.use(errorhandler());
 }
 
-registerApiDocEndpoint(app);
 
+registerApiDocEndpoint(app);
 app.use(routes);
 
 // / catch 404 and forward to error handler
@@ -53,13 +52,27 @@ app.use((req, res, next) => {
 // Handle application error
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.log(err.stack);
   let error = {};
   if (!isProduction) {
     error = err;
   }
   res.status(err.status || 500);
-
+  if (err.message === 'Validation error') {
+    res.json({
+      status: 409,
+      errors: {
+        body: error.errors[0].message
+      }
+    });
+  }
+  if (err.message === 'SequelizeDatabaseError') {
+    res.json({
+      status: 401,
+      errors: {
+        body: 'Unable to access database'
+      }
+    });
+  }
   res.json({
     errors: {
       message: err.message,
@@ -68,8 +81,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Normal express config defaults
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
 export default app;

@@ -7,6 +7,7 @@ import ArticleHelper from '../../../helpers/article';
 import ArticleMiddleware from '../../../middlewares/article';
 import Ratingcontroller from '../../../controllers/rating.controller';
 import statsController from '../../../controllers/read.stats.controller';
+import Role from '../../../middlewares/roles';
 
 const router = express.Router();
 
@@ -14,20 +15,26 @@ router.post(
   '/',
   Auth,
   ArticleHelper.isValidArticle,
-  articleController.createArticle
+  catchErrors(articleController.createArticle)
 );
 router.put(
   '/:slug',
   Auth,
   ArticleHelper.isOwner,
-  ArticleHelper.isValidUpdatedArticle,
-  articleController.updateArticle
+  catchErrors(ArticleHelper.isValidUpdatedArticle),
+  catchErrors(articleController.updateArticle)
 );
 router.delete(
   '/:slug',
   Auth,
   ArticleHelper.isOwner,
   articleController.deleteArticle
+);
+router.get(
+  '/reported',
+  Auth,
+  Role.isSuperAdmin,
+  catchErrors(articleController.getAllReportedArticle)
 );
 router.get('/:slug', articleController.getArticle);
 router.get(
@@ -41,7 +48,11 @@ router.post(
   ArticleMiddleware.checkRatedArticle,
   Ratingcontroller.rateArticle
 );
-router.get('/:slug/ratings', Auth, Ratingcontroller.getArticleRating);
+router.get(
+  '/:slug/ratings',
+  Auth,
+  catchErrors(Ratingcontroller.getArticleRating)
+);
 router.post(
   '/:slug/reaction/:option',
   Auth,
@@ -88,6 +99,39 @@ router.get(
   '/reading/statistics',
   Auth,
   statsController.getArticlesReadingStats
+);
+router.post(
+  '/:slug/highlight',
+  catchErrors(Auth),
+  catchErrors(ArticleHelper.isValidHighlightText),
+  catchErrors(articleController.highlightText)
+);
+router.get(
+  '/:slug/highlight',
+  catchErrors(Auth),
+  catchErrors(articleController.getHighlightText)
+);
+router.post(
+  '/:slug/report/:reportType',
+  Auth,
+  catchErrors(ArticleMiddleware.validateParams),
+  catchErrors(articleController.reportArticle)
+);
+router.get(
+  '/:slug/highlight/:highlightId/comment',
+  catchErrors(Auth),
+  catchErrors(articleController.getCommentHighlights)
+);
+router.get(
+  '/:slug/highlights/comments',
+  catchErrors(Auth),
+  catchErrors(articleController.getAllCommentHighlights)
+);
+router.post(
+  '/:slug/highlight/:highlightId/comment',
+  catchErrors(Auth),
+  catchErrors(ArticleHelper.isValidHighlightTextCommented),
+  catchErrors(articleController.addCommentHighlights)
 );
 
 export default router;

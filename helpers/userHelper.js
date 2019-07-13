@@ -183,6 +183,7 @@ class UserHelper {
    * Send verification email
    * @function sendVerificationEmail
    * @param  {string} email - user email
+   * @param  {string} token - token
    * @return {boolean} has sent
    * @static
    */
@@ -190,8 +191,8 @@ class UserHelper {
     const userToken = helper.tokenGenerator(30);
 
     const link = `${
-      process.env.BASE_URL
-    }/api/v1/users/verification?token=${userToken}&email=${email}`;
+      process.env.FRONTEND_URL
+    }/verification?token=${userToken}&email=${email}`;
     const info = {
       email,
       subject: 'Author Heaven Email Verification',
@@ -266,7 +267,7 @@ class UserHelper {
         'bio',
         'image',
         'roles',
-        'notification',
+        'notificationSettings',
         'createdAt',
         'updatedAt'
       ]

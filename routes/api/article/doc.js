@@ -459,3 +459,283 @@
  *       '404':
  *         articles not found
  */
+
+/**
+ * @swagger
+ * /articles/{slug}/highlight:
+ *   post:
+ *     tags:
+ *       - Highlight
+ *     name: Highlight
+ *     summary: User can highlight and comment an article's text
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: slug
+ *         in: path
+ *         schema:
+ *           type: integer
+ *         required:
+ *           - slug
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *       - name: body
+ *         in: body
+ *         schema:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *             articleSlug:
+ *               type: string
+ *             userId:
+ *               type: string
+ *             startIndex:
+ *               type: integer
+ *             endIndex:
+ *               type: integer
+ *             content:
+ *               type: string
+ *         required:
+ *           - startIndex
+ *           - endIndex
+ *           - content
+ *     responses:
+ *       '201':
+ *         description: Created
+ *       '400':
+ *         description: Bad Request
+ *       '404':
+ *         description: Article not found
+ *   Tag:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *       articleSlug:
+ *         type: string
+ *       required:
+ *         - name
+ *         - articleSlug
+ * @swagger
+ * /articles/{slug}/highlight:
+ *   get:
+ *     tags:
+ *       - Highlight
+ *     name: Highlight
+ *     summary: User get all highlight text on an article
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: slug
+ *         in: path
+ *         schema:
+ *           type: integer
+ *         required:
+ *           - slug
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '200':
+ *         description: Ok
+ *       '400':
+ *         description: Bad Request
+ *       '404':
+ *         description: Article not found
+ *   Tag:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: string
+ *       articleSlug:
+ *         type: string
+ *       required:
+ *         - name
+ *         - articleSlug
+ * @swagger
+ * /articles/highlight/{highlightId}/highlight:
+ *   post:
+ *     tags:
+ *       - Highlight
+ *     name: Highlight
+ *     summary: User can comment a highlighted text of an article
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: highlightId
+ *         in: path
+ *         schema:
+ *           type: integer
+ *         required:
+ *           - highlightId
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *       - name: body
+ *         in: body
+ *         schema:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *             userId:
+ *               type: integer
+ *             highlightId:
+ *               type: string
+ *             comment:
+ *               type: integer
+ *         required:
+ *           - comment
+ *     responses:
+ *       '201':
+ *         description: Created
+ *       '400':
+ *         description: Bad Request
+ *       '404':
+ *         description: Text highlighted not found
+ *   Tag:
+ *     type: object
+ *     properties:
+ *       name:
+ *         type: integer
+ *       highlightId:
+ *         type: integer
+ *       required:
+ *         - name
+ *         - highlightId
+ * @swagger
+ * /articles/highlight/{highlightId}/highlight:
+ *   get:
+ *     tags:
+ *       - Highlight
+ *     name: Highlight
+ *     summary: User get all comments on highlighted text on an article
+ *     produces:
+ *       - application/json
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - name: highlightId
+ *         in: path
+ *         schema:
+ *           type: integer
+ *         required:
+ *           - highlightId
+ *       - name: authorization
+ *         in: header
+ *         schema:
+ *           type: string
+ *         required:
+ *           - authorization
+ *     responses:
+ *       '200':
+ *         description: Ok
+ *       '400':
+ *         description: Bad Request
+ *       '404':
+ *         description: Highlighted text not found
+ */
+/**
+ * @swagger
+ * definitions:
+ *   ReportedArticle:
+ *     type: object
+ *     properties:
+ *       userId:
+ *         type: integer
+ *       articleId:
+ *         type: integer
+ *       reportType:
+ *         type: enum
+ *       reason:
+ *         type: text
+ */
+/**
+* @swagger
+*  /articles/{slug}/report/{reportType}:
+*   post:
+*     tags:
+*       - Report
+*     name: Report
+*     summary: User must be able to report an article.
+*     produces:
+*       - application/json
+*     consumes:
+*       - application/json
+*     parameters:
+*       - name: slug
+*         in: path
+*         schema:
+*           type: string
+*         required:
+*           - slug
+*       - name: reportType
+*         in: path
+*         schema:
+*           type: string
+*         required:
+*           - reportType
+*       - name: authorization
+*         in: header
+*         schema:
+*           type: string
+*         required:
+*           - authorization
+*       - name: reason
+*         in: reason
+*         schema:
+*           $ref: '#/definitions/ReportedArticle'
+*           type: object
+*           properties:
+*             reason:
+*               type: text
+*     responses:
+*       '201':
+*         description: Article reported
+*       '400':
+*         description: Bad Request
+*       '404':
+*         description: article not found
+*/
+/**
+* @swagger
+*  /articles/reported:
+*   get:
+*     tags:
+*       - Report
+*     name: Report
+*     summary: Get all reported articles
+*     produces:
+*       - application/json
+*     consumes:
+*       - application/json
+*     parameters:
+*       - name: authorization
+*         in: header
+*         schema:
+*           type: string
+*         required:
+*           - authorization
+*     responses:
+*       '200':
+*         description: ok
+*       '404':
+*         description: article not found
+*/

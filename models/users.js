@@ -45,9 +45,9 @@ const users = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true
       },
-      notification: {
+      notificationSettings: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        defaultValue: ['email', 'in-app', 'follower', 'articleFavorite']
+        defaultValue: ['receiveEmail', 'receiveInApp', 'onfollowPublish', 'onArticleFavoritedInteraction']
       },
       token: {
         type: DataTypes.STRING,
@@ -75,6 +75,10 @@ const users = (sequelize, DataTypes) => {
     User.hasMany(models.Bookmark, { foreignKey: 'userId' });
     User.hasMany(models.CommentFeedback, { as: 'liked', foreignKey: 'userId' });
     User.hasMany(models.ReadingStat, { foreignKey: 'userId' });
+    User.hasMany(models.Message, { as: 'sender', foreignKey: 'senderId' });
+    User.hasMany(models.ArticleHighlight, { foreignKey: 'userId' });
+    User.hasMany(models.HighlightComment, { foreignKey: 'userId' });
+    User.hasMany(models.ReportedArticle, { foreignKey: 'userId' });
   };
   User.addHook('afterValidate', (user) => {
     const isTesting = process.env.NODE_ENV === 'test';
