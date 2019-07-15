@@ -47,7 +47,12 @@ const users = (sequelize, DataTypes) => {
       },
       notificationSettings: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        defaultValue: ['receiveEmail', 'receiveInApp', 'onfollowPublish', 'onArticleFavoritedInteraction']
+        defaultValue: [
+          'receiveEmail',
+          'receiveInApp',
+          'onfollowPublish',
+          'onArticleFavoritedInteraction'
+        ]
       },
       token: {
         type: DataTypes.STRING,
@@ -56,7 +61,7 @@ const users = (sequelize, DataTypes) => {
       isVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
-      },
+      }
     },
     {}
   );

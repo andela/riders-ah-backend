@@ -80,6 +80,7 @@ class CommentHelper {
     const { slug } = req.params;
     const fetchedComments = await Comment.findAll({
       where: { titleSlug: slug },
+      order: [['createdAt', 'DESC']],
       include: [
         { model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
         {
@@ -93,14 +94,12 @@ class CommentHelper {
     if (!fetchedComments[0]) {
       return { errors: { body: ['no commemts found on this article'] } };
     }
-    await Promise.all(
-      fetchedComments.map(async (currentComment) => {
-        const commentId = currentComment.dataValues.id;
-        const commentHistories = await this.getCommentsHistories(commentId);
-        currentComment.dataValues.histories = commentHistories;
-        return currentComment;
-      })
-    );
+    await Promise.all(fetchedComments.map(async (currentComment) => {
+      const commentId = currentComment.dataValues.id;
+      const commentHistories = await this.getCommentsHistories(commentId);
+      currentComment.dataValues.histories = commentHistories;
+      return currentComment;
+    }));
     return fetchedComments;
   }
 
@@ -164,11 +163,29 @@ class CommentHelper {
     const { id } = req.params;
     await Comment.destroy({ where: { titleSlug: slug, id } });
     const destroyed = await Comment.findOne({ where: { titleSlug: slug, id } });
+    const remaining = await Comment.findAll({
+      where: { titleSlug: slug },
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
+        {
+          model: CommentFeedback,
+          as: 'like',
+          attributes: ['feedback', 'userId']
+        }
+      ],
+      attributes: ['id', 'createdAt', 'updatedAt', 'body']
+    });
     if (destroyed === null) {
       await CommentHistory.destroy({ where: { parentComment: id } });
-      return { message: `comment with id ${id} have been deleted` };
+      return {
+        message: `comment with id ${id} have been deleted`,
+        remainingComments: remaining
+      };
     }
-    return { message: `comment with id ${id} have failed to be deleted` };
+    return {
+      message: `comment with id ${id} have failed to be deleted`
+    };
   }
 
   /**
@@ -187,11 +204,24 @@ class CommentHelper {
     );
     await this.saveCommentHistory({ body: comment, parentComment: id });
 
-    const updatedComment = await Comment.findOne({ where: { id } });
+    const updatedComment = await Comment.findOne({
+      where: { id },
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
+        {
+          model: CommentFeedback,
+          as: 'like',
+          attributes: ['feedback', 'userId']
+        }
+      ],
+      attributes: ['id', 'createdAt', 'updatedAt', 'body']
+    });
     const commentHistories = await this.getCommentsHistories(id);
     updatedComment.dataValues.histories = commentHistories;
 
-    return { response: updatedComment };
+    const updatedComments = await this.getComments({ params: { slug } });
+
+    return { response: updatedComment, comments: updatedComments };
   }
 
   /**

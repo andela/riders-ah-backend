@@ -215,20 +215,18 @@ class UserHelper {
       where: { id: { [Sequelize.Op.ne]: userId } },
       attributes: ['id', 'username', 'bio', 'image']
     });
-    await Promise.all(
-      users.map(async (currentUser) => {
-        const conditions = {
-          following: userId,
-          follower: currentUser.dataValues.id
-        };
-        const userFollowing = await recordHelper.findRecord(
-          Follows,
-          conditions
-        );
-        currentUser.dataValues.following = !!userFollowing;
-        return currentUser;
-      })
-    );
+    await Promise.all(users.map(async (currentUser) => {
+      const conditions = {
+        following: userId,
+        follower: currentUser.dataValues.id
+      };
+      const userFollowing = await recordHelper.findRecord(
+        Follows,
+        conditions
+      );
+      currentUser.dataValues.following = !!userFollowing;
+      return currentUser;
+    }));
 
     return users;
   }
