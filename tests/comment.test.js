@@ -26,7 +26,8 @@ describe('create, read, update and delete comment tests', () => {
       email: 'bubble@andela.com',
       password: 'Fiston@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user)
       .end((err, res) => {
@@ -38,14 +39,17 @@ describe('create, read, update and delete comment tests', () => {
     const data = {
       body: 'testing comment'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-post/comments')
       .set('authorization', Token)
       .send(data)
       .end((err, res) => {
         res.should.have.status(400);
         res.body.should.be.a('object');
-        res.body.should.have.property('message').eql('there is no article with the slug specified in the URL');
+        res.body.should.have
+          .property('message')
+          .eql('there is no article with the slug specified in the URL');
         done();
       });
   });
@@ -53,7 +57,8 @@ describe('create, read, update and delete comment tests', () => {
     const data = {
       body: ' '
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -68,7 +73,8 @@ describe('create, read, update and delete comment tests', () => {
     const data = {
       body: 'testing comment'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -111,7 +117,8 @@ describe('test creation of first comment', () => {
       email: 'bubble@andela.com',
       password: 'Fiston@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user)
       .end((err, res) => {
@@ -123,7 +130,8 @@ describe('test creation of first comment', () => {
     const data = {
       body: 'testing comment'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -138,7 +146,8 @@ describe('test creation of first comment', () => {
     const data = {
       body: 'reply to the testing comment'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post(`/api/v1/article/comments/${commentId}/reply`)
       .set('authorization', Token)
       .send(data)
@@ -150,14 +159,17 @@ describe('test creation of first comment', () => {
         res.body.should.have.property('userId');
         res.body.should.have.property('replyid');
         res.body.should.have.property('titleSlug');
-        res.body.should.have.property('body').eql('reply to the testing comment');
+        res.body.should.have
+          .property('body')
+          .eql('reply to the testing comment');
         res.body.should.have.property('createdAt');
         res.body.should.have.property('updatedAt');
         done();
       });
   });
   it('should fetch all replies to the first comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .get(`/api/v1/article/comments/${commentId}/replies`)
       .set('authorization', Token)
       .end((err, res) => {
@@ -172,7 +184,8 @@ describe('test creation of first comment', () => {
     body: 'reply to update'
   };
   it('user updates one reply with a new reply', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .put(`/api/v1/article/comments/${commentId}/replies/${replyId}`)
       .set('authorization', Token)
       .send(newReply)
@@ -183,7 +196,9 @@ describe('test creation of first comment', () => {
         res.body.response.should.have.property('id').eql(replyId);
         res.body.response.should.have.property('replyid');
         res.body.response.should.have.property('userId');
-        res.body.response.should.have.property('titleSlug').eql('this-is-a-post');
+        res.body.response.should.have
+          .property('titleSlug')
+          .eql('this-is-a-post');
         res.body.response.should.have.property('body').eql('reply to update');
         res.body.response.should.have.property('createdAt');
         res.body.response.should.have.property('updatedAt');
@@ -191,13 +206,16 @@ describe('test creation of first comment', () => {
       });
   });
   it('user deletes one reply', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .delete(`/api/v1/article/comments/${commentId}/replies/${replyId}`)
       .set('authorization', Token)
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a('object');
-        res.body.should.have.property('message').eql(`reply with id ${replyId} have been deleted`);
+        res.body.should.have
+          .property('message')
+          .eql(`reply with id ${replyId} have been deleted`);
         done();
       });
   });
@@ -232,7 +250,8 @@ describe('test the get all comments', () => {
       email: 'bubble@andela.com',
       password: 'Password@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user1)
       .end((err, res) => {
@@ -244,7 +263,8 @@ describe('test the get all comments', () => {
     const data = {
       body: 'comment before'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -261,7 +281,8 @@ describe('test the get all comments', () => {
       createdAt: new Date(),
       updatedAt: new Date()
     });
-    chai.request(app)
+    chai
+      .request(app)
       .get('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .end((err, res) => {
@@ -302,7 +323,8 @@ describe('test the get one comment', () => {
       email: 'bubble@andela.com',
       password: 'Password@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user1)
       .end((err, res) => {
@@ -314,7 +336,8 @@ describe('test the get one comment', () => {
     const data = {
       body: 'comment to fetch'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -324,7 +347,8 @@ describe('test the get one comment', () => {
       });
   });
   it('user gets one comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .get(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token)
       .end((err, res) => {
@@ -362,7 +386,8 @@ describe('test the delete one comment', () => {
       email: 'bubble@andela.com',
       password: 'Password@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user1)
       .end((err, res) => {
@@ -374,7 +399,8 @@ describe('test the delete one comment', () => {
     const data = {
       body: 'comment to fetch'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -384,13 +410,16 @@ describe('test the delete one comment', () => {
       });
   });
   it('user deletes one comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .delete(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token)
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a('object');
-        res.body.should.have.property('message').eql(`comment with id ${commentId} have been deleted`);
+        res.body.should.have
+          .property('message')
+          .eql(`comment with id ${commentId} have been deleted`);
         done();
       });
   });
@@ -423,7 +452,8 @@ describe('test user delete comment they created', () => {
       email: 'bee@andela.com',
       password: 'PASSword@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user2)
       .end((err, res) => {
@@ -434,7 +464,8 @@ describe('test user delete comment they created', () => {
       email: 'bubble@andela.com',
       password: 'Password@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user1)
       .end((err, res) => {
@@ -446,7 +477,8 @@ describe('test user delete comment they created', () => {
     const data = {
       body: 'comment to fetch'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -456,13 +488,16 @@ describe('test user delete comment they created', () => {
       });
   });
   it('user deletes only comment they created', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .delete(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token2)
       .end((err, res) => {
         res.should.have.status(400);
         res.body.should.be.a('object');
-        res.body.should.have.property('message').eql('user alters comments they only created');
+        res.body.should.have
+          .property('message')
+          .eql('user alters comments they only created');
         done();
       });
   });
@@ -494,7 +529,8 @@ describe('test the update one comment', () => {
       email: 'bubble@andela.com',
       password: 'Password@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user1)
       .end((err, res) => {
@@ -506,7 +542,8 @@ describe('test the update one comment', () => {
     const data = {
       body: 'comment to fetch'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -516,7 +553,8 @@ describe('test the update one comment', () => {
       });
   });
   it('user updates one comment with an empty body', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .put(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token)
       .end((err, res) => {
@@ -524,8 +562,6 @@ describe('test the update one comment', () => {
         res.body.should.be.a('object');
         res.body.should.have.property('response');
         res.body.response.should.have.property('id').eql(commentId);
-        res.body.response.should.have.property('userId');
-        res.body.response.should.have.property('titleSlug').eql('this-is-a-post');
         res.body.response.should.have.property('body').eql('comment to fetch');
         res.body.response.should.have.property('createdAt');
         res.body.response.should.have.property('updatedAt');
@@ -560,7 +596,8 @@ describe('test the update one comment', () => {
       email: 'bubble@andela.com',
       password: 'Password@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user1)
       .end((err, res) => {
@@ -572,7 +609,8 @@ describe('test the update one comment', () => {
     const data = {
       body: 'comment to fetch'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -585,7 +623,8 @@ describe('test the update one comment', () => {
     body: 'comment to update'
   };
   it('user updates one comment with a new comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .put(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token)
       .send(newComment)
@@ -594,8 +633,6 @@ describe('test the update one comment', () => {
         res.body.should.be.a('object');
         res.body.should.have.property('response');
         res.body.response.should.have.property('id').eql(commentId);
-        res.body.response.should.have.property('userId');
-        res.body.response.should.have.property('titleSlug').eql('this-is-a-post');
         res.body.response.should.have.property('body').eql('comment to update');
         res.body.response.should.have.property('createdAt');
         res.body.response.should.have.property('updatedAt');
@@ -631,7 +668,8 @@ describe('test if updating user created the comment', () => {
       email: 'bee@andela.com',
       password: 'PASSword@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user2)
       .end((err, res) => {
@@ -642,7 +680,8 @@ describe('test if updating user created the comment', () => {
       email: 'bubble@andela.com',
       password: 'Password@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(user1)
       .end((err, res) => {
@@ -654,7 +693,8 @@ describe('test if updating user created the comment', () => {
     const data = {
       body: 'comment to fetch'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-a-post/comments')
       .set('authorization', Token)
       .send(data)
@@ -667,14 +707,17 @@ describe('test if updating user created the comment', () => {
     body: 'comment to update'
   };
   it('user should update a comment they created', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .put(`/api/v1/article/this-is-a-post/comments/${commentId}`)
       .set('authorization', Token2)
       .send(newComment)
       .end((err, res) => {
         res.should.have.status(400);
         res.body.should.be.a('object');
-        res.body.should.have.property('message').eql('user alters comments they only created');
+        res.body.should.have
+          .property('message')
+          .eql('user alters comments they only created');
         done();
       });
   });
@@ -706,7 +749,8 @@ describe('Test likes of a comment', () => {
       email: 'username@andela.com',
       password: 'Andela@123!'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/users/signup')
       .send(newUser)
       .end((err, res) => {
@@ -718,7 +762,8 @@ describe('Test likes of a comment', () => {
     const data = {
       body: 'a new comment'
     };
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/article/this-is-new/comments')
       .set('authorization', userToken)
       .send(data)
@@ -730,7 +775,8 @@ describe('Test likes of a comment', () => {
       });
   });
   it('should get comment edit histories', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .get(`/api/v1/article/this-is-new/comments/${comment}/histories`)
       .set('authorization', userToken)
       .end((err, res) => {
@@ -740,7 +786,8 @@ describe('Test likes of a comment', () => {
       });
   });
   it('User should be able to like a comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .post(`/api/v1/comments/${comment}/feedback/like`)
       .set('authorization', userToken)
       .end((err, res) => {
@@ -755,18 +802,22 @@ describe('Test likes of a comment', () => {
       });
   });
   it('Should not accept  wrong parameters', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .post(`/api/v1/comments/${comment}/feedback/likes`)
       .set('authorization', userToken)
       .end((err, res) => {
         res.should.have.status(422);
         res.body.should.be.a('object');
-        res.body.should.have.property('Error').eql('Only option must only be \'like\'');
+        res.body.should.have
+          .property('Error')
+          .eql("Only option must only be 'like'");
         done();
       });
   });
   it('Should not accept  unexesting comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .post('/api/v1/comments/1000000/feedback/like')
       .set('authorization', userToken)
       .end((err, res) => {
@@ -777,7 +828,8 @@ describe('Test likes of a comment', () => {
       });
   });
   it('Should get likes per comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .get(`/api/v1/articles/${comment}/likes`)
       .set('authorization', userToken)
       .end((err, res) => {
@@ -789,7 +841,8 @@ describe('Test likes of a comment', () => {
       });
   });
   it('Should not delete an unexistig comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .delete(`/api/v1/comments/${comment}`)
       .set('authorization', userToken)
       .end((err, res) => {
@@ -801,7 +854,8 @@ describe('Test likes of a comment', () => {
       });
   });
   it('Should delete a comment', (done) => {
-    chai.request(app)
+    chai
+      .request(app)
       .delete(`/api/v1/comments/${commentFeedbackId}`)
       .set('authorization', userToken)
       .end((err, res) => {

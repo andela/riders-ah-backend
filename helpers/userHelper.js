@@ -55,7 +55,9 @@ class UserHelper {
       firstName: Joi.string().required(),
       lastName: Joi.string().required(),
       username: Joi.string().required(),
-      email: Joi.string().email().required()
+      email: Joi.string()
+        .email()
+        .required()
     });
     const result = Joi.validate(req.body, schema);
     if (result.error) {
@@ -87,35 +89,55 @@ class UserHelper {
   }
 
   /**
-     * Create a user signup validation
-     * @param {string} req - request body
-     * @param {string} res - response body
-     * @param {string} next - Allow to proceed execution
-     * @return {string} Returns an error or allow to proceed execution
-     * @static
-     */
+   * Create a user signup validation
+   * @param {string} req - request body
+   * @param {string} res - response body
+   * @param {string} next - Allow to proceed execution
+   * @return {string} Returns an error or allow to proceed execution
+   * @static
+   */
   static async addUser(req, res, next) {
     const errorMessage = [];
-    let checkemail = '', checkusername = '';
+    let checkemail = '',
+      checkusername = '';
     const emailValidatior = helper.emailValidator(req.body.email);
     if (req.body.email) {
       checkemail = await User.findOne({ where: { email: req.body.email } });
     }
     if (req.body.username) {
-      checkusername = await User.findOne({ where: { username: req.body.username.replace(/\s+/g, '').trim() } });
+      checkusername = await User.findOne({
+        where: { username: req.body.username.replace(/\s+/g, '').trim() }
+      });
     }
-    const emailUsernameValidation = helper.emailUsernamevalidator(checkemail, checkusername);
-    if (req.body.email === undefined || req.body.email.length === 0) { errorMessage.push('Email is required'); }
-    if (req.body.username === undefined || req.body.username.length === 0) { errorMessage.push('Username is required'); }
-    if (emailValidatior !== true) { errorMessage.push(emailValidatior); }
+    const emailUsernameValidation = helper.emailUsernamevalidator(
+      checkemail,
+      checkusername
+    );
+    if (req.body.email === undefined || req.body.email.length === 0) {
+      errorMessage.push('Email is required');
+    }
+    if (req.body.username === undefined || req.body.username.length === 0) {
+      errorMessage.push('Username is required');
+    }
+    if (emailValidatior !== true) {
+      errorMessage.push(emailValidatior);
+    }
     if (req.body.firstName === undefined) {
-      if (req.body.password === undefined || req.body.password.length === 0) { errorMessage.push('Password is required'); }
+      if (req.body.password === undefined || req.body.password.length === 0) {
+        errorMessage.push('Password is required');
+      }
       const passwordValidator = helper.passwordValidator(req.body.password);
-      if (passwordValidator !== true) { errorMessage.push(passwordValidator); }
+      if (passwordValidator !== true) {
+        errorMessage.push(passwordValidator);
+      }
     }
-    if (emailUsernameValidation !== true) { errorMessage.push(emailUsernameValidation); }
+    if (emailUsernameValidation !== true) {
+      errorMessage.push(emailUsernameValidation);
+    }
     if (errorMessage.length) {
-      return res.status(400).json({ status: 400, errors: { body: errorMessage } });
+      return res
+        .status(400)
+        .json({ status: 400, errors: { body: errorMessage } });
     }
     next();
   }
@@ -129,23 +151,29 @@ class UserHelper {
    * @static
    */
   static async updateUser(user, conditions) {
-    const newUser = await User.update(user, { where: conditions }, { logging: false });
+    const newUser = await User.update(
+      user,
+      { where: conditions },
+      { logging: false }
+    );
     return newUser;
   }
 
   /**
-  * Create a user signup validation
-  * @param {string} req - request body
-  * @param {string} res - response body
-  * @param {string} next - Allow to proceed execution
-  * @return {string} Returns an error or allow to proceed execution
-  * @static
-  */
+   * Create a user signup validation
+   * @param {string} req - request body
+   * @param {string} res - response body
+   * @param {string} next - Allow to proceed execution
+   * @return {string} Returns an error or allow to proceed execution
+   * @static
+   */
   static async checkEmail(req, res, next) {
     if (req.body.email) {
       const email = await User.findOne({ where: { email: req.body.email } });
       if (email) {
-        return res.status(400).json({ status: 400, errors: 'Email already in use' });
+        return res
+          .status(400)
+          .json({ status: 400, errors: 'Email already in use' });
       }
     }
     next();
@@ -162,7 +190,9 @@ class UserHelper {
   static async sendVerificationEmail(email) {
     const userToken = helper.tokenGenerator(30);
 
-    const link = `${process.env.FRONTEND_URL}/verification?token=${userToken}&email=${email}`;
+    const link = `${
+      process.env.FRONTEND_URL
+    }/verification?token=${userToken}&email=${email}`;
     const info = {
       email,
       subject: 'Author Heaven Email Verification',
@@ -174,12 +204,12 @@ class UserHelper {
   }
 
   /**
-     * List users and followers
-     * @function usersList
-     * @param {string} userId - User ID
-     * @return {string} - Returns an array of users
-     * @static
-    */
+   * List users and followers
+   * @function usersList
+   * @param {string} userId - User ID
+   * @return {string} - Returns an array of users
+   * @static
+   */
   static async usersList(userId) {
     const users = await User.findAll({
       where: { id: { [Sequelize.Op.ne]: userId } },
@@ -187,9 +217,13 @@ class UserHelper {
     });
     await Promise.all(users.map(async (currentUser) => {
       const conditions = {
-        following: userId, follower: currentUser.dataValues.id
+        following: userId,
+        follower: currentUser.dataValues.id
       };
-      const userFollowing = await recordHelper.findRecord(Follows, conditions);
+      const userFollowing = await recordHelper.findRecord(
+        Follows,
+        conditions
+      );
       currentUser.dataValues.following = !!userFollowing;
       return currentUser;
     }));
@@ -198,12 +232,12 @@ class UserHelper {
   }
 
   /**
-     * List users and followers
-     * @function findUserByToken
-     * @param {string} jwtToken - User ID
-     * @return {number} - Return id of the user or null
-     * @static
-     */
+   * List users and followers
+   * @function findUserByToken
+   * @param {string} jwtToken - User ID
+   * @return {number} - Return id of the user or null
+   * @static
+   */
   static async findUserByToken(jwtToken) {
     let userId = null;
     if (jwtToken) {
@@ -240,66 +274,73 @@ class UserHelper {
   }
 
   /**
-     * Check if it is valid actiomn
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {boolean} Returns if true if it is valid else return false
-     * @static
-     */
+   * Check if it is valid actiomn
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {boolean} Returns if true if it is valid else return false
+   * @static
+   */
   static isValidAction(req, res, next) {
     const validValues = ['enable', 'disable'];
     if (validValues.indexOf(req.params.action) === -1) {
-      return res.status(422).send({ status: 422, Error: 'Only option must be enable or disable' });
+      return res
+        .status(422)
+        .send({ status: 422, Error: 'Only option must be enable or disable' });
     }
     next();
   }
 
   /**
-     * Check if action is already se
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {res} Returns  response
-     * @static
-     */
+   * Check if action is already se
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {res} Returns  response
+   * @static
+   */
   static async isItAlreadySet(req, res, next) {
     const { action, username } = req.params;
     const user = await User.findOne({ where: { username } });
     const isActive = action === 'enable';
     if (user) {
       if (isActive === user.isActive) {
-        return res.status(422).send({ status: 422, Error: 'Can not perform existing action' });
+        return res
+          .status(422)
+          .send({ status: 422, Error: 'Can not perform existing action' });
       }
     }
     next();
   }
 
   /**
-     * Check if  account is active
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @param {object} next - an object
-     * @return {res} Returns  response
-     * @static
-     */
+   * Check if  account is active
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @param {object} next - an object
+   * @return {res} Returns  response
+   * @static
+   */
   static async isAccountActive(req, res, next) {
     const user = await User.findOne({ where: { email: req.body.email } });
     if (user) {
       if (!user.isActive) {
-        return res.status(422).send({ status: 422, Error: ' Account disabled, please contact Administrator' });
+        return res.status(422).send({
+          status: 422,
+          Error: ' Account disabled, please contact Administrator'
+        });
       }
     }
     next();
   }
 
   /**
-     *  Return updated object
-     * @param {object} req - an object
-     * @param {object} res - an object
-     * @return {object} Return updated data
-     * @static
-     */
+   *  Return updated object
+   * @param {object} req - an object
+   * @param {object} res - an object
+   * @return {object} Return updated data
+   * @static
+   */
   static async enableOrDisableUser(req) {
     const { action, username } = req.params;
     const isActive = action === 'enable';
@@ -314,7 +355,7 @@ class UserHelper {
       firstName: updateUser[1].firstName,
       lastName: updateUser[1].lastName,
       email: updateUser[1].email,
-      isActive: updateUser[1].isActive,
+      isActive: updateUser[1].isActive
     };
     return newUserUpdated;
   }

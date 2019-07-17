@@ -13,7 +13,7 @@ class Comments {
    * @param {Object} res
    * @returns {Object} Object with the type of comment created and time
    * range between the last comment
-  */
+   */
   static async addComment(req, res) {
     const result = await commentHelper.createComment(req);
     return res.status(201).send({ comment: result });
@@ -24,7 +24,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with all comments on an article and their author
-  */
+   */
   static async getComments(req, res) {
     const allComments = await commentHelper.getComments(req);
     return res.status(200).send({ comments: allComments });
@@ -35,7 +35,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with one comment on an article and its author
-  */
+   */
   static async getOneComment(req, res) {
     const oneComment = await commentHelper.getOneComment(req);
     return res.status(200).send({ comment: oneComment });
@@ -46,7 +46,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {array} An array of comments histories
-  */
+   */
   static async getCommentHistories(req, res) {
     const commentId = req.params.id;
 
@@ -62,7 +62,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with one comment on an article and its author
-  */
+   */
   static async deleteOneComment(req, res) {
     const result = await commentHelper.deleteOneComment(req);
     return res.status(200).send(result);
@@ -73,7 +73,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with one comment on an article and its author
-  */
+   */
   static async updateOneComment(req, res) {
     const result = await commentHelper.updateOneComment(req);
     return res.status(201).send(result);
@@ -85,7 +85,7 @@ class Comments {
    * @param {Object} res
    * @returns {Object} Object with the type of comment created and time
    * range between the last comment
-  */
+   */
   static async replyComment(req, res) {
     const result = await commentHelper.replyComment(req);
     const replycomment = result.toJSON();
@@ -97,7 +97,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with all replies on a comment and the comment
-  */
+   */
   static async getCommentReplies(req, res) {
     const result = await commentHelper.getCommentReplies(req);
     return res.status(200).send(result);
@@ -108,7 +108,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with one comment on an article and its author
-  */
+   */
   static async deleteOneReply(req, res) {
     const result = await commentHelper.deleteOneReply(req);
     return res.status(200).send(result);
@@ -119,18 +119,18 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with one comment on an article and its author
-  */
+   */
   static async updateOneReply(req, res) {
     const result = await commentHelper.updateOneReply(req);
     return res.status(201).send(result);
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async reactOnComment(req, res) {
     const result = await commentHelper.createFeedback(req);
     const feedbackCreated = result.toJSON();
@@ -138,11 +138,11 @@ class Comments {
   }
 
   /**
- * @param  {object} req - Request object
- * @param {object} res - Response object
- * @returns {object} response
- *  @static
- */
+   * @param  {object} req - Request object
+   * @param {object} res - Response object
+   * @returns {object} response
+   *  @static
+   */
   static async getLikes(req, res) {
     const { numberOfLikes } = req.body;
     const result = await commentHelper.getLikes(req);
@@ -154,7 +154,7 @@ class Comments {
    * @param {Object} req
    * @param {Object} res
    * @returns {Object} Object with one comment on an article and its author
-  */
+   */
   static async deleteFeedback(req, res) {
     await commentHelper.deleteFeedback(req);
     return res.send({ message: { body: ['Deleted successfully'] } });
