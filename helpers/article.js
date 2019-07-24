@@ -40,7 +40,7 @@ class ArticleHelper {
    */
   static async createNewArticle(req) {
     const {
-      body, title, description, image, tags
+      body, title, description, category, image, tags
     } = req.body;
     const readingTime = readTime(body, title, description);
     const slug = ArticleHelper.createSlug(title);
@@ -55,6 +55,7 @@ class ArticleHelper {
       title,
       body,
       description,
+      category,
       image,
       readingTime,
       slug,
@@ -93,6 +94,7 @@ class ArticleHelper {
       body: Joi.string().required(),
       title: Joi.string().required(),
       description: Joi.string().required(),
+      category: Joi.string().required(),
       image: Joi.string().required(),
       tags: Joi.array().items(Joi.string())
     });
@@ -115,6 +117,7 @@ class ArticleHelper {
     const schema = Joi.object().keys({
       body: Joi.string().min(3),
       title: Joi.string().min(3),
+      category: Joi.string().min(3),
       description: Joi.string().min(3),
       image: Joi.string().min(3)
     });
@@ -230,7 +233,7 @@ class ArticleHelper {
           raw: true
         }
       ],
-      attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt', 'updatedAt']
+      attributes: ['id', 'authorId', 'slug', 'title', 'description', 'category', 'readingTime', 'body', 'image', 'createdAt', 'updatedAt']
     });
     const articlesWithTags = await tagHelper.addTagsToArticles(articles);
     return articlesWithTags;
@@ -258,6 +261,8 @@ class ArticleHelper {
         'description',
         'readingTime',
         'body',
+        'image',
+        'category',
         'createdAt',
         'updatedAt'
       ]

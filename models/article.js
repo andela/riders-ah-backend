@@ -10,6 +10,7 @@ const articles = (sequelize, DataTypes) => {
       title: DataTypes.STRING,
       body: DataTypes.TEXT,
       description: DataTypes.STRING,
+      category: DataTypes.STRING,
       readingTime: DataTypes.STRING,
       image: DataTypes.STRING,
       slug: {

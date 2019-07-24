@@ -67,6 +67,7 @@ describe('Test article', () => {
           expect(res.body.article).to.have.property('title');
           expect(res.body.article).to.have.property('body');
           expect(res.body.article).to.have.property('description');
+          expect(res.body.article).to.have.property('category');
           expect(res.body.article.title).equals('How Technology is Hijacking Your Mind');
           expect(res.body.article.description).equals('from a Magician and Google Design Ethicist');
           expect(res.body.article.body).equals('why I spent the last three years as a Design Ethicisted');

@@ -31,6 +31,7 @@ describe('test sharing an article on social media and gmail', () => {
       title: 'this is a post',
       body: 'this post is going to be used in testing',
       description: 'a despripton',
+      category: 'Music',
       image: 'http://image.com',
     };
     chai.request(app)
@@ -288,6 +289,7 @@ describe('test if article is already shared', () => {
       title: 'this post is not shared',
       body: 'this post is going to be used in testing for sharing',
       description: 'a despripton not shared',
+      category: 'shared',
       image: 'http://image.com/notShared',
     };
     chai.request(app)

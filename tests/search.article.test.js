@@ -28,6 +28,7 @@ describe('test search article by author', () => {
     const article = {
       title: 'How articles can be used in testing',
       description: 'trying to test',
+      category: 'test',
       body: 'search for this article by diffrent filtering',
       image: 'https/piimg.com'
     };
