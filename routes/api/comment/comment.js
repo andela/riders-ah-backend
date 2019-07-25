@@ -12,11 +12,7 @@ router.post(
   catchErrors(commentHelper.isValid),
   catchErrors(comment.addComment)
 );
-router.get(
-  '/:slug/comments',
-  catchErrors(Auth),
-  catchErrors(comment.getComments)
-);
+router.get('/:slug/comments', catchErrors(comment.getComments));
 router.get(
   '/:slug/comments/:id',
   catchErrors(Auth),
