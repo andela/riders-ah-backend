@@ -20,6 +20,7 @@ const anotherUsertest = {
 const articleTest = {
   title: 'This is the title of the article',
   description: 'This is the description of the acrticle',
+  category: 'Music',
   body: 'this is the body of the article',
   image: 'https/piimg.com/img.jpg'
 };
@@ -27,6 +28,7 @@ const articleTest = {
 const newArticleTest = {
   title: 'This is the new title of the article',
   description: 'This is the new description of the acrticle',
+  category: 'Music',
   body: 'this is the new body of the article',
   image: 'https/piimg.com/img.jpg'
 };

@@ -15,6 +15,9 @@ const articleMigrations = {
     description: {
       type: Sequelize.STRING
     },
+    category: {
+      type: Sequelize.STRING
+    },
     readingTime: {
       type: Sequelize.STRING,
       defaultValue: 0
