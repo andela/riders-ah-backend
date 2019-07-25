@@ -4,13 +4,13 @@ const readTime = (body, title, description) => {
   const time = Math.floor(countWords / wpm);
 
   if (time < 1) {
-    return 'read of less than a minute';
+    return 'less than a minute read';
   }
   if (time >= 1 && time < 2) {
-    return 'read of one minute';
+    return '1 minute read';
   }
 
-  return `read of ${time} minutes`;
+  return `${time} minutes read`;
 };
 
 export default readTime;
