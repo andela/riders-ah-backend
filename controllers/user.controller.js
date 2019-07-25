@@ -31,7 +31,7 @@ class UserController {
       );
       if (isValidPassword) {
         const token = helper.generateToken(userExist.dataValues);
-        return res.redirect(`${process.env.FRONTEND_URL}/articles?token=${token}&username=${req.user.username}`);
+        return res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}&username=${req.user.username}&image=${req.user.image}`);
       }
       return res.redirect(`${process.env.FRONTEND_URL}/verify/409`);
     }
@@ -47,7 +47,7 @@ class UserController {
       return res.status(500).send('Internal error');
     }
     const token = helper.generateToken(newUser.dataValues);
-    return res.redirect(`${process.env.FRONTEND_URL}/articles?token=${token}&username=${req.user.username}`);
+    return res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}&username=${req.user.username}`);
   }
 
   /**
