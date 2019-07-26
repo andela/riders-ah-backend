@@ -92,7 +92,7 @@ describe('Test article', () => {
         .get(`/api/v1/articles/${newGeneratedSlug}`)
         .end((error, res) => {
           expect(res.body.article.slug).equals(newGeneratedSlug);
-          expect(res.body.article.readingTime).equals('read of one minute');
+          expect(res.body.article.readingTime).equals('1 minute read');
           done();
         });
     });
@@ -113,7 +113,7 @@ describe('Test article', () => {
         .get(`/api/v1/articles/${thirdSlug}`)
         .end((error, res) => {
           expect(res.body.article.slug).equals(thirdSlug);
-          expect(res.body.article.readingTime).equals('read of 3 minutes');
+          expect(res.body.article.readingTime).equals('3 minutes read');
           done();
         });
     });
