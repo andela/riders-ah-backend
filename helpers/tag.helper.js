@@ -25,6 +25,7 @@ class TagHelper {
         description: currentArticle.description,
         readingTime: currentArticle.readingTime,
         body: currentArticle.body,
+        image: currentArticle.image,
         tagList: articleTags,
         author: currentArticle.author,
         createdAt: currentArticle.createdAt,

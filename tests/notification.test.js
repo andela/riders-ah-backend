@@ -12,6 +12,7 @@ const { expect } = chai;
 const article = {
   title: 'How Technology is Hijacking Your Mind',
   description: 'from a Magician and Google Design Ethicist',
+  category: 'New',
   body: 'why I spent the last three years as a Design Ethicisted',
   image: 'https/piimg.com'
 };

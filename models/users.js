@@ -23,7 +23,7 @@ const users = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         unique: true,
-        allowNull: false
+        allowNull: true
       },
       bio: {
         type: DataTypes.STRING,

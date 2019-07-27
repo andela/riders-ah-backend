@@ -14,6 +14,7 @@ const userTest = {
 const articleTest = {
   title: 'This is the title of the article',
   description: 'This is the description of the acrticle',
+  category: 'Technology',
   body: 'this is the body of the article',
   image: 'https/piimg.com/img.jpg'
 };

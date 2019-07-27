@@ -68,6 +68,7 @@ class CommentHelper {
       req,
       comment
     });
+    console.log(emitter);
     return comment;
   }
 

@@ -17,6 +17,7 @@ const userLogins = {
 const articleToReport = {
   title: 'How Technology is Hijacking Your Mind',
   description: 'from a Magician and Google Design Ethicist',
+  category: 'Test',
   body: 'why I spent the last three years as a Design Ethicisted',
   image: 'https/piimg.com',
   tags: ['tag1', 'tag2']
