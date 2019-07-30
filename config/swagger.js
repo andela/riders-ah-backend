@@ -1,6 +1,7 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerui from 'swagger-ui-express';
 
+
 const swaggerDefinition = {
   info: {
     title: 'Authors Haven',

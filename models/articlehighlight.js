@@ -29,6 +29,10 @@ const articleHighlight = (sequelize, DataTypes) => {
       highlightedText: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      blockId: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
     {}
