@@ -39,7 +39,6 @@ class ArticleHelper {
    * @static
    */
   static async createNewArticle(req) {
-    console.log(' req.body =============>', req.body);
     const {
       body, title, description, category, image, tags
     } = req.body;
