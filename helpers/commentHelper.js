@@ -95,14 +95,12 @@ class CommentHelper {
     if (!fetchedComments[0]) {
       return { errors: { body: ['no commemts found on this article'] } };
     }
-    await Promise.all(
-      fetchedComments.map(async (currentComment) => {
-        const commentId = currentComment.dataValues.id;
-        const commentHistories = await this.getCommentsHistories(commentId);
-        currentComment.dataValues.histories = commentHistories;
-        return currentComment;
-      })
-    );
+    await Promise.all(fetchedComments.map(async (currentComment) => {
+      const commentId = currentComment.dataValues.id;
+      const commentHistories = await this.getCommentsHistories(commentId);
+      currentComment.dataValues.histories = commentHistories;
+      return currentComment;
+    }));
     return fetchedComments;
   }
 

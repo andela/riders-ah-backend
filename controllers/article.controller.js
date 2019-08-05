@@ -238,9 +238,7 @@ class ArticleController {
         .status(200)
         .send({ message: 'this article has not been shared yet' });
     }
-    const numberOfSharesOnPlatform = await ArticleHelper.numberOfSharesOnPlatform(
-      shares
-    );
+    const numberOfSharesOnPlatform = await ArticleHelper.numberOfSharesOnPlatform(shares);
     const facebook = numberOfSharesOnPlatform[0];
     const twitter = numberOfSharesOnPlatform[1];
     const linkedin = numberOfSharesOnPlatform[2];
