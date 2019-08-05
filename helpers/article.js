@@ -2,7 +2,6 @@ import slugify from 'slug';
 import uniqid from 'uniqid';
 import Joi from 'joi';
 import open from 'open';
-import Sequelize from 'sequelize';
 import PassportHelper from './passport';
 import db from '../models';
 import emitter from './eventEmitters';
@@ -21,7 +20,6 @@ const {
   ReportedArticle
 } = db;
 
-const { Op } = Sequelize;
 /**
  * @author Samuel Niyitanga
  * @exports ArticleHelper
@@ -1219,6 +1217,7 @@ class ArticleHelper {
       startindex: Joi.number().required(),
       endindex: Joi.number().required(),
       highlightedtext: Joi.string().required(),
+      blockId: Joi.string().required(),
       comment: Joi.string()
     });
     const result = Joi.validate(req.body, schema, options);
@@ -1269,34 +1268,17 @@ class ArticleHelper {
   static async highlightedText(req) {
     let addComment = '';
     const {
-      highlightedtext, startindex, endindex, comment
+      highlightedtext, startindex, endindex, blockId, comment
     } = req.body;
     const errorMessage = [];
-    const isContentExist = await Article.findAll({
-      where: {
-        slug: req.params.slug,
-        body: {
-          [Op.like]: `%${highlightedtext}%`
-        }
-      }
-    });
-    if (!isContentExist.length) {
-      errorMessage.push('The text highlighted is not in the article');
-      return { error: errorMessage };
-    }
-    const contentLength = highlightedtext.split('').length;
-    const indexesLength = (endindex - startindex) + 1;
-    if (contentLength !== indexesLength) {
-      errorMessage.push('Highlighted Text Length does not match with the start and end index');
-      return { error: errorMessage };
-    }
     const isHighlightExist = await ArticleHighlight.findOne({
       where: {
         articleSlug: req.params.slug,
         userId: req.user.id,
         startIndex: startindex,
         endIndex: endindex,
-        highlightedText: highlightedtext
+        highlightedText: highlightedtext,
+        blockId
       }
     });
     if (isHighlightExist) {
@@ -1308,7 +1290,8 @@ class ArticleHelper {
       userId: req.user.id,
       startIndex: startindex,
       endIndex: endindex,
-      highlightedText: highlightedtext
+      highlightedText: highlightedtext,
+      blockId
     });
     if (comment) {
       addComment = await HighlightComment.create({
@@ -1328,7 +1311,9 @@ class ArticleHelper {
     const dataValues = {
       highlights,
       comment: comment ? addComment.comment : '',
-      author
+      author,
+      ...highlights,
+      HighlightComments: [{ comment: comment ? addComment.comment : '' }]
     };
     return dataValues;
   }
@@ -1346,16 +1331,9 @@ class ArticleHelper {
     }
     const result = await ArticleHighlight.findAll({
       where: { articleSlug: slug },
-      include: [
-        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
-      ],
-      attributes: [
-        'id',
-        'articleSlug',
-        'highlightedText',
-        'createdAt',
-        'updatedAt'
-      ]
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
+        { model: HighlightComment, attributes: ['comment', 'createdAt'] }],
+      attributes: ['id', 'articleSlug', 'startIndex', 'endIndex', 'highlightedText', 'blockId', 'createdAt', 'updatedAt']
     });
     return result;
   }
