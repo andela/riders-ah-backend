@@ -81,7 +81,7 @@ class ReadStatsHelper {
     });
     const stats = [];
     await Promise.all(articles.map(async (currentArticle) => {
-      const { id, slug } = currentArticle.dataValues;
+      const { id, slug, title } = currentArticle.dataValues;
       const registered = await ReadingStat.findAndCountAll({
         where: { articleId: id, userId: { [Sequelize.Op.ne]: null } },
         logging: false
@@ -110,6 +110,7 @@ class ReadStatsHelper {
       stats.push({
         id,
         slug,
+        title,
         notRegistered,
         registered: registered.count,
         totalViews,

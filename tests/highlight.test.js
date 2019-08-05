@@ -22,7 +22,8 @@ const articleTest = {
 const highlightTest = {
   startindex: 0,
   endindex: 15,
-  highlightedtext: 'this is the body'
+  highlightedtext: 'this is the body',
+  blockId: 'p1'
 };
 
 const commentOnHighlight = {
@@ -69,32 +70,10 @@ describe('Hightlight and comment a text in an article', () => {
       .set('authorization', toKen)
       .send(highlightTest)
       .end((error, res) => {
-        highlightedText = res.body.data.highlights.id;
+        highlightedText = res.body.data.id;
         expect(res.body).to.have.status(201);
-        expect(res.body.data).to.have.property('highlights');
-        expect(res.body.data).to.have.property('comment');
-        expect(res.body.data).to.have.property('author');
-        expect(res.body.data.highlights).to.have.property('id');
-        expect(res.body.data.highlights.articleSlug).equals(articleSlug);
-        expect(res.body.data.highlights.startIndex).equals(0);
-        expect(res.body.data.highlights.endIndex).equals(15);
-        expect(res.body.data.highlights.highlightedText).equals('this is the body');
-        done();
-      });
-  });
-  it('Highlighted Text length mismatch with the number of indexes', (done) => {
-    chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/highlight`)
-      .set('authorization', toKen)
-      .send({
-        startindex: 0,
-        endindex: 11,
-        highlightedtext: 'this is the body'
-      })
-      .end((error, res) => {
-        expect(res.body).to.have.status(400);
-        expect(res.body).to.have.property('errors');
-        expect(res.body.errors.body[0]).to.be.equals('Highlighted Text Length does not match with the start and end index');
+        expect(res.body.data).to.have.property('startIndex');
+        expect(res.body.data).to.have.property('endIndex');
         done();
       });
   });
@@ -209,47 +188,6 @@ describe('Hightlight and comment a text in an article', () => {
         expect(res.body).to.have.status(400);
         expect(res.body).to.have.property('errors');
         expect(res.body.errors.body[0]).to.be.equals('You have already highlighted this text');
-        done();
-      });
-  });
-  it('User cannot highlight unexisting text on an article', (done) => {
-    chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/highlight`)
-      .set('authorization', toKen)
-      .send({
-        startindex: 0,
-        endindex: 6,
-        highlightedtext: 'txtxtx',
-      })
-      .end((error, res) => {
-        expect(res.body).to.have.status(400);
-        expect(res.body).to.have.property('errors');
-        expect(res.body.errors.body[0]).to.be.equals('The text highlighted is not in the article');
-        done();
-      });
-  });
-  it('User highlight and comment a text on an article', (done) => {
-    chai.request(app)
-      .post(`/api/v1/articles/${articleSlug}/highlight`)
-      .set('authorization', toKen)
-      .send({
-        startindex: 0,
-        endindex: 6,
-        highlightedtext: 'body of',
-        comment: 'I not well spelled'
-      })
-      .end((error, res) => {
-        highlightedText = res.body.data.highlights.id;
-        expect(res.body).to.have.status(201);
-        expect(res.body.data).to.have.property('highlights');
-        expect(res.body.data).to.have.property('comment');
-        expect(res.body.data).to.have.property('author');
-        expect(res.body.data.highlights).to.have.property('id');
-        expect(res.body.data.highlights.articleSlug).equals(articleSlug);
-        expect(res.body.data.highlights.startIndex).equals(0);
-        expect(res.body.data.highlights.endIndex).equals(6);
-        expect(res.body.data.highlights.highlightedText).equals('body of');
-        expect(res.body.data.comment).equals('I not well spelled');
         done();
       });
   });

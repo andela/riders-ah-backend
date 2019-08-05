@@ -36,6 +36,10 @@ const articleHighlightsMigration = {
       allowNull: false,
       type: Sequelize.STRING
     },
+    blockId: {
+      allowNull: false,
+      type: Sequelize.STRING
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE

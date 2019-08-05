@@ -2,7 +2,6 @@ import slugify from 'slug';
 import uniqid from 'uniqid';
 import Joi from 'joi';
 import open from 'open';
-import Sequelize from 'sequelize';
 import PassportHelper from './passport';
 import db from '../models';
 import emitter from './eventEmitters';
@@ -10,10 +9,17 @@ import tagHelper from './tag.helper';
 import readTime from './readTime';
 
 const {
-  Article, User, Tag, Like, Share, Bookmark, ArticleHighlight, HighlightComment, ReportedArticle
+  Article,
+  User,
+  Tag,
+  Like,
+  Share,
+  Bookmark,
+  ArticleHighlight,
+  HighlightComment,
+  ReportedArticle
 } = db;
 
-const { Op } = Sequelize;
 /**
  * @author Samuel Niyitanga
  * @exports ArticleHelper
@@ -184,7 +190,9 @@ class ArticleHelper {
       update.title = title;
       update.slug = newslug;
     }
-    const updatedArticle = await Article.update(update, { where: { slug: req.params.slug } });
+    const updatedArticle = await Article.update(update, {
+      where: { slug: req.params.slug }
+    });
     return updatedArticle;
   }
 
@@ -196,7 +204,10 @@ class ArticleHelper {
    */
   static async deleteArticle(req) {
     const currentSlug = req.params.slug;
-    const deletedArticle = await Article.destroy({ where: { slug: currentSlug }, returning: true });
+    const deletedArticle = await Article.destroy({
+      where: { slug: currentSlug },
+      returning: true
+    });
     return deletedArticle;
   }
 
@@ -233,7 +244,19 @@ class ArticleHelper {
           raw: true
         }
       ],
-      attributes: ['id', 'authorId', 'slug', 'title', 'description', 'category', 'readingTime', 'body', 'image', 'createdAt', 'updatedAt']
+      attributes: [
+        'id',
+        'authorId',
+        'slug',
+        'title',
+        'description',
+        'category',
+        'readingTime',
+        'body',
+        'image',
+        'createdAt',
+        'updatedAt'
+      ]
     });
     const articlesWithTags = await tagHelper.addTagsToArticles(articles);
     return articlesWithTags;
@@ -284,26 +307,42 @@ class ArticleHelper {
     const { option } = req.params;
     const result = await Article.findOne({ where: { slug } });
     if (!result) {
-      return res.status(404).send({ message: `article with slug ${slug} do not exist` });
+      return res
+        .status(404)
+        .send({ message: `article with slug ${slug} do not exist` });
     }
-    const Result = await Like.findOne({ where: { titleSlug: slug, userId: id } });
+    const Result = await Like.findOne({
+      where: { titleSlug: slug, userId: id }
+    });
     if (!Result) {
       next();
       return true;
     }
     if (option === 'dislike' && Result.status === 'like') {
-      await Like.update({ status: 'dislike' }, { where: { titleSlug: slug, userId: id } });
+      await Like.update(
+        { status: 'dislike' },
+        { where: { titleSlug: slug, userId: id } }
+      );
       return res.status(200).send({ message: 'like is replaced by dislike' });
     }
     if (option === 'like' && Result.status === 'dislike') {
-      await Like.update({ status: 'like' }, { where: { titleSlug: slug, userId: id } });
+      await Like.update(
+        { status: 'like' },
+        { where: { titleSlug: slug, userId: id } }
+      );
       return res.status(200).send({ message: 'dislike is replaced by like' });
     }
     if (Result.status === 'neutral') {
-      await Like.update({ status: option }, { where: { titleSlug: slug, userId: id } });
+      await Like.update(
+        { status: option },
+        { where: { titleSlug: slug, userId: id } }
+      );
       return res.status(200).send({ message: 'reaction updated' });
     }
-    await Like.update({ status: 'neutral' }, { where: { titleSlug: slug, userId: id } });
+    await Like.update(
+      { status: 'neutral' },
+      { where: { titleSlug: slug, userId: id } }
+    );
     return res.status(200).send({ message: 'your reaction is now neutral' });
   }
 
@@ -320,7 +359,9 @@ class ArticleHelper {
     const { slug } = req.params;
     const result = await Like.findAll({
       where: { titleSlug: slug, status: 'like' },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+      ],
       attributes: ['id', 'titleSlug', 'status']
     });
     result.forEach(() => {
@@ -344,7 +385,9 @@ class ArticleHelper {
     const { slug } = req.params;
     const result = await Like.findAll({
       where: { titleSlug: slug, status: 'dislike' },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+      ],
       attributes: ['id', 'titleSlug', 'status']
     });
     result.forEach(() => {
@@ -383,7 +426,19 @@ class ArticleHelper {
     const { slug } = req.params;
     const likesFetched = await Like.findAll({
       where: { titleSlug: slug, status: 'like' },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image', 'email', 'notificationSettings'] }],
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: [
+            'username',
+            'bio',
+            'image',
+            'email',
+            'notificationSettings'
+          ]
+        }
+      ],
       attributes: ['id', 'titleSlug', 'status']
     });
     return likesFetched;
@@ -399,7 +454,9 @@ class ArticleHelper {
     const { slug } = req.params;
     const likesFetched = await Like.findAll({
       where: { titleSlug: slug, status: 'dislike' },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+      ],
       attributes: ['id', 'titleSlug', 'status']
     });
     return likesFetched;
@@ -435,7 +492,9 @@ class ArticleHelper {
    *  @static
    */
   static async listTags() {
-    const tagList = await Tag.aggregate('name', 'DISTINCT', { plain: false }).map(row => row.DISTINCT);
+    const tagList = await Tag.aggregate('name', 'DISTINCT', {
+      plain: false
+    }).map(row => row.DISTINCT);
     return tagList || [];
   }
 
@@ -454,7 +513,9 @@ class ArticleHelper {
       next();
       return true;
     }
-    return res.status(400).send({ errors: { body: ['invalid platform in path'] } });
+    return res
+      .status(400)
+      .send({ errors: { body: ['invalid platform in path'] } });
   }
 
   /**
@@ -476,39 +537,44 @@ class ArticleHelper {
     const { platform } = share;
     if (platform.includes(option)) {
       const updatePlatforms = platform.filter(result => result !== option);
-      await Share.update({ platform: updatePlatforms }, { where: { userId: id } });
-      return res
-        .status(200)
-        .send({ message: `your ${option} share is removed, you can share again` });
+      await Share.update(
+        { platform: updatePlatforms },
+        { where: { userId: id } }
+      );
+      return res.status(200).send({
+        message: `your ${option} share is removed, you can share again`
+      });
     }
     next();
     return true;
   }
 
   /**
- * function for creating bookmarks on articles
- * @function createBookmark
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { number } appropriate message
- */
+   * function for creating bookmarks on articles
+   * @function createBookmark
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { number } appropriate message
+   */
   static async articleToBookmark(req, res, next) {
     const { slug } = req.params;
     const article = await Article.findOne({ where: { slug } });
-    if (!article) { return res.status(404).send({ errors: { body: ['article not found'] } }); }
+    if (!article) {
+      return res.status(404).send({ errors: { body: ['article not found'] } });
+    }
     next();
     return true;
   }
 
   /**
- * function for creating bookmarks on articles
- * @function createBookmark
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { number } appropriate message
- */
+   * function for creating bookmarks on articles
+   * @function createBookmark
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { number } appropriate message
+   */
   static createBookmark(req, res, next) {
     const { slug } = req.params;
     const { id } = req.user;
@@ -517,11 +583,12 @@ class ArticleHelper {
       titleSlug: slug,
       createdAt: new Date(),
       updatedAt: new Date()
-    }).then((bookmark) => {
-      req.body.bookmark = bookmark;
-      next();
-      return true;
     })
+      .then((bookmark) => {
+        req.body.bookmark = bookmark;
+        next();
+        return true;
+      })
       .catch((error) => {
         req.body.bookmark = error.name;
         next();
@@ -530,10 +597,10 @@ class ArticleHelper {
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async shareArticle(req) {
     const { option } = req.params;
     const { slug } = req.params;
@@ -635,26 +702,46 @@ class ArticleHelper {
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async deleteBookmark(req) {
     const { slug } = req.params;
     const { id } = req.user;
     await Bookmark.destroy({ where: { userId: id, titleSlug: slug } });
-    return { message: `your bookmark is for article with slug ${slug} is removed, bookmark again` };
+    return {
+      message: `your bookmark is for article with slug ${slug} is removed, bookmark again`
+    };
   }
 
   /**
-  * @param  {number} id - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {number} id - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async getBookmarks(id) {
     const bookmarks = await Bookmark.findAll({
       where: { userId: id },
-      include: [{ model: Article, as: 'article', attributes: ['title', 'description', 'slug'] }],
+      include: [
+        {
+          model: Article,
+          as: 'article',
+          attributes: [
+            'title',
+            'description',
+            'slug',
+            'image',
+            'createdAt',
+            'readingTime'
+          ]
+        },
+        {
+          model: User,
+          as: 'author',
+          attributes: ['username']
+        }
+      ],
       attributes: ['id', 'userId', 'createdAt']
     });
     if (bookmarks.length < 1) {
@@ -664,187 +751,428 @@ class ArticleHelper {
   }
 
   /**
-  * @param  {object} param - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} param - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async searchArticle(param) {
     let result;
     if (param.username) {
       result = await Article.findAll({
-        include: [{
-          model: User, as: 'author', where: param, attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param,
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.title) {
       result = await Article.findAll({
         where: param,
-        include: [{
-          model: User, as: 'author', attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.name) {
       result = await Article.findAll({
-        include: [{
-          model: User, as: 'author', attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param, attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param,
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.keyword) {
       result = await Article.findAll({
         where: param.keyword,
-        include: [{
-          model: User, as: 'author', attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.authorTitle) {
       result = await Article.findAll({
         where: param.authorTitle[1],
-        include: [{
-          model: User, as: 'author', where: param.authorTitle[0], attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param.authorTitle[0],
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.authorTag) {
       result = await Article.findAll({
-        include: [{
-          model: User, as: 'author', where: param.authorTag[0], attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param.authorTag[1], attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param.authorTag[0],
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param.authorTag[1],
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.titleKeyword) {
       result = await Article.findAll({
         where: param.titleKeyword,
-        include: [{
-          model: User, as: 'author', attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.authorKeyword) {
       result = await Article.findAll({
         where: param.authorKeyword[1],
-        include: [{
-          model: User, as: 'author', where: param.authorKeyword[0], attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param.authorKeyword[0],
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.titleTag) {
       result = await Article.findAll({
         where: param.titleTag[0],
-        include: [{
-          model: User, as: 'author', attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param.titleTag[1], attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param.titleTag[1],
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.tagKeyword) {
       result = await Article.findAll({
         where: param.tagKeyword[1],
-        include: [{
-          model: User, as: 'author', attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param.tagKeyword[0], attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param.tagKeyword[0],
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.authorTitleTag) {
       result = await Article.findAll({
         where: param.authorTitleTag[1],
-        include: [{
-          model: User, as: 'author', where: param.authorTitleTag[0], attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param.authorTitleTag[2], attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param.authorTitleTag[0],
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param.authorTitleTag[2],
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.authorTitleKeyword) {
       result = await Article.findAll({
         where: param.authorTitleKeyword[1],
-        include: [{
-          model: User, as: 'author', where: param.authorTitleKeyword[0], attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param.authorTitleKeyword[0],
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.titleTagKeyword) {
       result = await Article.findAll({
         where: param.titleTagKeyword[0],
-        include: [{
-          model: User, as: 'author', attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param.titleTagKeyword[1], attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param.titleTagKeyword[1],
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.authorTagKeyword) {
       result = await Article.findAll({
         where: param.authorTagKeyword[2],
-        include: [{
-          model: User, as: 'author', where: param.authorTagKeyword[0], attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param.authorTagKeyword[1], attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param.authorTagKeyword[0],
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param.authorTagKeyword[1],
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     if (param.allParams) {
       result = await Article.findAll({
         where: param.allParams[1],
-        include: [{
-          model: User, as: 'author', where: param.allParams[0], attributes: ['username', 'bio', 'image']
-        },
-        {
-          model: Tag, as: 'tagList', where: param.allParams[2], attributes: ['name']
-        }],
-        attributes: ['id', 'authorId', 'slug', 'title', 'description', 'readingTime', 'body', 'createdAt']
+        include: [
+          {
+            model: User,
+            as: 'author',
+            where: param.allParams[0],
+            attributes: ['username', 'bio', 'image']
+          },
+          {
+            model: Tag,
+            as: 'tagList',
+            where: param.allParams[2],
+            attributes: ['name']
+          }
+        ],
+        attributes: [
+          'id',
+          'authorId',
+          'slug',
+          'title',
+          'description',
+          'readingTime',
+          'body',
+          'createdAt'
+        ]
       });
     }
     return result;
@@ -877,7 +1205,9 @@ class ArticleHelper {
     const { slug } = req.params;
     const article = await ArticleHelper.findArticleBySlug(slug);
     if (!article) {
-      return res.status(404).send({ status: 404, errors: { body: ['article not found'] } });
+      return res
+        .status(404)
+        .send({ status: 404, errors: { body: ['article not found'] } });
     }
     const options = {
       allowUnknown: true,
@@ -887,6 +1217,7 @@ class ArticleHelper {
       startindex: Joi.number().required(),
       endindex: Joi.number().required(),
       highlightedtext: Joi.string().required(),
+      blockId: Joi.string().required(),
       comment: Joi.string()
     });
     const result = Joi.validate(req.body, schema, options);
@@ -910,7 +1241,10 @@ class ArticleHelper {
       where: { id: highlightId, articleSlug: slug }
     });
     if (!highlight) {
-      return res.status(404).send({ status: 404, errors: { body: ['The Highlighted text does not exist'] } });
+      return res.status(404).send({
+        status: 404,
+        errors: { body: ['The Highlighted text does not exist'] }
+      });
     }
     const options = {
       allowUnknown: true,
@@ -927,41 +1261,24 @@ class ArticleHelper {
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async highlightedText(req) {
     let addComment = '';
     const {
-      highlightedtext, startindex, endindex, comment
+      highlightedtext, startindex, endindex, blockId, comment
     } = req.body;
     const errorMessage = [];
-    const isContentExist = await Article.findAll({
-      where: {
-        slug: req.params.slug,
-        body: {
-          [Op.like]: `%${highlightedtext}%`
-        }
-      }
-    });
-    if (!isContentExist.length) {
-      errorMessage.push('The text highlighted is not in the article');
-      return { error: errorMessage };
-    }
-    const contentLength = highlightedtext.split('').length;
-    const indexesLength = (endindex - startindex) + 1;
-    if (contentLength !== indexesLength) {
-      errorMessage.push('Highlighted Text Length does not match with the start and end index');
-      return { error: errorMessage };
-    }
     const isHighlightExist = await ArticleHighlight.findOne({
       where: {
         articleSlug: req.params.slug,
         userId: req.user.id,
         startIndex: startindex,
         endIndex: endindex,
-        highlightedText: highlightedtext
+        highlightedText: highlightedtext,
+        blockId
       }
     });
     if (isHighlightExist) {
@@ -973,7 +1290,8 @@ class ArticleHelper {
       userId: req.user.id,
       startIndex: startindex,
       endIndex: endindex,
-      highlightedText: highlightedtext
+      highlightedText: highlightedtext,
+      blockId
     });
     if (comment) {
       addComment = await HighlightComment.create({
@@ -991,16 +1309,20 @@ class ArticleHelper {
       image: articleAuthor.image
     };
     const dataValues = {
-      highlights, comment: comment ? addComment.comment : '', author
+      highlights,
+      comment: comment ? addComment.comment : '',
+      author,
+      ...highlights,
+      HighlightComments: [{ comment: comment ? addComment.comment : '' }]
     };
     return dataValues;
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async getHighlightedText(req) {
     const { slug } = req.params;
     const article = await ArticleHelper.findArticleBySlug(slug);
@@ -1009,17 +1331,18 @@ class ArticleHelper {
     }
     const result = await ArticleHighlight.findAll({
       where: { articleSlug: slug },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
-      attributes: ['id', 'articleSlug', 'highlightedText', 'createdAt', 'updatedAt']
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
+        { model: HighlightComment, attributes: ['comment', 'createdAt'] }],
+      attributes: ['id', 'articleSlug', 'startIndex', 'endIndex', 'highlightedText', 'blockId', 'createdAt', 'updatedAt']
     });
     return result;
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async getHighlightedTextComment(req) {
     const { highlightId, slug } = req.params;
     const highlight = await ArticleHighlight.findOne({
@@ -1031,7 +1354,11 @@ class ArticleHelper {
     const result = await HighlightComment.findAll({
       where: { highlightId },
       include: [
-        { model: ArticleHighlight, as: 'highlight', attributes: ['articleSlug', 'highlightedText'] },
+        {
+          model: ArticleHighlight,
+          as: 'highlight',
+          attributes: ['articleSlug', 'highlightedText']
+        },
         { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
       ],
       attributes: ['id', 'comment', 'createdAt', 'updatedAt']
@@ -1040,10 +1367,10 @@ class ArticleHelper {
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async commentHighlighedText(req) {
     const { highlightId } = req.params;
     const addComment = await HighlightComment.create({
@@ -1060,28 +1387,29 @@ class ArticleHelper {
       image: articleAuthor.image
     };
     const dataValues = {
-      comment: createdComment, author
+      comment: createdComment,
+      author
     };
     return dataValues;
   }
 
   /**
-  * @function saveReportedArticle
-  * @param {object} reportInfo
-  * @returns {object} article Reported
-  *  @static
-  */
+   * @function saveReportedArticle
+   * @param {object} reportInfo
+   * @returns {object} article Reported
+   *  @static
+   */
   static async saveReportedArticle(reportInfo) {
     const report = await ReportedArticle.create(reportInfo);
     return report;
   }
 
   /**
-* @function getReportedArticles
-* @param {object} conditions
-* @returns {object} article Reported
-*  @static
-*/
+   * @function getReportedArticles
+   * @param {object} conditions
+   * @returns {object} article Reported
+   *  @static
+   */
   static async getReportedArticles() {
     const reports = await ReportedArticle.findAndCountAll({
       include: [{ model: Article, attributes: ['title'] }]
@@ -1091,10 +1419,10 @@ class ArticleHelper {
   }
 
   /**
-  * @param  {object} req - Request object
-  * @returns {object} response
-  *  @static
-  */
+   * @param  {object} req - Request object
+   * @returns {object} response
+   *  @static
+   */
   static async getallHighlightedTextComment(req) {
     const { slug } = req.params;
     const article = await Article.findOne({
@@ -1108,14 +1436,26 @@ class ArticleHelper {
       include: [
         { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
       ],
-      attributes: ['id', 'articleSlug', 'startIndex', 'endIndex', 'highlightedText', 'createdAt', 'updatedAt']
+      attributes: [
+        'id',
+        'articleSlug',
+        'startIndex',
+        'endIndex',
+        'highlightedText',
+        'createdAt',
+        'updatedAt'
+      ]
     });
     await Promise.all(highlights.map(async (highlight) => {
       const { id } = highlight.dataValues;
       const comments = await HighlightComment.findAll({
         where: { highlightId: id },
         include: [
-          { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
+          {
+            model: User,
+            as: 'author',
+            attributes: ['username', 'bio', 'image']
+          }
         ],
         attributes: ['id', 'comment', 'createdAt', 'updatedAt']
       });
