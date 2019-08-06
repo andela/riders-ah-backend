@@ -25,7 +25,7 @@ class messageHelper {
       include: [
         {
           model: User,
-          attributes: ['username']
+          attributes: ['username', 'image']
         }
       ],
       attributes: ['message', 'createdAt']
