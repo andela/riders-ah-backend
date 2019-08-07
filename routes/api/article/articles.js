@@ -50,7 +50,6 @@ router.post(
 );
 router.get(
   '/:slug/ratings',
-  Auth,
   catchErrors(Ratingcontroller.getArticleRating)
 );
 router.post(
@@ -61,13 +60,11 @@ router.post(
 );
 router.get(
   '/:slug/likes',
-  Auth,
   ArticleHelper.likesNumber,
   articleController.getLikes
 );
 router.get(
   '/:slug/dislikes',
-  Auth,
   ArticleHelper.dislikesNumber,
   articleController.getDislikes
 );
