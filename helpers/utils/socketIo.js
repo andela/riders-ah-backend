@@ -24,13 +24,25 @@ const SocketIO = (app) => {
     socket.on('new_message', async (data) => {
       const userId = await userHelper.findUserByToken(data.token);
       const user = await User.findOne({ where: { id: userId } });
-      const { username } = user.dataValues;
+      const { username, image } = user.dataValues;
       const saveMessage = await Message.create({
         senderId: userId,
         message: data.message
       });
-      if (!saveMessage) socket.emit('message_failed', { error: 'Last message was not sent' });
-      socket.emit('message_created', { message: data.message, username });
+      if (!saveMessage) {
+        socket.emit('message_failed', { error: 'Last message was not sent' });
+      } else {
+        socket.broadcast.emit('message_created', {
+          message: data.message,
+          User: { username, image },
+          createdAt: saveMessage.dataValues.createdAt
+        });
+        socket.emit('message_created', {
+          message: data.message,
+          User: { username, image },
+          createdAt: saveMessage.dataValues.createdAt
+        });
+      }
     });
     socket.on('disconnect', () => {});
   });
