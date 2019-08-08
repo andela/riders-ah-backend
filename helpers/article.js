@@ -244,6 +244,7 @@ class ArticleHelper {
           raw: true
         }
       ],
+      order: [['createdAt', 'DESC']],
       attributes: [
         'id',
         'authorId',
@@ -307,9 +308,7 @@ class ArticleHelper {
     const { option } = req.params;
     const result = await Article.findOne({ where: { slug } });
     if (!result) {
-      return res
-        .status(404)
-        .send({ message: `article with slug ${slug} do not exist` });
+      return res.status(404).send({ message: `article with slug ${slug} do not exist` });
     }
     const Result = await Like.findOne({
       where: { titleSlug: slug, userId: id }
@@ -319,30 +318,18 @@ class ArticleHelper {
       return true;
     }
     if (option === 'dislike' && Result.status === 'like') {
-      await Like.update(
-        { status: 'dislike' },
-        { where: { titleSlug: slug, userId: id } }
-      );
+      await Like.update({ status: 'dislike' }, { where: { titleSlug: slug, userId: id } });
       return res.status(200).send({ message: 'like is replaced by dislike' });
     }
     if (option === 'like' && Result.status === 'dislike') {
-      await Like.update(
-        { status: 'like' },
-        { where: { titleSlug: slug, userId: id } }
-      );
+      await Like.update({ status: 'like' }, { where: { titleSlug: slug, userId: id } });
       return res.status(200).send({ message: 'dislike is replaced by like' });
     }
     if (Result.status === 'neutral') {
-      await Like.update(
-        { status: option },
-        { where: { titleSlug: slug, userId: id } }
-      );
+      await Like.update({ status: option }, { where: { titleSlug: slug, userId: id } });
       return res.status(200).send({ message: 'reaction updated' });
     }
-    await Like.update(
-      { status: 'neutral' },
-      { where: { titleSlug: slug, userId: id } }
-    );
+    await Like.update({ status: 'neutral' }, { where: { titleSlug: slug, userId: id } });
     return res.status(200).send({ message: 'your reaction is now neutral' });
   }
 
@@ -359,9 +346,7 @@ class ArticleHelper {
     const { slug } = req.params;
     const result = await Like.findAll({
       where: { titleSlug: slug, status: 'like' },
-      include: [
-        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
-      ],
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
       attributes: ['id', 'titleSlug', 'status']
     });
     result.forEach(() => {
@@ -385,9 +370,7 @@ class ArticleHelper {
     const { slug } = req.params;
     const result = await Like.findAll({
       where: { titleSlug: slug, status: 'dislike' },
-      include: [
-        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
-      ],
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
       attributes: ['id', 'titleSlug', 'status']
     });
     result.forEach(() => {
@@ -430,13 +413,7 @@ class ArticleHelper {
         {
           model: User,
           as: 'author',
-          attributes: [
-            'username',
-            'bio',
-            'image',
-            'email',
-            'notificationSettings'
-          ]
+          attributes: ['username', 'bio', 'image', 'email', 'notificationSettings']
         }
       ],
       attributes: ['id', 'titleSlug', 'status']
@@ -454,9 +431,7 @@ class ArticleHelper {
     const { slug } = req.params;
     const likesFetched = await Like.findAll({
       where: { titleSlug: slug, status: 'dislike' },
-      include: [
-        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
-      ],
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
       attributes: ['id', 'titleSlug', 'status']
     });
     return likesFetched;
@@ -513,9 +488,7 @@ class ArticleHelper {
       next();
       return true;
     }
-    return res
-      .status(400)
-      .send({ errors: { body: ['invalid platform in path'] } });
+    return res.status(400).send({ errors: { body: ['invalid platform in path'] } });
   }
 
   /**
@@ -537,10 +510,7 @@ class ArticleHelper {
     const { platform } = share;
     if (platform.includes(option)) {
       const updatePlatforms = platform.filter(result => result !== option);
-      await Share.update(
-        { platform: updatePlatforms },
-        { where: { userId: id } }
-      );
+      await Share.update({ platform: updatePlatforms }, { where: { userId: id } });
       return res.status(200).send({
         message: `your ${option} share is removed, you can share again`
       });
@@ -727,14 +697,7 @@ class ArticleHelper {
         {
           model: Article,
           as: 'article',
-          attributes: [
-            'title',
-            'description',
-            'slug',
-            'image',
-            'createdAt',
-            'readingTime'
-          ]
+          attributes: ['title', 'description', 'slug', 'image', 'createdAt', 'readingTime']
         },
         {
           model: User,
@@ -778,6 +741,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -805,6 +769,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -832,6 +797,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -859,6 +825,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -887,6 +854,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -915,6 +883,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -942,6 +911,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -970,6 +940,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -998,6 +969,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -1026,6 +998,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -1055,6 +1028,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -1083,6 +1057,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -1111,6 +1086,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -1140,6 +1116,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -1169,6 +1146,7 @@ class ArticleHelper {
           'slug',
           'title',
           'description',
+          'category',
           'readingTime',
           'body',
           'createdAt'
@@ -1205,9 +1183,7 @@ class ArticleHelper {
     const { slug } = req.params;
     const article = await ArticleHelper.findArticleBySlug(slug);
     if (!article) {
-      return res
-        .status(404)
-        .send({ status: 404, errors: { body: ['article not found'] } });
+      return res.status(404).send({ status: 404, errors: { body: ['article not found'] } });
     }
     const options = {
       allowUnknown: true,
@@ -1331,9 +1307,20 @@ class ArticleHelper {
     }
     const result = await ArticleHighlight.findAll({
       where: { articleSlug: slug },
-      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
-        { model: HighlightComment, attributes: ['comment', 'createdAt'] }],
-      attributes: ['id', 'articleSlug', 'startIndex', 'endIndex', 'highlightedText', 'blockId', 'createdAt', 'updatedAt']
+      include: [
+        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] },
+        { model: HighlightComment, attributes: ['comment', 'createdAt'] }
+      ],
+      attributes: [
+        'id',
+        'articleSlug',
+        'startIndex',
+        'endIndex',
+        'highlightedText',
+        'blockId',
+        'createdAt',
+        'updatedAt'
+      ]
     });
     return result;
   }
@@ -1433,9 +1420,7 @@ class ArticleHelper {
     }
     const highlights = await ArticleHighlight.findAll({
       where: { articleSlug: slug },
-      include: [
-        { model: User, as: 'author', attributes: ['username', 'bio', 'image'] }
-      ],
+      include: [{ model: User, as: 'author', attributes: ['username', 'bio', 'image'] }],
       attributes: [
         'id',
         'articleSlug',

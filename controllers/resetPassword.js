@@ -49,7 +49,14 @@ class Password {
         return res.status(400).send({ message: `no user with email ${email} found` });
       }
       const userDetails = {
-        id: user.id
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        image: user.image,
+        bio: user.bio,
+        notificationSettings: user.notificationSettings
       };
       const token = Helper.generateToken(userDetails);
       const url = `${process.env.FRONTEND_URL}/completReset/${token}`;
