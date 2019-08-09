@@ -191,6 +191,7 @@ class NotificationHelper {
   static async getByUser(req) {
     const article = await Notification.findAll({
       where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']],
       include: [{
         model: User,
         as: 'user',

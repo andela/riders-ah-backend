@@ -23,6 +23,7 @@ class TagHelper {
         slug: currentArticle.slug,
         title: currentArticle.title,
         description: currentArticle.description,
+        category: currentArticle.category,
         readingTime: currentArticle.readingTime,
         body: currentArticle.body,
         image: currentArticle.image,
